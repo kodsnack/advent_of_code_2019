@@ -14,23 +14,33 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 ## End of header boilerplate ###################################################
 
+def fuelForMass(mass):
+    return mass//3 - 2
+
+def fuelForAllMass(mass):
+    fuelForThisMass = fuelForMass(mass)
+    if fuelForThisMass <= 0:
+        return 0
+    return fuelForThisMass + fuelForAllMass(fuelForThisMass)
+
 def part1(pinp):
-    return "<solution1>"
+    return sum([fuelForMass(mass[0]) for mass in pinp])
 
 def part2(pinp):
-    return "<solution2>"
+    return sum([fuelForAllMass(mass[0]) for mass in pinp])
 
 ## Start of footer boilerplate #################################################
 
 if __name__ == "__main__":
     inp = readInput()
 
-    
-    parseInp = fileParse(inp)
+    ## Update for input specifics ##############################################
+    parseInp = fileParse(inp, ff=int)
 
     print("Input is '" + str(parseInp[:10]) + 
           ('...' if len(parseInp)>10 else '') + "'")
-    print("Solution to part 1: " + part1(parseInp))
-    print("Solution to part 2: " + part2(parseInp))
+    
+    print("Solution to part 1: {}".format(part1(parseInp)))
+    print("Solution to part 2: {}".format(part2(parseInp)))
 
 ## End of footer boilerplate ###################################################
