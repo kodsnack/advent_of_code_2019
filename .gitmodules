@@ -1,0 +1,3 @@
+[submodule "emlun-rust"]
+	path = emlun-rust
+	url = https://github.com/emlun/adventofcode-2019.git
