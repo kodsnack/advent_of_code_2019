@@ -13,11 +13,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	var part1 int64
+	var part1, part2 int64
 	for _, v := range parseInput(data) {
-		part1 += getMass(v)
+		i := getMass(v)
+		part2 += getFuel(i)
+		part1 += i
+
 	}
-	fmt.Println(part1)
+	fmt.Println(part1, part2)
 }
 
 func parseInput(str string) []string {
@@ -29,4 +32,12 @@ func getMass(str string) int64 {
 	weight, _ := strconv.Atoi(str)
 	step1 := float64(weight) / 3
 	return int64(step1) - 2
+}
+
+func getFuel(mass int64) (fuel int64) {
+	fuel = mass
+	for i := int64(float64(mass)/3) - 2; fuel > 0 && i > 0; i = int64(float64(i)/3) - 2 {
+		fuel += i
+	}
+	return
 }
