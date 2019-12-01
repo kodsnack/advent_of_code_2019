@@ -6,10 +6,10 @@ fn fuelneed(mass: i32) -> i32 {
     let fuel = mass / 3 - 2;
 
     if fuel <= 0 {
-        return 0;
+        0
+    } else {
+        fuel + fuelneed(fuel)
     }
-
-    return fuel + fuelneed(fuel);
 }
 
 fn main() {
