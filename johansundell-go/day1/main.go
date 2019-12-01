@@ -14,18 +14,13 @@ func main() {
 		panic(err)
 	}
 	var part1, part2 int64
-	for _, v := range parseInput(data) {
+	for _, v := range strings.Split(data, "\n") {
 		i := getMass(v)
 		part2 += getFuel(i)
 		part1 += i
 
 	}
 	fmt.Println(part1, part2)
-}
-
-func parseInput(str string) []string {
-	s := strings.Split(str, "\n")
-	return s
 }
 
 func getMass(str string) int64 {
