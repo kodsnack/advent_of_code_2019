@@ -1,0 +1,3 @@
+[submodule "prositen-python"]
+	path = prositen-python
+	url = git@github.com:prositen/advent-of-code.git
