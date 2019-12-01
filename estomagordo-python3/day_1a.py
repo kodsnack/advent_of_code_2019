@@ -5,12 +5,12 @@ from collections import Counter, defaultdict
 
 
 def solve(d):
-    pass
+    return sum(x // 3 - 2 for x in d)
 	
 
 def read_and_solve():
 	with open('input_1.txt') as f:
-		data = [line.rstrip() for line in f]
+		data = [int(line.rstrip()) for line in f]
 		return solve(data)
 
 if __name__ == '__main__':

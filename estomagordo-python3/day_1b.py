@@ -5,12 +5,19 @@ from collections import Counter, defaultdict
 
 
 def solve(d):
-    pass
+	fuel = 0
+
+	for x in d:
+		while x // 3 - 2 > 0:
+			x = x // 3 - 2
+			fuel += x
+
+	return fuel
 	
 
 def read_and_solve():
 	with open('input_1.txt') as f:
-		data = [line.rstrip() for line in f]
+		data = [int(line.rstrip()) for line in f]
 		return solve(data)
 
 if __name__ == '__main__':
