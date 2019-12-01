@@ -4,16 +4,22 @@ from heapq import heappop, heappush
 from collections import Counter, defaultdict
 
 
+def calc(n):
+    return max(0, n // 3 - 2)
+
+
+def rec_calc(n):
+    val = calc(n)
+
+    if val > 0:
+        return val + rec_calc(val)
+
+    return 0
+
+
 def solve(d):
-    fuel = 0
+    return sum(rec_calc(n) for n in d)
 
-    for x in d:
-        while x // 3 - 2 > 0:
-            x = x // 3 - 2
-            fuel += x
-
-    return fuel
-    
 
 def read_and_solve():
     with open('input_1.txt') as f:

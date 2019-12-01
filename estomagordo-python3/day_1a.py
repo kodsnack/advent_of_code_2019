@@ -4,8 +4,12 @@ from heapq import heappop, heappush
 from collections import Counter, defaultdict
 
 
+def calc(n):
+    return n // 3 - 2
+
+
 def solve(d):
-    return sum(x // 3 - 2 for x in d)
+    return sum(calc(n) for n in d)
 
 
 def read_and_solve():
