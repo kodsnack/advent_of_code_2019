@@ -1,4 +1,8 @@
 
+[submodule "prositen-python"]
+	path = prositen-python
+	url = git@github.com:prositen/advent-of-code.git
+
 [submodule "meck-haskell"]
 	path = meck-haskell
 	url = https://github.com/meck/AoC2019.git
