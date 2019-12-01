@@ -1,0 +1,3 @@
+[submodule "yxhuvud-crystal"]
+        path = yxhuvud-crystal
+        url = https://github.com/yxhuvud/aoc19
