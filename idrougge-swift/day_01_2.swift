@@ -19,8 +19,7 @@ let mass = try! String(contentsOfFile: CommandLine.arguments[1])
     .compactMap(Int.init)
     .compactMap(fuel)
     .lazy
-    .map({sequence(first: $0, next: fuel)})
-    .map({$0.reduce(0, +)})
+    .flatMap { sequence(first: $0, next: fuel) }
     .reduce(0, +)
 
 print(mass)
