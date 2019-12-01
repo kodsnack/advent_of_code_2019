@@ -1,17 +1,17 @@
 package com.mantono.aoc
 
 import com.mantono.aoc.day01.b
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.File
-import java.io.FileOutputStream
 import java.net.URL
-import java.nio.channels.Channels
-import java.nio.channels.ReadableByteChannel
 import java.nio.file.Files
 import java.time.LocalDateTime
 
 fun main(args: Array<String>) {
     val day: Int = day(args)
-    val file = downloadInput(day)
+    println("Use inputs for problem for day $day")
+    val file: File = inputFile(day)
     val input = Files.readAllLines(file.toPath()).asSequence()
     // Change between a / b here
     val result: Int = b(input)
@@ -24,19 +24,35 @@ fun day(args: Array<String>): Int {
     return argsDay ?: today
 }
 
+private const val INPUTS_STORAGE: String = "src/main/resources/inputs"
 private const val INPUTS_URL: String = "https://adventofcode.com/2019/day"
 
 /**
- * Download the inputs for the current day's assignment, unless they are already
- * present on disk
+ * Load the file containing the day's input data, and download it first if
+ * required
  */
-fun downloadInput(day: Int): File {
-    val target = File("src/resources/inputs/$day")
+fun inputFile(day: Int): File {
+    val target = File("$INPUTS_STORAGE/$day")
     if(!target.exists()) {
-        val fullUrl = URL("$INPUTS_URL/$day/input")
-        val channel: ReadableByteChannel = Channels.newChannel(fullUrl.openStream())
-        val stream = FileOutputStream(target)
-        stream.channel.transferFrom(channel, 0, Long.MAX_VALUE)
+        downloadInput(day, target)
     }
     return target
+}
+
+/**
+ * Download the inputs for the day's assignment
+ */
+private fun downloadInput(day: Int, target: File) {
+    val fullUrl = URL("$INPUTS_URL/$day/input")
+    val client = OkHttpClient()
+    val session: String = System.getenv().getValue("AOC_SESSION")
+    val request = Request.Builder()
+        .url(fullUrl)
+        .addHeader("Cookie", "session=$session")
+        .build()
+    val response = client.newCall(request).execute()
+    val content: String = response.body!!.string()
+    with(target) {
+        writeText(content)
+    }
 }

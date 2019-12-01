@@ -19,3 +19,7 @@ out/
 *.iws
 classes
 .idea
+
+# Do not commit input data for assignments
+src/main/resources/inputs
+!src/main/resources/inputs/.keep
