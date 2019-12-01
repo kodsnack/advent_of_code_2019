@@ -14,3 +14,6 @@
 [submodule "yxhuvud-crystal"]
         path = yxhuvud-crystal
         url = https://github.com/yxhuvud/aoc19
+[submodule "tomasaschan-rust"]
+	path = tomasaschan-rust
+	url = https://github.com/tomasaschan/advent-of-code-2019
