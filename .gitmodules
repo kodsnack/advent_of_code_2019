@@ -1,0 +1,3 @@
+[submodule "meck-haskell"]
+	path = meck-haskell
+	url = https://github.com/meck/AoC2019.git
