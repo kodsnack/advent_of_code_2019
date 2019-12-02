@@ -1,2 +1,4 @@
 ﻿[<EntryPoint>]
-let main argv = 0
+let main argv = 
+    Day02.runIntCodes Day02.input |> printfn "%O"
+    0

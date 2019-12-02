@@ -7,22 +7,28 @@ let input = [|
     107;1;107;5;111;1;13;111;115;2;115;6;119;1;119;5;123;1;2;123;127;1;6;127;0;99;2;14;0;0
 |]
 
-let runIntCodes (reg: int[]) =
-    [0..4..reg.Length]
-    |> Seq.tryFind (fun i ->
-        let opCode = reg.[i]
-        if opCode = 99 then true else
-            let i1 = reg.[i+1]
-            let i2 = reg.[i+2]
-            let out = reg.[i+3]
-            let op = match opCode with
-                        | 1 -> (+)
-                        | 2 -> (*)
-                        | _ -> failwith "incorrect opCode"
-            reg.[out] <- op reg.[i1] reg.[i2]
-            false
-    ) |> ignore
-    reg
+let getOp = function
+| 1 -> (+)
+| 2 -> (*)
+| _ -> failwith "incorrect op code"
+
+let getInstructions (reg: int[]) i =
+    match reg.[i] with
+    | 99 -> [99]
+    | op -> [op; reg.[i+1]; reg.[i+2]; reg.[i+3]]
+
+let runIntCodes (register: int[]) =
+    let rec run (reg: int[]) ixs =
+        match ixs with
+        | i::tail ->
+            match getInstructions reg i with
+            | [99] -> reg
+            | [opCode; i1; i2; out] ->
+                reg.[out] <- (getOp opCode) reg.[i1] reg.[i2]
+                run reg tail
+            | _ -> failwith "incorrect instruction set"
+        | _ -> failwith "failed to halt"
+    run register [0..4..register.Length]
 
 //part1
 let day1input = Array.copy input
