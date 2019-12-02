@@ -29,8 +29,8 @@ if __name__ == "__main__":
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp)
 
-    print("Input is '" + str(parseInp[:10]) + 
-          ('...' if len(parseInp)>10 else '') + "'")
+    print("Input is '" + str(parseInp[:10])[:100] + 
+          ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
     print("Solution to part 1: {}".format(part1(parseInp)))
     print("Solution to part 2: {}".format(part2(parseInp)))
 
