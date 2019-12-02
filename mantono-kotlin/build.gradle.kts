@@ -33,6 +33,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin", "kotlin-stdlib-jdk8", "1.3.60")
     implementation("com.squareup.okhttp3:okhttp:4.2.2")
+    implementation("org.reflections", "reflections", "0.9.11")
 
     // Junit
     testCompile("org.junit.jupiter", "junit-jupiter-api", version("junit"))

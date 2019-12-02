@@ -1,5 +1,9 @@
 package com.mantono.aoc.day01
 
+import com.mantono.aoc.AoC
+import com.mantono.aoc.Part
+
+@AoC(1, Part.A)
 fun a(input: String): Int {
     return input
         .split("\n")
@@ -8,6 +12,7 @@ fun a(input: String): Int {
         .sum()
 }
 
+@AoC(1, Part.B)
 fun b(input: String): Int {
     return input
         .split("\n")

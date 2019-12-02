@@ -1,26 +1,31 @@
 package com.mantono.aoc.day02
 
+import com.mantono.aoc.AoC
+import com.mantono.aoc.Part
+
+@AoC(2, Part.A)
 fun a(input: String): Int {
-    val inputData: MutableList<Int> = input.split(",").map { it.trim().toInt() }.toMutableList()
-    inputData[1] = 12
-    inputData[2] = 2
-    return parseData(inputData)
+    return runProgram(input, 12, 2)
 }
 
+@AoC(2, Part.B)
 fun b(input: String): Int {
     for(i in 0..99) {
         for(n in 0..99) {
-            val inputData: MutableList<Int> = input.split(",").map { it.trim().toInt() }.toMutableList()
-            inputData[1] = i
-            inputData[2] = n
-            val result: Int = parseData(inputData)
+            val result: Int = runProgram(input, i, n)
             if(result == 19690720) {
-                println("100 * $i + $n")
                 return (100 * i) + n
             }
         }
     }
     return -1
+}
+
+fun runProgram(input: String, programState0: Int, programState1: Int): Int {
+    val inputData: MutableList<Int> = input.split(",").map { it.trim().toInt() }.toMutableList()
+    inputData[1] = programState0
+    inputData[2] = programState1
+    return parseData(inputData)
 }
 
 tailrec fun parseData(inputData: MutableList<Int>, index: Int = 0): Int {

@@ -1,6 +1,5 @@
 package com.mantono.aoc
 
-import com.mantono.aoc.day02.b
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
@@ -13,8 +12,7 @@ fun main(args: Array<String>) {
     println("Use inputs for problem for day $day")
     val file: File = inputFile(day)
     val input = String(Files.readAllBytes(file.toPath()))
-    // Change between a / b here
-    val result: Int = b(input)
+    val result = findFunction(day).invoke(null, input)
     println(result)
 }
 
