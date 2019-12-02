@@ -27,5 +27,5 @@
 	path = albert-arvidsson-elixir
 	url = git@github.com:scmx/advent-of-code-2019-elixir.git
 [submodule "cryon-python"]
-        path = cryon-python
-        url = git@github.com:cryon/advent-of-code-2019.git
+	path = cryon-python
+	url = https://github.com/cryon/advent-of-code-2019
