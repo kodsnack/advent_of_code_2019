@@ -12,7 +12,7 @@ suite "day01, problem 1":
         check(fuelForMass(100756) == 33583)
     test "solution":
         let
-            inFile = open("day01.txt")
+            inFile = open("inputs/day01.txt")
         check(solution1(inFile) == 3369286)
         inFile.close()
 
@@ -27,6 +27,6 @@ suite "day01, problem 2":
         check(fuelForAllMass(100756) == 50346)
     test "solution":
         let
-            inFile = open("day01.txt")
+            inFile = open("inputs/day01.txt")
         check(solution2(inFile) == 5051054)
         inFile.close()
