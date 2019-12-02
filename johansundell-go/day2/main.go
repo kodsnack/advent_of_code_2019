@@ -48,8 +48,7 @@ func modifyInput(str string, noun, verb int) string {
 func search(str string) int {
 	for noun := 0; noun <= 99; noun++ {
 		for verb := 0; verb <= 99; verb++ {
-			switch {
-			case parseOpcode(modifyInput(str, noun, verb), 0) == 19690720:
+			if parseOpcode(modifyInput(str, noun, verb), 0) == 19690720 {
 				return 100*noun + verb
 			}
 		}
