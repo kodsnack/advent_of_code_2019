@@ -30,6 +30,7 @@ dependencies:
 - parallel
 - parallel-io
 - directory
+- lens
 
 library:
   source-dirs: src
