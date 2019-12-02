@@ -1,14 +1,16 @@
 package com.mantono.aoc.day01
 
-fun a(input: Sequence<String>): Int {
+fun a(input: String): Int {
     return input
+        .split("\n")
         .map { it.toInt() }
         .map(::fuelCost)
         .sum()
 }
 
-fun b(input: Sequence<String>): Int {
+fun b(input: String): Int {
     return input
+        .split("\n")
         .map { it.toInt() }
         .map(::fuelCost)
         .map { it + fuelForFuel(it) }
