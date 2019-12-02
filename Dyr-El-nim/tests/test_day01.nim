@@ -1,6 +1,10 @@
 import day01
 import unittest
 
+const
+    sol1 = 3369286
+    sol2 = 5051054
+
 suite "day01, problem 1":
     test "example 1":
         check(fuelForMass(12) == 2)
@@ -13,7 +17,8 @@ suite "day01, problem 1":
     test "solution":
         let
             inFile = open("inputs/day01.txt")
-        check(solution1(inFile) == 3369286)
+        check(solution1(inFile) == sol1)
+        echo("Solution 1: ", sol1)
         inFile.close()
 
 suite "day01, problem 2":
@@ -28,5 +33,6 @@ suite "day01, problem 2":
     test "solution":
         let
             inFile = open("inputs/day01.txt")
-        check(solution2(inFile) == 5051054)
+        check(solution2(inFile) == sol2)
+        echo("Solution 2: ", sol2)
         inFile.close()
