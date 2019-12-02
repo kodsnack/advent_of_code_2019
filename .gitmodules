@@ -14,3 +14,12 @@
 [submodule "yxhuvud-crystal"]
         path = yxhuvud-crystal
         url = https://github.com/yxhuvud/aoc19
+[submodule "tomasaschan-rust"]
+	path = tomasaschan-rust
+	url = https://github.com/tomasaschan/advent-of-code-2019
+[submodule "ygge-java"]
+	path = ygge-java
+	url = git@github.com:ygge/adventofcode2019.git
+[submodule "tradfursten-nim"]
+	path = tradfursten-nim
+	url = git@github.com:tradfursten/advent_of_code_2019.git
