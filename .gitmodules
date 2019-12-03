@@ -23,3 +23,9 @@
 [submodule "tradfursten-nim"]
 	path = tradfursten-nim
 	url = git@github.com:tradfursten/advent_of_code_2019.git
+[submodule "albert-arvidsson-elixir"]
+	path = albert-arvidsson-elixir
+	url = git@github.com:scmx/advent-of-code-2019-elixir.git
+[submodule "cryon-python"]
+	path = cryon-python
+	url = https://github.com/cryon/advent-of-code-2019

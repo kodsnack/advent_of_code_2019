@@ -13,20 +13,13 @@ def solve_part(d, noun, verb):
     while p < len(d):
         if d[p] == 99:
             break
-
-        if d[p] not in [1, 2]:
-            print('critical error')
-            break
-
+        
         if d[p] == 1:
             d[d[p + 3]] = d[d[p + 1]] + d[d[p + 2]]
-            p += 4
-            continue
-
-        if d[p] == 2:
+        elif d[p] == 2:
             d[d[p + 3]] = d[d[p + 1]] * d[d[p + 2]]
-            p += 4
-            continue
+            
+        p += 4
 
     return d[0]
 

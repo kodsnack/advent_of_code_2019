@@ -1,0 +1,25 @@
+.gradle
+/build/
+*.class
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+# # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
+# gradle/wrapper/gradle-wrapper.properties
+out/
+*.iml
+*.ipr
+*.iws
+classes
+.idea
+
+# Do not commit input data for assignments
+src/main/resources/inputs
+!src/main/resources/inputs/.keep

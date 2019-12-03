@@ -24,3 +24,17 @@ def test_2b():
 
     answer = day_2b.read_and_solve()
     assert(7960 == answer)
+
+
+def test_3a():
+    import day_3a
+
+    answer = day_3a.read_and_solve()
+    assert(5319 == answer)
+
+
+def test_3b():
+    import day_3b
+
+    answer = day_3b.read_and_solve()
+    assert(122514 == answer)
