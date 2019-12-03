@@ -5,3 +5,4 @@ sessionKey.txt
 .cache/
 *.swp
 aoc.code-workspace
+test.in

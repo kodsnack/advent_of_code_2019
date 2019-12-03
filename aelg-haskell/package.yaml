@@ -31,6 +31,7 @@ dependencies:
 - parallel-io
 - directory
 - lens
+- sort
 
 library:
   source-dirs: src
