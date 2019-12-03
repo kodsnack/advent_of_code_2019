@@ -1,3 +1,4 @@
+import helpers
 import re
 
 from heapq import heappop, heappush
@@ -35,7 +36,7 @@ def solve(wires):
     aplaces = wire_to_places(wires[0].split(','))
     bplaces = wire_to_places(wires[1].split(','))
     
-    return min(abs(k[0]) + abs(k[1]) for k in aplaces.keys() & bplaces.keys())
+    return min(helpers.absdist(k) for k in aplaces.keys() & bplaces.keys())
 
 def read_and_solve():
     with open('input_3.txt') as f:
