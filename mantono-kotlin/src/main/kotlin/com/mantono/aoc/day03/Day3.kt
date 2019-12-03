@@ -7,18 +7,14 @@ import java.lang.Integer.min
 import kotlin.math.abs
 
 private val startPosition = Position(0, 0)
+private typealias Path = List<Position>
+private typealias MutablePath = MutableList<Position>
 
 @AoC(3, Part.A)
-fun findIntersections(input: String): Int {
-    val inputs: List<String> = input.split("\n")
-    val firstCable: List<Path> = pathDirectionsToPath(inputs[0])
-    val secondCable: List<Path> = pathDirectionsToPath(inputs[1])
-    println(firstCable)
-    println(secondCable)
-    val positionsCable1: List<Position> = positionsFromPath(firstCable)
-    val positionsCable2: List<Position> = positionsFromPath(secondCable)
-    val overlaps: Set<Position> = positionsCable1.toSet().intersect(positionsCable2.toSet())
-    println(overlaps)
+fun findDistanceToClosestIntersection(input: String): Int {
+    val (positionsCable0: Path, positionsCable1: Path) = positionsForPathFromInput(input)
+    val overlaps: Set<Position> = positionsCable0.toSet().intersect(positionsCable1.toSet())
+
     return overlaps
         .asSequence()
         .filterNot { it == startPosition }
@@ -27,25 +23,54 @@ fun findIntersections(input: String): Int {
         .first()
 }
 
-fun pathDirectionsToPath(pathDirections: String): List<Path> = pathDirections
+@AoC(3, Part.B)
+fun findDistanceToFirstIntersection(input: String): Int {
+    val (positionsCable0: Path, positionsCable1: Path) = positionsForPathFromInput(input)
+    val overlaps: Set<Position> = positionsCable0.toSet().intersect(positionsCable1.toSet())
+
+    return overlaps.asSequence()
+        .filterNot { it == startPosition }
+        .map { intersection: Position ->
+            val path0Intersection: Path = positionsCable0.takeWhile { it != intersection } + intersection
+            val path1Intersection: Path = positionsCable1.takeWhile { it != intersection } + intersection
+            val distance0: Int = distanceForPath(path0Intersection)
+            val distance1: Int = distanceForPath(path1Intersection)
+            distance0 + distance1
+        }
+        .sorted()
+        .first()
+}
+
+fun positionsForPathFromInput(input: String): Pair<Path, Path> {
+    val inputs: List<String> = input.split("\n")
+    val firstCable: List<Vector> = pathDirectionsToPath(inputs[0])
+    val secondCable: List<Vector> = pathDirectionsToPath(inputs[1])
+    return positionsFromPath(firstCable) to positionsFromPath(secondCable)
+}
+
+fun distanceForPath(path: Path): Int = path
+    .zipWithNext { p0: Position, p1: Position -> p0.manhattanDistance(p1) }
+    .sum()
+
+fun pathDirectionsToPath(pathDirections: String): List<Vector> = pathDirections
     .split(",")
     .asSequence()
     .filterNot { it.isBlank() }
-    .map { Path.parseFrom(it) }
+    .map { Vector.parseFrom(it) }
     .toList()
 
-data class Path(val direction: Direction, val distance: Int) {
+data class Vector(val direction: Direction, val distance: Int) {
     companion object {
-        fun parseFrom(input: String): Path {
+        fun parseFrom(input: String): Vector {
             val direction = Direction.fromString(input[0])
             val distance = input.drop(1).toInt()
-            return Path(direction, distance)
+            return Vector(direction, distance)
         }
     }
 }
 
 data class Position(val x: Int, val y: Int) {
-    fun walk(path: Path): Position {
+    fun walk(path: Vector): Position {
         return when(path.direction) {
             Direction.Up -> this.copy(y = y + path.distance)
             Direction.Right -> this.copy(x = x + path.distance)
@@ -61,10 +86,10 @@ data class Position(val x: Int, val y: Int) {
     }
 }
 
-fun positionsFromPath(fullPath: List<Path>): List<Position> {
-    val visited: MutableList<Position> = ArrayList(fullPath.size*2)
+fun positionsFromPath(fullPath: List<Vector>): Path {
+    val visited: MutablePath = ArrayList(fullPath.size*2)
     val finalDestination: Position = fullPath.asSequence()
-        .fold(startPosition) { pos: Position, path: Path ->
+        .fold(startPosition) { pos: Position, path: Vector ->
             visited.add(pos)
             pos.walk(path)
         }
@@ -77,18 +102,25 @@ fun positionsFromPath(fullPath: List<Path>): List<Position> {
         .toList()
 }
 
-
-fun positionsBetween(pos0: Position, pos1: Position): List<Position> {
+fun positionsBetween(pos0: Position, pos1: Position): Path {
     require(pos0.x == pos1.x || pos0.y == pos1.y) {
         "Trying compare two positions that are not in a straight line to each other"
     }
 
-    return if(pos0.x == pos1.x) {
-        val line: IntRange = min(pos0.y, pos1.y) .. max(pos0.y, pos1.y)
-        line.map { Position(pos0.x, it) }
+     return if(pos0.x == pos1.x) {
+         val line: IntProgression = if(pos0.y <= pos1.y) {
+             min(pos0.y, pos1.y) .. max(pos0.y, pos1.y)
+         } else {
+             max(pos0.y, pos1.y) downTo min(pos0.y, pos1.y)
+         }
+         line.map { Position(pos0.x, it) }
     } else {
-        val line: IntRange = min(pos0.x, pos1.x) .. max(pos0.x, pos1.x)
-        line.map { Position(it, pos0.y) }
+         val line: IntProgression = if(pos0.x <= pos1.x) {
+             min(pos0.x, pos1.x) .. max(pos0.x, pos1.x)
+         } else {
+             max(pos0.x, pos1.x) downTo min(pos0.x, pos1.x)
+         }
+         line.map { Position(it, pos0.y) }
     }
 }
 
