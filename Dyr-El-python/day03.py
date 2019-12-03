@@ -14,42 +14,52 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 ## End of header boilerplate ###################################################
 
+def steps(s, x, y):
+    d = {'U':(0, 1), 'D':(0, -1), 'L':(-1, 0), 'R':(1, 0)}[s[0]]
+    for i in range(int(s[1:])):
+        x, y = x + d[0], y + d[1]
+        yield x, y
+
+def traverse(stepsToTake):
+    x, y = 0, 0
+    noSteps = 0
+    for line in stepsToTake:
+        for x, y in steps(line, x, y):
+            noSteps += 1
+            yield x, y, noSteps
+
+def traceFirst(stepsToTake):
+    d = dict()
+    for x, y, stepCount in traverse(stepsToTake):
+        if (x, y) not in d:
+            d[x, y] = stepCount
+    return d
+
+def distanceToStart(dist, x, y, noSteps):
+    return abs(x)+abs(y)
+
+def noOfStepsToStart(dist, x, y, noSteps):
+    return dist[x, y] + noSteps
+
+def findCollisions(trace, stepsToTake, distFunc):
+    dists = set()
+    for x, y, stepCount in traverse(stepsToTake):
+        if (x, y) in trace:
+            dists.add(distFunc(trace, x, y, stepCount))
+    return min(dists)
+
 def part1(pinp):
-    x, y = 0, 0
-    st = 0
-    sp = {(0, 0):0}
-    for s in pinp[0][0]:
-        d = {'U':(0, 1),'D':(0, -1), 'L': (-1, 0), 'R':(1, 0)}[s[0]]
-        for i in range(int(s[1:])):
-            x, y = x+d[0], y+d[1]
-            st += 1
-            if (x, y) not in sp:
-                sp[(x, y)]=st
-        print(len(sp))
-    xp = set()
-    x, y = 0, 0
-    st = 0
-    for s in pinp[1][0]:
-        d = {'U':(0, 1),'D':(0, -1), 'L': (-1, 0), 'R':(1, 0)}[s[0]]
-        for i in range(int(s[1:])):
-            x, y = x+d[0], y+d[1]
-            st += 1
-            if (x, y) in sp:
-                print(x, y)
-                xp.add(st+sp[(x, y)])
-    return min(xp)
+    trace1 = traceFirst(pinp[0][0])
+    return findCollisions(trace1, pinp[1][0], distanceToStart)
 
 def part2(pinp):
-    return "<solution2>"
+    trace1 = traceFirst(pinp[0][0])
+    return findCollisions(trace1, pinp[1][0], noOfStepsToStart)
 
 ## Start of footer boilerplate #################################################
 
 if __name__ == "__main__":
     inp = readInput()
-#     inp = """R75,D30,R83,U83,L12,D49,R71,U7,L72
-# U62,R66,U55,R34,D71,R55,D58,R83"""
-#     inp = """R8,U5,L5,D3
-# U7,R6,D4,L4"""
     
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp, ff=lambda x:tuple(x.split(',')))
