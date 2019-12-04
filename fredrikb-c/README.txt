@@ -1,3 +1,3 @@
 Build:
 cd dayX/
-clang -std=c99 -Wall -Wextra -Wpedantic dayX.c
+clang -std=c11 -Wall -Wextra -Wpedantic dayX.c
