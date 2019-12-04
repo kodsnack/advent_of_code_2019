@@ -1,6 +1,6 @@
 package com.mantono.aoc.da01
 
-import com.mantono.aoc.fuelForFuel
+import com.mantono.aoc.day01.fuelForFuel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
