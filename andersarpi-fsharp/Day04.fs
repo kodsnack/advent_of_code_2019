@@ -14,11 +14,15 @@ module Part1 =
     |> printfn "%i"
 
 module Part2 =
-    let rec hasNonClusterTwins = function
-    | x::y::z::xs when x = y && y = z -> hasNonClusterTwins (y::z::xs)
-    | x::y::_ when x = y -> true
-    | _::xs -> hasNonClusterTwins xs
-    | [] -> false
+    let hasNonClusterTwins (xs: char list) =
+        let rec run l prev =
+            match l with
+            | x::y::z::_ when x = y && x <> z && x <> prev -> true
+            | x::y::[] when x = y && x <> prev -> true
+            | x::tail -> run tail x
+            | [] -> false
+
+        run xs ' '
 
     input
     |> Seq.filter isIncreasing
