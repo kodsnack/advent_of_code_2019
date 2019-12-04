@@ -37,3 +37,40 @@ func Test_Ex6(t *testing.T) {
 		t.Fail()
 	}
 }
+
+// Part 2 ;)
+func Test_Ex7(t *testing.T) {
+	if !isValidPasswordPart2(112233) {
+		t.Fail()
+	}
+}
+
+func Test_Ex8(t *testing.T) {
+	if isValidPasswordPart2(123444) {
+		t.Fail()
+	}
+}
+
+func Test_Ex9(t *testing.T) {
+	if !isValidPasswordPart2(111122) {
+		t.Fail()
+	}
+}
+
+func Test_Ex10(t *testing.T) {
+	if !isValidPasswordPart2(113444) {
+		t.Fail()
+	}
+}
+
+func Test_Ex11(t *testing.T) {
+	if isValidPasswordPart2(788889) {
+		t.Fail()
+	}
+}
+
+func Test_Ex12(t *testing.T) {
+	if isValidPasswordPart2(777888) {
+		t.Fail()
+	}
+}
