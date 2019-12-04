@@ -90,5 +90,5 @@ fn main() {
     });
 
     println!("Part 1: {}", closestdist);
-    println!("Part 1: {}", closeststeps);
+    println!("Part 2: {}", closeststeps);
 }
