@@ -30,11 +30,9 @@ def test2(s):
     if s != ''.join(sorted(s)):
         return False
     for c in set(s):
-        if s.count(c*4)>0:
-            continue
-        if s.count(c*3)==1 and s.count(c*2)==1:
-            continue
-        if s.count(c*2)==0:
+        if (s.count(c*4) > 0 or 
+            (s.count(c*3)==1 and s.count(c*2)==1) or
+            (s.count(c*2)==0)):
             continue
         return True
     return False
