@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,14 +8,13 @@ int calculate_fuel(int mass) {
 
 int main() {
 	FILE *fp;
-	errno_t err;
 
-	if ((err = fopen_s(&fp, "input.txt", "r")) != 0) {
-		printf("File was not opened\n");
+	if ((fp = fopen("input.txt", "r")) == NULL ) {
+		printf("File was not opened: errno %d\n", errno);
 		exit(EXIT_FAILURE);
 	}
  
- 	char line [128];
+	char line [48];
  	int total_fuel = 0;
 
  	while ( fgets ( line, sizeof line, fp ) != NULL )       {
