@@ -30,60 +30,87 @@ let input = [|
     1005;224;659;101;1;223;223;1007;677;677;224;102;2;223;223;1006;224;674;101;1;223;223;4;223;99;226
 |]
 
+let getinput() = 5
+
 type Mode =
-    | Pos
-    | Val
+    | POS
+    | VAL
 
 let mode = function
-| 0 -> Pos
-| 1 -> Val
+| 0 -> POS
+| 1 -> VAL
 | _ -> failwith "Mode value out of range"
 
 type Inst =
-    | Add of (Mode * int) *  (Mode * int) * (Mode * int)
-    | Mul of (Mode * int) *  (Mode * int) * (Mode * int)
-    | In of Mode * int * int
-    | Out of Mode * int
-    | Halt
+    | ADD of (Mode * int) *  (Mode * int) * (Mode * int)
+    | MUL of (Mode * int) *  (Mode * int) * (Mode * int)
+    | IN of Mode * int * int
+    | OUT of Mode * int
+    | JIT of (Mode * int) *  (Mode * int)
+    | JIF of (Mode * int) *  (Mode * int)
+    | LT of (Mode * int) *  (Mode * int) *  (Mode * int)
+    | EQ of (Mode * int) *  (Mode * int) *  (Mode * int)
+    | HALT
     | EOF
 
 let memSize = function
-| Add _ -> 4
-| Mul _ -> 4
-| In _  -> 2
-| Out _ -> 2
-| Halt  -> 1
-| EOF   -> 0
+| ADD _ -> 4
+| MUL _ -> 4
+| IN _  -> 2
+| OUT _ -> 2
+| HALT  -> 1
+| _     -> 0
 
 let digitsRev (x:int) = x |> string |> fun x -> x.ToCharArray() |> Array.map (fun x -> int x - int '0') |> List.ofArray |> List.rev 
 
 let padDigits = function
-| 1::[]         -> [1;0;0;0;0]
-| 1::x::[]      -> [1;x;0;0;0]
-| 1::x::y::[]   -> [1;x;y;0;0]
-| 1::x::y::z::[]-> [1;x;y;z;0]
-| 1::_ as xs    -> xs
-| 2::[]         -> [2;0;0;0;0]
-| 2::x::[]      -> [2;x;0;0;0]
-| 2::x::y::[]   -> [2;x;y;0;0]
-| 2::x::y::z::[]-> [2;x;y;z;0]
-| 2::_ as xs    -> xs
-| 3::x::y::[]   -> [3;x;y]
-| 3::x::[]      -> [3;x;0]
-| 3::[]         -> [3;0;0]
-| 4::x::y::[]   -> [4;x;y]
-| 4::x::[]      -> [4;x;0]
-| 4::[]         -> [4;0;0]
-| [9;9] as xs   -> xs
+| 1::[]          -> [1;0;0;0;0]
+| 1::x::[]       -> [1;x;0;0;0]
+| 1::x::y::[]    -> [1;x;y;0;0]
+| 1::x::y::z::[] -> [1;x;y;z;0]
+| 1::_ as xs     -> xs
+| 2::[]          -> [2;0;0;0;0]
+| 2::x::[]       -> [2;x;0;0;0]
+| 2::x::y::[]    -> [2;x;y;0;0]
+| 2::x::y::z::[] -> [2;x;y;z;0]
+| 2::_ as xs     -> xs
+| 3::x::y::[]    -> [3;x;y]
+| 3::x::[]       -> [3;x;0]
+| 3::[]          -> [3;0;0]
+| 4::x::y::[]    -> [4;x;y]
+| 4::x::[]       -> [4;x;0]
+| 4::[]          -> [4;0;0]
+| 5::[]          -> [5;0;0;0]
+| 5::a::[]       -> [5;a;0;0]
+| 5::a::b::[]    -> [5;a;b;0]
+| 5::_ as xs     -> xs
+| 6::[]          -> [6;0;0;0]
+| 6::a::[]       -> [6;a;0;0]
+| 6::a::b::[]    -> [6;a;b;0]
+| 6::_ as xs     -> xs
+| 7::[]          -> [7;0;0;0;0]
+| 7::a::[]       -> [7;a;0;0;0]
+| 7::a::b::[]    -> [7;a;b;0;0]
+| 7::a::b::c::[] -> [7;a;b;c;0]
+| 7::_ as xs     -> xs
+| 8::[]          -> [8;0;0;0;0]
+| 8::a::[]       -> [8;a;0;0;0]
+| 8::a::b::[]    -> [8;a;b;0;0]
+| 8::a::b::c::[] -> [8;a;b;c;0]
+| 8::_ as xs     -> xs
+| [9;9] as xs    -> xs
 | _ -> failwith "incorrect digit set for padDigits"
 
-
 let createInst (mem: int[]) pos = function
-| [1;0;a;b;c] -> Add ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [2;0;a;b;c] -> Mul ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [3;0;a] -> In (mode a, mem.[pos+1], 1)
-| [4;0;a] -> Out (mode a, mem.[pos+1])
-| [9;9]   -> Halt
+| [1;0;a;b;c] -> ADD ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [2;0;a;b;c] -> MUL ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [3;0;a] -> IN (mode a, mem.[pos+1], getinput())
+| [4;0;a] -> OUT (mode a, mem.[pos+1])
+| [5;0;a;b] -> JIT ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]))
+| [6;0;a;b] -> JIF ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]))
+| [7;0;a;b;c] -> LT ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [8;0;a;b;c] -> EQ ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [9;9]   -> HALT
 | _ -> failwith "incorrect digit set for createInst"
     
 
@@ -96,22 +123,55 @@ let parseInst (mem: int[]) pos =
 
 let getVal (mem: int[]) m i =
     match m with
-    | Val -> i
-    | Pos -> mem.[i]
+    | VAL -> i
+    | POS -> mem.[i]
 
 let runInst (mem: int[]) = function
-| Add ((m1, i1), (m2, i2), (_,i3)) -> 
-    mem.[i3] <- (getVal mem m1 i1) + (getVal mem m2 i2) 
-| Mul ((m1, i1), (m2, i2), (_,i3)) -> 
-        mem.[i3] <- (getVal mem m1 i1) * (getVal mem m2 i2) 
-| In (_, i, v) -> mem.[i] <- v
-| Out (mode, i) -> getVal mem mode i |> printfn "%O"
-| Halt -> printfn "HALT"
+| ADD ((m1, i1), (m2, i2), (_,i3)) -> 
+    mem.[i3] <- (getVal mem m1 i1) + (getVal mem m2 i2)
+    -1
+| MUL ((m1, i1), (m2, i2), (_,i3)) -> 
+    mem.[i3] <- (getVal mem m1 i1) * (getVal mem m2 i2) 
+    -1
+| IN (_, i, v) ->
+    mem.[i] <- v
+    -1
+| JIT ((m1, i1), (m2, i2)) ->
+    match getVal mem m1 i1 with
+    | 0 -> -1
+    | _ -> getVal mem m2 i2
+| JIF ((m1, i1), (m2, i2)) ->
+    match getVal mem m1 i1 with
+    | 0 -> getVal mem m2 i2
+    | _ -> -1
+| LT ((m1, i1), (m2, i2), (_,i3)) -> 
+    if (getVal mem m1 i1) < (getVal mem m2 i2) then
+        mem.[i3] <- 1
+    else
+        mem.[i3] <- 0
+    -1
+| EQ ((m1, i1), (m2, i2), (_,i3)) -> 
+    if (getVal mem m1 i1) = (getVal mem m2 i2) then
+        mem.[i3] <- 1
+    else
+        mem.[i3] <- 0
+    -1
+| OUT (mode, i) ->
+    getVal mem mode i |> printfn "%O"
+    -1
+| HALT ->
+    printfn "HALT";
+    -1
 | EOF -> failwith "EOF reached before HALT"
 
+let getPos oldPos posDiff output =
+    match output with
+    | -1 -> oldPos + posDiff
+    | x -> x
+
 let rec runIntcode (mem: int[]) pos =
-    let inst, npos = parseInst mem pos
-    runInst mem inst
+    let inst, posDiff = parseInst mem pos
+    let output = runInst mem inst
     match inst with
-    | EOF | Halt -> ()
-    | _ -> runIntcode mem (pos+npos)
+    | EOF | HALT -> ()
+    | _ -> runIntcode mem (getPos pos posDiff output)
