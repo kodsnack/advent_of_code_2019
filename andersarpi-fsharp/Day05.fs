@@ -87,10 +87,31 @@ let createInst (mem: int[]) pos = function
 | _ -> failwith "incorrect digit set for createInst"
     
 
-let getInstruction (mem: int[]) pos =
+let parseInst (mem: int[]) pos =
     match Array.tryItem pos mem with
     | None -> (EOF, pos)
     | Some i -> 
         let inst = createInst mem pos (i |> digitsRev |> padDigits)
         (inst, memSize inst)
 
+let getVal (mem: int[]) m i =
+    match m with
+    | Val -> i
+    | Pos -> mem.[i]
+
+let runInst (mem: int[]) = function
+| Add ((m1, i1), (m2, i2), (_,i3)) -> 
+    mem.[i3] <- (getVal mem m1 i1) + (getVal mem m2 i2) 
+| Mul ((m1, i1), (m2, i2), (_,i3)) -> 
+        mem.[i3] <- (getVal mem m1 i1) * (getVal mem m2 i2) 
+| In (_, i, v) -> mem.[i] <- v
+| Out (mode, i) -> getVal mem mode i |> printfn "%O"
+| Halt -> printfn "HALT"
+| EOF -> failwith "EOF reached before HALT"
+
+let rec runIntcode (mem: int[]) pos =
+    let inst, npos = parseInst mem pos
+    runInst mem inst
+    match inst with
+    | EOF | Halt -> ()
+    | _ -> runIntcode mem (pos+npos)
