@@ -54,10 +54,9 @@ type Inst =
     | EOF
 
 let memSize = function
-| ADD _ -> 4
-| MUL _ -> 4
-| IN _  -> 2
-| OUT _ -> 2
+| ADD _ | MUL _ | LT _ | EQ _ -> 4
+| JIT _  | JIF _ -> 3
+| IN _  | OUT _ -> 2
 | HALT  -> 1
 | _     -> 0
 
@@ -169,9 +168,9 @@ let getPos oldPos posDiff output =
     | -1 -> oldPos + posDiff
     | x -> x
 
-let rec runIntcode (mem: int[]) pos =
+let rec runIntCode (mem: int[]) pos =
     let inst, posDiff = parseInst mem pos
     let output = runInst mem inst
     match inst with
     | EOF | HALT -> ()
-    | _ -> runIntcode mem (getPos pos posDiff output)
+    | _ -> runIntCode mem (getPos pos posDiff output)
