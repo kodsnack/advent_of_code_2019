@@ -1,0 +1,2 @@
+g++ -std=c++17 4a.cpp -o 4a
+./4a < input
