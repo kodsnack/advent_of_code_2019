@@ -34,11 +34,11 @@ let getinput() = 5
 
 type Mode =
     | POS
-    | VAL
+    | IMM
 
 let mode = function
 | 0 -> POS
-| 1 -> VAL
+| 1 -> IMM
 | _ -> failwith "Mode value out of range"
 
 type Inst =
@@ -51,18 +51,28 @@ type Inst =
     | LT of (Mode * int) *  (Mode * int) *  (Mode * int)
     | EQ of (Mode * int) *  (Mode * int) *  (Mode * int)
     | HALT
-    | EOF
 
 let memSize = function
-| ADD _ | MUL _ | LT _ | EQ _ -> 4
-| JIT _  | JIF _ -> 3
-| IN _  | OUT _ -> 2
+| ADD _ -> 4
+| MUL _ -> 4
+| LT _  -> 4
+| EQ _  -> 4
+| JIT _ -> 3
+| JIF _ -> 3
+| IN _  -> 2
+| OUT _ -> 2
 | HALT  -> 1
 | _     -> 0
 
-let digitsRev (x:int) = x |> string |> fun x -> x.ToCharArray() |> Array.map (fun x -> int x - int '0') |> List.ofArray |> List.rev 
+let digitsRev (x:int) =
+    x
+    |> string
+    |> fun x -> x.ToCharArray()
+    |> Array.map (fun x -> int x - int '0')
+    |> List.ofArray
+    |> List.rev 
 
-let digitSize = function
+let instDigitSize = function
 | 1 | 2 | 7 | 8 -> 5
 | 3 | 4         -> 3
 | 5 | 6         -> 4
@@ -70,32 +80,35 @@ let digitSize = function
 | _ -> failwith "incorrect instruction digit"
 
 let padDigits (xs: int list) =
-    let size = digitSize xs.[0]
+    let size = instDigitSize xs.[0]
     xs @ [for _ in [0..(size - List.length xs - 1)] -> 0]
 
-let createInst (mem: int[]) pos = function
-| [1;_;a;b;c] -> ADD ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [2;_;a;b;c] -> MUL ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [3;_;a] -> IN (mode a, mem.[pos+1], getinput())
-| [4;_;a] -> OUT (mode a, mem.[pos+1])
-| [5;_;a;b] -> JIT ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]))
-| [6;_;a;b] -> JIF ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]))
-| [7;_;a;b;c] -> LT ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [8;_;a;b;c] -> EQ ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [9;_]   -> HALT
-| _ -> failwith "incorrect digit set for createInst"
+let createInst (mem: int[]) pos digits =
+    let par3 a b c = (mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3])
+    let par2 a b = (mode a, mem.[pos+1]), (mode b, mem.[pos+2])
+    let par1 a = (mode a, mem.[pos+1])
+
+    match digits with
+    | [1;_;a;b;c] -> ADD (par3 a b c)
+    | [2;_;a;b;c] -> MUL (par3 a b c)
+    | [7;_;a;b;c] -> LT (par3 a b c)
+    | [8;_;a;b;c] -> EQ (par3 a b c)
+    | [5;_;a;b] -> JIT (par2 a b)
+    | [6;_;a;b] -> JIF (par2 a b)
+    | [4;_;a] -> OUT (par1 a)
+    | [3;_;a] -> IN (mode a, mem.[pos+1], getinput())
+    | [9;_]   -> HALT
+    | _ -> failwith "incorrect digit set for createInst"
     
 
 let parseInst (mem: int[]) pos =
-    match Array.tryItem pos mem with
-    | None -> (EOF, pos)
-    | Some i -> 
-        let inst = createInst mem pos (i |> digitsRev |> padDigits)
-        (inst, memSize inst)
+    let instDigits = mem.[pos] |> digitsRev |> padDigits
+    let inst = createInst mem pos instDigits
+    (inst, memSize inst)
 
 let getVal (mem: int[]) m i =
     match m with
-    | VAL -> i
+    | IMM -> i
     | POS -> mem.[i]
 
 let runInst (mem: int[]) = function
@@ -134,16 +147,16 @@ let runInst (mem: int[]) = function
 | HALT ->
     printfn "HALT";
     -1
-| EOF -> failwith "EOF reached before HALT"
 
-let getPos oldPos posDiff output =
+let getPos newPos output =
     match output with
-    | -1 -> oldPos + posDiff
+    | -1 -> newPos
     | x -> x
 
 let rec runIntCode (mem: int[]) pos =
     let inst, posDiff = parseInst mem pos
     let output = runInst mem inst
-    match inst with
-    | EOF | HALT -> ()
-    | _ -> runIntCode mem (getPos pos posDiff output)
+    if inst <> HALT then
+        runIntCode mem (getPos (pos+posDiff) output)
+    else
+        ()
