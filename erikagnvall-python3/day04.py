@@ -88,3 +88,8 @@ def test_increasing():
     assert _increasing(122345)
     assert not _increasing(132345)
     assert _increasing(111111)
+
+
+def test_solutions():
+    assert part1(start, end) == 1653
+    assert part2(start, end) == 1133
