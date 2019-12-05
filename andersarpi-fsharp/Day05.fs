@@ -74,15 +74,15 @@ let padDigits (xs: int list) =
     xs @ [for _ in [0..(size - List.length xs - 1)] -> 0]
 
 let createInst (mem: int[]) pos = function
-| [1;0;a;b;c] -> ADD ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [2;0;a;b;c] -> MUL ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [3;0;a] -> IN (mode a, mem.[pos+1], getinput())
-| [4;0;a] -> OUT (mode a, mem.[pos+1])
-| [5;0;a;b] -> JIT ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]))
-| [6;0;a;b] -> JIF ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]))
-| [7;0;a;b;c] -> LT ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [8;0;a;b;c] -> EQ ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
-| [9;9]   -> HALT
+| [1;_;a;b;c] -> ADD ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [2;_;a;b;c] -> MUL ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [3;_;a] -> IN (mode a, mem.[pos+1], getinput())
+| [4;_;a] -> OUT (mode a, mem.[pos+1])
+| [5;_;a;b] -> JIT ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]))
+| [6;_;a;b] -> JIF ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]))
+| [7;_;a;b;c] -> LT ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [8;_;a;b;c] -> EQ ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [9;_]   -> HALT
 | _ -> failwith "incorrect digit set for createInst"
     
 
