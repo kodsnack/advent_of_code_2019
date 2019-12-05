@@ -26,5 +26,5 @@ suite "day04, problem 2":
         check(test2(111122))
     test "solution":
         check(countPasswords(165432, 707912, test2) == sol2)
-        echo("Solution 1: ", sol2)        
+        echo("Solution 2: ", sol2)        
     
