@@ -32,9 +32,9 @@ def solve_part(d, noun, verb):
             d[d[p + 1]] = inp
             p += 2
         elif d[p] % 100 == 4:
-            print(d[d[p + 1]])
-            # if d[d[p + 1]] != 0:
-            #     return d[d[p + 1]]
+            a = d[p + 1] if len(str(d[p])) > 2 and str(d[p])[-3] == '1' else d[d[p + 1]]
+            if a != 0:
+                return a
             p += 2
             
        
