@@ -17,6 +17,7 @@ type
 
 var
     logger = newConsoleLogger()
+    io: InOut
 
 proc `[]`*(mem: Memory, idx: Address): int =
     result = mem.storage[idx]
@@ -87,9 +88,12 @@ proc InstructionDispatcher(mem: var Memory, pc: var Address, input: string, outp
     else:
         result = false
     
-proc run*(mem: var Memory, userInput=""): string =
+proc run*(mem: var Memory, interactive=true, userInput=""): string =
     var
         pc = 0
+    if interactive:
+        io.input = stdin
+        io.output = ne
     while InstructionDispatcher(mem, pc, userInput, result):
         discard
     
