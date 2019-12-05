@@ -1,0 +1,2 @@
+g++ -std=c++17 1b.cpp -o 1b
+./1b < input
