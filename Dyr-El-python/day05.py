@@ -92,23 +92,15 @@ def run(pinp, noun, verb):
     mem = {address: value for address, value in enumerate(pinp[0][0])}
     address = 0
     while not isHalt(mem, address):
-        print(address, mem[address],mem[address+1],mem[address+2],mem[address+3])
+        # print(address, mem[address],mem[address+1],mem[address+2],mem[address+3])
         instr = getInstr(mem, address)
         if instr in ilist:
             address = ilist[instr](mem, address)
         else:
             raise RuntimeError("Invalid instruction {} at address {}".format(mem[address], address))
-    return mem[0]
 
 def part1(pinp):
     return run(pinp, 12, 2)
-
-def part2(pinp):
-    for noun in range(100):
-        for verb in range(100):
-            if run(pinp, noun, verb)==19690720:
-                return 100 * noun + verb
-    return "Not found"
 
 ## Start of footer boilerplate #################################################
 
@@ -121,7 +113,7 @@ if __name__ == "__main__":
 
     print("Input is '" + str(parseInp[:10])[:100] + 
           ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
-    print("Solution to part 1: {}".format(part1(parseInp)))
+    part1(parseInp)
     #print("Solution to part 2: {}".format(part2(parseInp)))
 
 ## End of footer boilerplate ###################################################
