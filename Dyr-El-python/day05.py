@@ -14,68 +14,54 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 ## End of header boilerplate ###################################################
 
-def readVal(mode, arg, mem):
-    if mode==1:
-        return mem[arg]
+def readVal(address, argNo, mem):
+    if mem[address]//(10*10**argNo)%10==1:
+        return mem[address+argNo]
     else:
-        return mem[mem[arg]]
+        return mem[mem[address+argNo]]
 
-def isAdd(mem, address):
-    return mem[address]%100 == 1
-
-def add(mem, address):
+def addI(mem, address):
     target = mem[address+3]
-    arg1 = readVal(mem[address]//100%10, address+1, mem)
-    arg2 = readVal(mem[address]//1000%10, address+2, mem)
+    arg1 = readVal(address, 1, mem)
+    arg2 = readVal(address, 2, mem)
     mem[target] = arg1 + arg2
+    return address+4
 
-def isMul(mem, address):
-    return mem[address]%100 == 2
-
-def mul(mem, address):
+def mulI(mem, address):
     target = mem[address+3]
-    arg1 = readVal(mem[address]//100%10, address+1, mem)
-    arg2 = readVal(mem[address]//1000%10, address+2, mem)
+    arg1 = readVal(address, 1, mem)
+    arg2 = readVal(address, 2, mem)
     mem[target] = arg1 * arg2
+    return address+4
 
-def isInp(mem, address):
-    return mem[address]%100 == 3
-
-def inpi(mem, address):
+def inpI(mem, address):
     target = mem[address+1]
     print(">", end='')
     val = int(input())
     mem[target] = val
+    return address+2
 
-def isOut(mem, address):
-    return mem[address]%100 == 4
-
-def out(mem, address):
-    arg1 = readVal(mem[address]//100%10, address+1, mem)
-    print(arg1)
+def outI(mem, address):
+    arg1 = readVal(address, 1, mem)
+    print(':',arg1)
+    return address + 2
 
 def isHalt(mem, address):
     return mem[address] == 99
 
+def getInstr(mem, address):
+    return mem[address] % 100
+
+ilist = {1:addI, 2:mulI, 3:inpI, 4:outI}
+
 def run(pinp, noun, verb):
     mem = {address: value for address, value in enumerate(pinp[0][0])}
-    # mem[1] = noun
-    # mem[2] = verb
     address = 0
     while not isHalt(mem, address):
         print(address, mem[address],mem[address+1],mem[address+2],mem[address+3])
-        if isAdd(mem, address):
-            add(mem, address)
-            address += 4
-        elif isMul(mem, address):
-            mul(mem, address)
-            address += 4
-        elif isInp(mem, address):
-            inpi(mem, address)
-            address += 2
-        elif isOut(mem, address):
-            out(mem, address)
-            address += 2
+        instr = getInstr(mem, address)
+        if instr in ilist:
+            address = ilist[instr](mem, address)
         else:
             raise RuntimeError("Invalid instruction {} at address {}".format(mem[address], address))
     return mem[0]
