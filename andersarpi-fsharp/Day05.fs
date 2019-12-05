@@ -32,9 +32,7 @@ let input = [|
 
 let getinput() = 5
 
-type Mode =
-    | POS
-    | IMM
+type Mode = POS | IMM
 
 type Inst =
     | ADD of (Mode * int) *  (Mode * int) * (Mode * int)
@@ -46,6 +44,8 @@ type Inst =
     | LT of (Mode * int) *  (Mode * int) *  (Mode * int)
     | EQ of (Mode * int) *  (Mode * int) *  (Mode * int)
     | HALT
+
+type Result = PASS | JUMP of int
 
 let memSize = function
 | ADD _ -> 4
@@ -102,10 +102,6 @@ let getVal (mem: int[]) m i =
     match m with
     | IMM -> i
     | POS -> mem.[i]
-
-type Result =
-    | PASS
-    | JUMP of int
 
 let runInst (mem: int[]) = function
 | ADD ((m1, i1), (m2, i2), (_,i3)) -> 
