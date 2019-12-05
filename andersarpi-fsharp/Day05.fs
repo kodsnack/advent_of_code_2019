@@ -62,43 +62,16 @@ let memSize = function
 
 let digitsRev (x:int) = x |> string |> fun x -> x.ToCharArray() |> Array.map (fun x -> int x - int '0') |> List.ofArray |> List.rev 
 
-let padDigits = function
-| 1::[]          -> [1;0;0;0;0]
-| 1::x::[]       -> [1;x;0;0;0]
-| 1::x::y::[]    -> [1;x;y;0;0]
-| 1::x::y::z::[] -> [1;x;y;z;0]
-| 1::_ as xs     -> xs
-| 2::[]          -> [2;0;0;0;0]
-| 2::x::[]       -> [2;x;0;0;0]
-| 2::x::y::[]    -> [2;x;y;0;0]
-| 2::x::y::z::[] -> [2;x;y;z;0]
-| 2::_ as xs     -> xs
-| 3::x::y::[]    -> [3;x;y]
-| 3::x::[]       -> [3;x;0]
-| 3::[]          -> [3;0;0]
-| 4::x::y::[]    -> [4;x;y]
-| 4::x::[]       -> [4;x;0]
-| 4::[]          -> [4;0;0]
-| 5::[]          -> [5;0;0;0]
-| 5::a::[]       -> [5;a;0;0]
-| 5::a::b::[]    -> [5;a;b;0]
-| 5::_ as xs     -> xs
-| 6::[]          -> [6;0;0;0]
-| 6::a::[]       -> [6;a;0;0]
-| 6::a::b::[]    -> [6;a;b;0]
-| 6::_ as xs     -> xs
-| 7::[]          -> [7;0;0;0;0]
-| 7::a::[]       -> [7;a;0;0;0]
-| 7::a::b::[]    -> [7;a;b;0;0]
-| 7::a::b::c::[] -> [7;a;b;c;0]
-| 7::_ as xs     -> xs
-| 8::[]          -> [8;0;0;0;0]
-| 8::a::[]       -> [8;a;0;0;0]
-| 8::a::b::[]    -> [8;a;b;0;0]
-| 8::a::b::c::[] -> [8;a;b;c;0]
-| 8::_ as xs     -> xs
-| [9;9] as xs    -> xs
-| _ -> failwith "incorrect digit set for padDigits"
+let digitSize = function
+| 1 | 2 | 7 | 8 -> 5
+| 3 | 4         -> 3
+| 5 | 6         -> 4
+| 9             -> 2
+| _ -> failwith "incorrect instruction digit"
+
+let padDigits (xs: int list) =
+    let size = digitSize xs.[0]
+    xs @ [for _ in [0..(size - List.length xs - 1)] -> 0]
 
 let createInst (mem: int[]) pos = function
 | [1;0;a;b;c] -> ADD ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
