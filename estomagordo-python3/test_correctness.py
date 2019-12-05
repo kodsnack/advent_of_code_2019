@@ -43,14 +43,14 @@ def test_4a():
     import day_4a
 
     answer = day_4a.read_and_solve()
-    assert(5319 == answer)
+    assert(945 == answer)
 
 
 def test_4b():
     import day_4b
 
     answer = day_4b.read_and_solve()
-    assert(945 == answer)
+    assert(617 == answer)
 
 def test_5a():
     import day_5a
