@@ -46,13 +46,47 @@ def outI(mem, address):
     print(':',arg1)
     return address + 2
 
+def jitI(mem, address):
+    arg1 = readVal(address, 1, mem)
+    arg2 = readVal(address, 2, mem)
+    if arg1 != 0:
+        return arg2
+    return address+3
+
+def jifI(mem, address):
+    arg1 = readVal(address, 1, mem)
+    arg2 = readVal(address, 2, mem)
+    if arg1 == 0:
+        return arg2
+    return address+3
+
+def ltI(mem, address):
+    target = mem[address+3]
+    arg1 = readVal(address, 1, mem)
+    arg2 = readVal(address, 2, mem)
+    if arg1 < arg2:
+        mem[target] = 1
+    else:
+        mem[target] = 0
+    return address+4
+
+def eqI(mem, address):
+    target = mem[address+3]
+    arg1 = readVal(address, 1, mem)
+    arg2 = readVal(address, 2, mem)
+    if arg1 == arg2:
+        mem[target] = 1
+    else:
+        mem[target] = 0
+    return address+4
+
 def isHalt(mem, address):
     return mem[address] == 99
 
 def getInstr(mem, address):
     return mem[address] % 100
 
-ilist = {1:addI, 2:mulI, 3:inpI, 4:outI}
+ilist = {1:addI, 2:mulI, 3:inpI, 4:outI, 5:jitI, 6:jifI, 7:ltI, 8:eqI}
 
 def run(pinp, noun, verb):
     mem = {address: value for address, value in enumerate(pinp[0][0])}
