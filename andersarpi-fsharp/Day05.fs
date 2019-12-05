@@ -36,11 +36,6 @@ type Mode =
     | POS
     | IMM
 
-let mode = function
-| 0 -> POS
-| 1 -> IMM
-| _ -> failwith "Mode value out of range"
-
 type Inst =
     | ADD of (Mode * int) *  (Mode * int) * (Mode * int)
     | MUL of (Mode * int) *  (Mode * int) * (Mode * int)
@@ -62,7 +57,6 @@ let memSize = function
 | IN _  -> 2
 | OUT _ -> 2
 | HALT  -> 1
-| _     -> 0
 
 let digitsRev (x:int) =
     x
@@ -72,38 +66,36 @@ let digitsRev (x:int) =
     |> List.ofArray
     |> List.rev 
 
-let instDigitSize = function
-| 1 | 2 | 7 | 8 -> 5
-| 3 | 4         -> 3
-| 5 | 6         -> 4
-| 9             -> 2
-| _ -> failwith "incorrect instruction digit"
+let createInst (mem: int[]) pos instModes =
+    
+    let mode = function | 0 -> POS | _ -> IMM
 
-let padDigits (xs: int list) =
-    let size = instDigitSize xs.[0]
-    xs @ [for _ in [0..(size - List.length xs - 1)] -> 0]
+    let getDigit xs i = xs |> List.tryItem i |> Option.defaultValue 0
 
-let createInst (mem: int[]) pos digits =
-    let par3 a b c = (mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3])
-    let par2 a b = (mode a, mem.[pos+1]), (mode b, mem.[pos+2])
-    let par1 a = (mode a, mem.[pos+1])
+    let par3 xs = (mode (getDigit xs 1), mem.[pos+1]),
+                  (mode (getDigit xs 2), mem.[pos+2]),
+                  (mode (getDigit xs 3), mem.[pos+3])
+    
+    let par2 xs = (mode (getDigit xs 1), mem.[pos+1]),
+                  (mode (getDigit xs 2), mem.[pos+2])
 
-    match digits with
-    | [1;_;a;b;c] -> ADD (par3 a b c)
-    | [2;_;a;b;c] -> MUL (par3 a b c)
-    | [7;_;a;b;c] -> LT (par3 a b c)
-    | [8;_;a;b;c] -> EQ (par3 a b c)
-    | [5;_;a;b] -> JIT (par2 a b)
-    | [6;_;a;b] -> JIF (par2 a b)
-    | [4;_;a] -> OUT (par1 a)
-    | [3;_;a] -> IN (mode a, mem.[pos+1], getinput())
-    | [9;_]   -> HALT
+    let par1 xs = (mode (getDigit xs 1), mem.[pos+1])
+
+    match instModes with
+    | 1::xs -> ADD (par3 xs)
+    | 2::xs -> MUL (par3 xs)
+    | 7::xs -> LT (par3 xs)
+    | 8::xs -> EQ (par3 xs)
+    | 5::xs -> JIT (par2 xs)
+    | 6::xs -> JIF (par2 xs)
+    | 4::xs -> OUT (par1 xs)
+    | 3::xs -> IN (mode (getDigit xs 0), mem.[pos+1], getinput())
+    | 9::9::_  -> HALT
     | _ -> failwith "incorrect digit set for createInst"
     
-
 let parseInst (mem: int[]) pos =
-    let instDigits = mem.[pos] |> digitsRev |> padDigits
-    let inst = createInst mem pos instDigits
+    let instModes = mem.[pos] |> digitsRev;
+    let inst = createInst mem pos instModes
     (inst, memSize inst)
 
 let getVal (mem: int[]) m i =
@@ -111,52 +103,56 @@ let getVal (mem: int[]) m i =
     | IMM -> i
     | POS -> mem.[i]
 
+type Result =
+    | PASS
+    | JUMP of int
+
 let runInst (mem: int[]) = function
 | ADD ((m1, i1), (m2, i2), (_,i3)) -> 
     mem.[i3] <- (getVal mem m1 i1) + (getVal mem m2 i2)
-    -1
+    PASS
 | MUL ((m1, i1), (m2, i2), (_,i3)) -> 
     mem.[i3] <- (getVal mem m1 i1) * (getVal mem m2 i2) 
-    -1
+    PASS
 | IN (_, i, v) ->
     mem.[i] <- v
-    -1
+    PASS
 | JIT ((m1, i1), (m2, i2)) ->
     match getVal mem m1 i1 with
-    | 0 -> -1
-    | _ -> getVal mem m2 i2
+    | 0 -> PASS
+    | _ -> JUMP (getVal mem m2 i2)
 | JIF ((m1, i1), (m2, i2)) ->
     match getVal mem m1 i1 with
-    | 0 -> getVal mem m2 i2
-    | _ -> -1
+    | 0 -> JUMP (getVal mem m2 i2)
+    | _ -> PASS
 | LT ((m1, i1), (m2, i2), (_,i3)) -> 
     if (getVal mem m1 i1) < (getVal mem m2 i2) then
         mem.[i3] <- 1
     else
         mem.[i3] <- 0
-    -1
+    PASS
 | EQ ((m1, i1), (m2, i2), (_,i3)) -> 
     if (getVal mem m1 i1) = (getVal mem m2 i2) then
         mem.[i3] <- 1
     else
         mem.[i3] <- 0
-    -1
+    PASS
 | OUT (mode, i) ->
     getVal mem mode i |> printfn "%O"
-    -1
+    PASS
 | HALT ->
     printfn "HALT";
-    -1
+    PASS
 
-let getPos newPos output =
-    match output with
-    | -1 -> newPos
-    | x -> x
+let getPos pos result =
+    match result with
+    | PASS -> pos
+    | JUMP i -> i
 
 let rec runIntCode (mem: int[]) pos =
     let inst, posDiff = parseInst mem pos
-    let output = runInst mem inst
+    let res = runInst mem inst
     if inst <> HALT then
-        runIntCode mem (getPos (pos+posDiff) output)
+        runIntCode mem (getPos (pos+posDiff) res)
     else
         ()
