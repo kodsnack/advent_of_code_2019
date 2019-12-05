@@ -29,3 +29,68 @@ let input = [|
     223;223;7;677;677;224;1002;223;2;223;1005;224;644;1001;223;1;223;108;677;677;224;102;2;223;223;
     1005;224;659;101;1;223;223;1007;677;677;224;102;2;223;223;1006;224;674;101;1;223;223;4;223;99;226
 |]
+
+type Mode =
+    | Pos
+    | Val
+
+let mode = function
+| 0 -> Pos
+| 1 -> Val
+| _ -> failwith "Mode value out of range"
+
+type Inst =
+    | Add of (Mode * int) *  (Mode * int) * (Mode * int)
+    | Mul of (Mode * int) *  (Mode * int) * (Mode * int)
+    | In of Mode * int * int
+    | Out of Mode * int
+    | Halt
+    | EOF
+
+let memSize = function
+| Add _ -> 4
+| Mul _ -> 4
+| In _  -> 2
+| Out _ -> 2
+| Halt  -> 1
+| EOF   -> 0
+
+let digitsRev (x:int) = x |> string |> fun x -> x.ToCharArray() |> Array.map (fun x -> int x - int '0') |> List.ofArray |> List.rev 
+
+let padDigits = function
+| 1::[]         -> [1;0;0;0;0]
+| 1::x::[]      -> [1;x;0;0;0]
+| 1::x::y::[]   -> [1;x;y;0;0]
+| 1::x::y::z::[]-> [1;x;y;z;0]
+| 1::_ as xs    -> xs
+| 2::[]         -> [2;0;0;0;0]
+| 2::x::[]      -> [2;x;0;0;0]
+| 2::x::y::[]   -> [2;x;y;0;0]
+| 2::x::y::z::[]-> [2;x;y;z;0]
+| 2::_ as xs    -> xs
+| 3::x::y::[]   -> [3;x;y]
+| 3::x::[]      -> [3;x;0]
+| 3::[]         -> [3;0;0]
+| 4::x::y::[]   -> [4;x;y]
+| 4::x::[]      -> [4;x;0]
+| 4::[]         -> [4;0;0]
+| [9;9] as xs   -> xs
+| _ -> failwith "incorrect digit set for padDigits"
+
+
+let createInst (mem: int[]) pos = function
+| [1;0;a;b;c] -> Add ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [2;0;a;b;c] -> Mul ((mode a, mem.[pos+1]), (mode b, mem.[pos+2]), (mode c, mem.[pos+3]))
+| [3;0;a] -> In (mode a, mem.[pos+1], 1)
+| [4;0;a] -> Out (mode a, mem.[pos+1])
+| [9;9]   -> Halt
+| _ -> failwith "incorrect digit set for createInst"
+    
+
+let getInstruction (mem: int[]) pos =
+    match Array.tryItem pos mem with
+    | None -> (EOF, pos)
+    | Some i -> 
+        let inst = createInst mem pos (i |> digitsRev |> padDigits)
+        (inst, memSize inst)
+
