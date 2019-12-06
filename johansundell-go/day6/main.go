@@ -38,24 +38,24 @@ func parseInput(input string) orbitMap {
 
 func getTotalOrbits(input string) (tot int) {
 	om := parseInput(input)
-	for k, _ := range om {
+	for k := range om {
 		tot += om.getParents(k)
 	}
 	return
 }
 
-func getDistance(input, from, to string) int {
+func getDistance(input, from, to string) (tot int) {
 	om := parseInput(input)
 	dists := make(map[string]int)
 	for row, ok := om[from]; ok; row, ok = om[row] {
 		dists[row] = len(dists)
 	}
-	i := 0
 	for row, ok := om[to]; ok; row, ok = om[row] {
 		if d, found := dists[row]; found {
-			return i + d
+			tot = tot + d
+			break
 		}
-		i++
+		tot++
 	}
-	return -1
+	return
 }
