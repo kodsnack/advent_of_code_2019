@@ -52,8 +52,8 @@ func getDistance(input, from, to string) int {
 	}
 	i := 0
 	for row, ok := om[to]; ok; row, ok = om[row] {
-		if _, found := dists[row]; found {
-			return i + dists[row]
+		if d, found := dists[row]; found {
+			return i + d
 		}
 		i++
 	}
