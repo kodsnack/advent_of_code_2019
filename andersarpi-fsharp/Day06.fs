@@ -1057,5 +1057,5 @@ module Part2 =
     let youRoute = traceToCOM 0 "YOU" [] |> List.rev
     let sanRoute = traceToCOM 0 "SAN" [] |> List.rev
 
-    let youCommonPlanet = youRoute |> List.find (fun (p,d) -> List.exists (fun (p',_) -> p = p') sanRoute)
+    let youCommonPlanet = youRoute |> List.find (fun (p,_) -> List.exists (fun (p',_) -> p = p') sanRoute)
     List.find (fun (p,_) -> p = (fst youCommonPlanet)) sanRoute |> snd |> (+) (snd youCommonPlanet) |> (fun x -> x - 2) |> printfn "%O"
