@@ -38,3 +38,43 @@ def test_3b():
 
     answer = day_3b.read_and_solve()
     assert(122514 == answer)
+
+def test_4a():
+    import day_4a
+
+    answer = day_4a.read_and_solve()
+    assert(945 == answer)
+
+
+def test_4b():
+    import day_4b
+
+    answer = day_4b.read_and_solve()
+    assert(617 == answer)
+
+def test_5a():
+    import day_5a
+
+    answer = day_5a.read_and_solve()
+    assert(5044655 == answer)
+
+
+def test_5b():
+    import day_5b
+
+    answer = day_5b.read_and_solve()
+    assert(7408802 == answer)
+
+
+def test_6a():
+    import day_6a
+
+    answer = day_6a.read_and_solve()
+    assert(122782 == answer)
+
+
+def test_6b():
+    import day_6b
+
+    answer = day_6b.read_and_solve()
+    assert(271 == answer)

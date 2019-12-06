@@ -1,0 +1,2 @@
+g++ -std=c++17 3b.cpp -o 3b
+./3b < input

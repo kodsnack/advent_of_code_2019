@@ -1,0 +1,2 @@
+g++ -std=c++17 2a.cpp -o 2a
+./2a < input
