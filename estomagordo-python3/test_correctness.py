@@ -64,3 +64,17 @@ def test_5b():
 
     answer = day_5b.read_and_solve()
     assert(7408802 == answer)
+
+
+def test_6a():
+    import day_6a
+
+    answer = day_6a.read_and_solve()
+    assert(122782 == answer)
+
+
+def test_6b():
+    import day_6b
+
+    answer = day_6b.read_and_solve()
+    assert(271 == answer)
