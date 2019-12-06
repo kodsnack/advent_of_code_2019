@@ -10,8 +10,8 @@ import (
 type orbitMap map[string]string
 
 func (o orbitMap) getParents(str string) (i int) {
-	for row, ok := o[str]; ok; i++ {
-		row, ok = o[row]
+	for row, ok := o[str]; ok; row, ok = o[row] {
+		i++
 	}
 	return
 }
@@ -21,20 +21,41 @@ func (o orbitMap) add(name, parent string) {
 	o[name] = parent
 }
 
-func parseInput(input string) (tot int) {
+func main() {
+	data, _ := adventofcode2017.GetInput("day6.txt")
+	fmt.Println(getTotalOrbits(data), getDistance(data, "YOU", "SAN"))
+}
+
+func parseInput(input string) orbitMap {
 	data := strings.Split(input, "\n")
 	om := make(orbitMap)
 	for _, row := range data {
 		ab := strings.Split(row, ")")
 		om.add(ab[1], ab[0])
 	}
+	return om
+}
+
+func getTotalOrbits(input string) (tot int) {
+	om := parseInput(input)
 	for k, _ := range om {
 		tot += om.getParents(k)
 	}
 	return
 }
 
-func main() {
-	data, _ := adventofcode2017.GetInput("day6.txt")
-	fmt.Println(parseInput(data))
+func getDistance(input, from, to string) int {
+	om := parseInput(input)
+	dists := make(map[string]int)
+	for row, ok := om[from]; ok; row, ok = om[row] {
+		dists[row] = len(dists)
+	}
+	i := 0
+	for row, ok := om[to]; ok; row, ok = om[row] {
+		if _, found := dists[row]; found {
+			return i + dists[row]
+		}
+		i++
+	}
+	return -1
 }
