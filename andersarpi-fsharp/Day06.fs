@@ -1039,7 +1039,6 @@ let orbits = [|
     ("WN5", "66W"); |] |> Array.map (fun (x,y) -> y,x) |> Map.ofArray
 
 module Part1 =
-
     let planets = [for KeyValue(k,v) in orbits -> k]
 
     let rec traceToCOM dist p =
