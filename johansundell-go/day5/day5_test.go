@@ -48,3 +48,7 @@ func Test_Ex7(t *testing.T) {
 		//t.Fail()
 	}
 }
+
+func Test_Ex8(t *testing.T) {
+	parseOpcode("3,9,8,9,10,9,4,9,99,-1,8", 0)
+}
