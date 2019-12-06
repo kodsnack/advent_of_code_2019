@@ -12,8 +12,6 @@ void p06(std::istream & is) {
 
     {
         bool done = false;
-        int num = 0;
-        bool have_num = false;
         std::string str, f, s;
 
         while (!done) {
@@ -43,34 +41,24 @@ void p06(std::istream & is) {
         }
     }
 
-    for(auto & p : map) {
-        auto [a,b] = p;
-        auto it = map.find(b);
-        std::cout << a << " -> " << b;
-        ans1++;
-        while(it != map.end()) {
-            std::cout << " -> " << it->second;
-            ans1++;
-            it = map.find(it->second);
+    std::unordered_map<std::string, std::vector<std::string>> paths;
+    for(const auto & [f,tt] : map) {
+        auto t = tt;
+        while(true) {
+            paths[f].push_back(t);
+            auto it = map.find(t);
+            if(it != map.end()) {
+                t = it->second;
+            } else break;
         }
-        std::cout << std::endl;
     }
 
-    std::unordered_map<std::string, std::vector<std::string>> xxx;
-    for(auto q : {"YOU", "SAN"}) {
-        auto it = map.find(q);
-        std::cout << q;
-        while(it != map.end()) {
-            std::cout << " -> " << it->second;
-            xxx[q].push_back(it->second);
-            it = map.find(it->second);
-        }
-        std::cout << std::endl;
-    }
-    auto & v1 = xxx["YOU"];
-    auto & v2 = xxx["SAN"];
-    for(int i1 = 0; i1 < v1.size(); i1++) {
-        for(int i2 = 0; i2 < v2.size(); i2++) {
+    for(const auto & [k,v] : paths) ans1 += v.size();
+
+    auto & v1 = paths["YOU"];
+    auto & v2 = paths["SAN"];
+    for(size_t i1 = 0; i1 < v1.size(); i1++) {
+        for(size_t i2 = 0; i2 < v2.size(); i2++) {
             if(v1[i1] == v2[i2]){
                 ans2 = i1+i2;
                 break;
