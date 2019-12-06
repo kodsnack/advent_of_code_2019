@@ -168,6 +168,7 @@ module Map = struct
     include Map.S
     val maxf: (key -> 'a -> 'b) -> 'a t -> key * 'a
     val find_default : key -> 'a -> 'a t -> 'a
+    val keys : 'a t -> key list
   end
 
   module Make (Ord: Map.OrderedType) : S with type key = Ord.t = struct
@@ -190,6 +191,7 @@ module Map = struct
       | None -> d
       | Some x -> x
 
+    let keys m = m |> bindings |> List.rev_map fst |> List.rev
   end
 end
 
