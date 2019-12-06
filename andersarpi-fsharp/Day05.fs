@@ -1038,21 +1038,6 @@ let orbits = [|
     ("R71", "ZKF");
     ("WN5", "66W"); |] |> Array.map (fun (x,y) -> y,x) |> Map.ofArray
 
-//let orbits = [|
-//    ("COM","B");
-//    ("B","C");
-//    ("C","D");
-//    ("D","E");
-//    ("E","F");
-//    ("B","G");
-//    ("G","H");
-//    ("D","I");
-//    ("E","J");
-//    ("J","K");
-//    ("K","L");
-//    ("K","YOU");
-//    ("I","SAN"); |] |> Array.map (fun (x,y) -> y,x) |> Map.ofArray
-
 module Part1 =
 
     let planets = [for KeyValue(k,v) in orbits -> k]
