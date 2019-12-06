@@ -14,23 +14,12 @@ def solve(d):
         if a not in graph:
             graph[a] = 'STOP'
 
-    vals = graph.values()
-
     count = 0
 
     for node in graph.keys():
-        # if node in vals:
-        #     continue
-
-        orig = node
-
-        runlen = -1
-
-        while node in graph:
-            runlen += 1
+        while node in graph and graph[node] in graph:
+            count += 1
             node = graph[node]
-
-        count += runlen
 
     return count
 

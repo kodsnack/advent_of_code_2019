@@ -5,6 +5,18 @@ from heapq import heappop, heappush
 from collections import Counter, defaultdict
 
 
+def pathize(graph, node):
+    path = {}
+    runlen = 0
+
+    while node in graph:
+        runlen += 1
+        node = graph[node]
+        path[node] = runlen
+
+    return path
+
+
 def solve(d):
     graph = {}
 
@@ -14,36 +26,18 @@ def solve(d):
         if a not in graph:
             graph[a] = 'STOP'
 
-    youorbits = {}
-    sanorbits = {}
-
-    for node in graph.keys():
-        mode = 0 if node == graph['YOU'] else 1 if node == graph['SAN'] else -1
-
-        if mode == -1:
-            continue
-
-        runlen = 0
-
-        while node in graph:
-            runlen += 1
-            node = graph[node]
-            if mode == 0:
-                youorbits[node] = runlen
-            else:
-                sanorbits[node] = runlen
+    you_orbits = pathize(graph, graph['YOU'])
+    san_orbits = pathize(graph, graph['SAN'])
 
     best = 10**10
 
-    for k, v in youorbits.items():
-        if k not in sanorbits:
+    for k, v in you_orbits.items():
+        if k not in san_orbits:
             continue
 
-        best = min(best, v + sanorbits[k])
+        best = min(best, v + san_orbits[k])
 
     return best
-
-    return count
 
 def read_and_solve():
     with open('input_6.txt') as f:
