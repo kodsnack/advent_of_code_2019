@@ -82,8 +82,8 @@ findShortest depth (a, b) | depth > 2 * (length a + length b) = -1
             $   (,)
             <$> take depth a
             <*> take depth b
-    len (a,b) = getSteps a + getSteps b
-    isEqual (a,b) = getPos a == getPos b
+    len (a, b) = getSteps a + getSteps b
+    isEqual (a, b) = getPos a == getPos b
 
 solve2 = show . findShortest 1 . toPair . map (tail . genPos (0, (0, 0)))
     where toPair [a, b] = (a, b)

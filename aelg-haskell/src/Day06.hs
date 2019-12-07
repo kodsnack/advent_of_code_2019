@@ -18,7 +18,7 @@ parseOrbit = P.run $ do
 
 buildOT = M.fromList
 
-countParents count m a = go (count+1) (M.lookup a m)
+countParents count m a = go (count + 1) (M.lookup a m)
     where go count = maybe count (countParents count m)
 
 countOrbits m = M.foldr' go 0 m where go a b = b + countParents 0 m a
