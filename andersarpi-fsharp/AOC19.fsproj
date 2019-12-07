@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Day01.fs" />
+    <Compile Include="Day02.fs" />
+    <Compile Include="Day03.fs" />
+    <Compile Include="Day04Ugly.fs" />
+    <Compile Include="Day04.fs" />
+    <Compile Include="Day05.fs" />
+    <Compile Include="Day06.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+</Project>

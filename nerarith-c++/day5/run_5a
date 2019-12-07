@@ -1,0 +1,2 @@
+g++ -std=c++17 5a.cpp -o 5a
+(cat input && echo "1") | ./5a
