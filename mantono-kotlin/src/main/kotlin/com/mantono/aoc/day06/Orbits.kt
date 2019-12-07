@@ -21,11 +21,11 @@ private fun computeRecursiveOrbits(
     val indent: String = String(Array<Char>(depth) { ' ' }.toCharArray())
     return if(orbitalChildren.isEmpty()) {
         println("$indent$planet ==> $depth")
-        (depth * (depth + 1)) / 2
+        depth
     } else {
-        println("$indent$planet ==> $orbitalChildren")
+        println("$indent$planet ==> $orbitalChildren $depth")
         orbitalChildren.asSequence()
             .map { computeRecursiveOrbits(orbits, it, depth + 1) }
-            .sum()
+            .sum() + depth
     }
 }
