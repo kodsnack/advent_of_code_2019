@@ -34,7 +34,11 @@ def _opcode2(memory, ip, modes):
 
 def _opcode3(memory, ip, modes, inputs):
     _, op1 = memory[ip : ip + 2]
-    memory[op1] = inputs.pop(0)
+    try:
+        memory[op1] = inputs.get()
+    except AttributeError:
+        # Fall back to assuming a regular list
+        memory[op1] = inputs.pop(0)
     # print(f'memory[{op1}] = {memory[op1]}')
     return memory, ip + 2
 
@@ -43,7 +47,11 @@ def _opcode4(memory, ip, modes, outputs):
     _, op1 = memory[ip : ip + 2]
     # if memory[op1] != 0:
     #     breakpoint()
-    outputs.append(memory[op1])
+    try:
+        outputs.put(memory[op1])
+    except AttributeError:
+        # Fall back to assuming a regular list
+        outputs.append(memory[op1])
     return memory, ip + 2
 
 
