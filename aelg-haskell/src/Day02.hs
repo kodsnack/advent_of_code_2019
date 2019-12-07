@@ -5,10 +5,10 @@ where
 
 import           Control.Arrow
 import           Control.Lens
-import qualified Data.Map.Strict               as M
-import           Text.ParserCombinators.ReadP
-import qualified Parsing                       as P
+import qualified Data.Map.Strict              as M
 import           IntcodeVM
+import qualified Parsing                      as P
+import           Text.ParserCombinators.ReadP
 
 parse :: [String] -> [Int]
 parse = P.run programParser . head

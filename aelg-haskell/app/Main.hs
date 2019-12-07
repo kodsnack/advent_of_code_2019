@@ -3,18 +3,16 @@ module Main
     )
 where
 
-import           Data.ByteString.Char8          ( pack
-                                                , unpack
-                                                )
-import           Data.CaseInsensitive           ( mk )
-import qualified Data.Map                      as M
+import           Control.Concurrent.ParallelIO.Global
+import           Control.Exception
+import           Data.ByteString.Char8                (pack, unpack)
+import           Data.CaseInsensitive                 (mk)
+import qualified Data.Map                             as M
 import           Data.Maybe
 import           Network.HTTP.Client
 import           Network.HTTP.Client.TLS
-import           System.Environment
 import           System.Directory
-import           Control.Exception
-import           Control.Concurrent.ParallelIO.Global
+import           System.Environment
 
 import qualified SolutionLookup
 
@@ -24,7 +22,16 @@ solve :: Integer -> ([String] -> (String, String)) -> IO String -> IO String
 solve x f s = do
     (a1, a2) <- f . lines <$> s
     return
-        ("Day " ++ show x ++ ":\n" ++ "  Part 1: " ++ a1 ++ "\n" ++ "  Part 2: " ++ a2 ++ "\n")
+        (  "Day "
+        ++ show x
+        ++ ":\n"
+        ++ "  Part 1: "
+        ++ a1
+        ++ "\n"
+        ++ "  Part 2: "
+        ++ a2
+        ++ "\n"
+        )
 
 notImplemented s = ("Not implemented", "Input: " ++ unlines s)
 
@@ -63,8 +70,10 @@ main = do
         test       = "test" `elem` args
         s          = readInput sessionKey
         inputs     = map s (M.keys SolutionLookup.solutions)
-        dayInput = if test then const getContents else \x -> inputs !! fromInteger (x - 1)
-        solvers    = case mDayNumber of
+        dayInput   = if test
+            then const getContents
+            else \x -> inputs !! fromInteger (x - 1)
+        solvers = case mDayNumber of
             Just x -> [solve x (getSolution x) $ dayInput x]
             _      -> map (\(x, input) -> solve x (getSolution x) input)
                           (zip [1 ..] inputs)

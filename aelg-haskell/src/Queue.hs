@@ -7,7 +7,7 @@ module Queue
     )
 where
 
-import           Prelude                 hiding ( null )
+import           Prelude hiding (null)
 
 data Queue a = Queue { inbox :: [a], outbox :: [a] } deriving Show
 

@@ -6,8 +6,8 @@ module Parsing
     )
 where
 
-import           Text.ParserCombinators.ReadP
 import           Data.Char
+import           Text.ParserCombinators.ReadP
 
 integer :: ReadP Int
 integer =

@@ -4,10 +4,10 @@ module Day06
 where
 
 import           Control.Arrow
-import qualified Data.Map.Strict               as M
 import           Data.Char
+import qualified Data.Map.Strict              as M
+import qualified Parsing                      as P
 import           Text.ParserCombinators.ReadP
-import qualified Parsing                       as P
 
 parseOrbit = P.run $ do
     parent <- many1 . satisfy $ isAlphaNum

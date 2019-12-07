@@ -3,7 +3,7 @@ module SolutionLookup
     )
 where
 
-import qualified Data.Map                      as M
+import qualified Data.Map as M
 
 import qualified Day01
 import qualified Day02

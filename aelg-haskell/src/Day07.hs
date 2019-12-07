@@ -6,45 +6,35 @@ where
 import           Control.Arrow
 import           Control.Lens
 import           Data.List
-import qualified Data.Map.Strict               as M
-import           Text.ParserCombinators.ReadP
-import qualified Parsing                       as P
+import qualified Data.Map.Strict              as M
 import           IntcodeVM
+import qualified Parsing                      as P
+import           Text.ParserCombinators.ReadP
 
-
-parse :: [String] -> [Int]
-parse = P.run programParser . head
-
-runAmplifiers :: [Int] -> Int -> [Int] -> Int
-runAmplifiers program i []               = i
-runAmplifiers program i (phase : phases) = runAmplifiers program output phases
-  where
-    vm     = initVM [phase, i] program
-    output = head $ view outputs (runVM vm)
-
-solve1 :: [Int] -> String
-solve1 l = show . maximum . map (runAmplifiers l 0) $ permutations [0 .. 4]
-
-initVMs program = map (runVM . init) where init phase = initVM [phase] program
+initVMs program = map (runVM . init)
+    where init phase = initNamedVM ("phase " ++ show phase) [phase] program
 
 runPass :: [VM] -> Int -> (Int, [VM])
 runPass vms i = foldl' runAmp (i, []) vms
   where
-    runAmp (i, vms) vm@WaitingVM{} = (out, vms ++ [nextVM])
-        where (out, nextVM) = getOutputVM . runVM $ addInputsVM [i] vm
+    runAmp (i, vms) vm = (out, vms ++ [nextVM])
+        where (out, nextVM) = getOutput . runVM $ addInputs [i] vm
 
 feedbackLoop :: Int -> [VM] -> (Int, [VM])
 feedbackLoop input vms | all isHalted vms = (input, vms)
                        | all isHalted vms = error "All vms not halted"
                        | otherwise        = feedbackLoop i newVMs
-  where
-    (i, newVMs) = runPass vms input
-    isHalted :: VM -> Bool
-    isHalted HaltedVM{} = True
-    isHalted _          = False
+    where (i, newVMs) = runPass vms input
 
-solve2 l = show . maximum . map runPhase $ permutations [5 .. 9]
-    where runPhase phase = fst $ feedbackLoop 0 (initVMs l phase)
+maxOutput prog = maximum . map runPhase . permutations
+    where runPhase phase = fst $ feedbackLoop 0 (initVMs prog phase)
+
+parse :: [String] -> [Int]
+parse = P.run programParser . head
+
+solve1 l = show $ maxOutput l [0 .. 4]
+
+solve2 l = show $ maxOutput l [5 .. 9]
 
 solve :: [String] -> (String, String)
 solve = parse ^>> solve1 &&& solve2
