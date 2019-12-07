@@ -69,6 +69,7 @@ def test_part2():
 
 def test_time_part2():
     import timeit
+
     t = timeit.Timer('part2(masses)', globals=globals())
     n, s = t.autorange()
     print(f'Itererative: {s/n*1000:.5f}ms')
@@ -76,6 +77,7 @@ def test_time_part2():
 
 def test_time_part2_rec():
     import timeit
+
     t = timeit.Timer('part2_rec(masses)', globals=globals())
     n, s = t.autorange()
     print(f'Recursive: {s/n*1000:.5f}ms')
