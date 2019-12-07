@@ -54,6 +54,7 @@ print(part2(neighbors))
 ############
 # Tests
 
+# fmt: off
 example = _parse_orbits('''COM)B
 B)C
 C)D
@@ -82,6 +83,7 @@ K)YOU
 I)SAN
 '''.splitlines())
 example_neighbors = _build_neighbor_map(example2)
+# fmt: on
 
 
 def test_count():
