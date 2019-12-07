@@ -108,6 +108,8 @@ class Comp:
         return self.state == "halted"
     def inp(self, i):
         self.input.append(i)
+        if self.state == "waiting":
+            self.state = "ready"
     def out(self):
         ret = self.output[0]
         del self.output[0]
@@ -166,8 +168,6 @@ if __name__ == "__main__":
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp, ff=lambda x:tuple(map(int, x.split(','))))
 
-    print("Input is '" + str(parseInp[:10])[:100] + 
-          ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
     print(part1(parseInp))
     print(part2(parseInp))
 
