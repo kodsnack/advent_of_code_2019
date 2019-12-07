@@ -34,8 +34,8 @@ def _run_amps(program, seq, start=0):
     return qs[0].get()
 
 
-def part1(program):
-    seqs = permutations(range(5), 5)
+def part1(program, phases=range(5)):
+    seqs = permutations(phases, 5)
     max_signal = -1
     for s in seqs:
         signal = _run_amps(program, s)
@@ -45,13 +45,7 @@ def part1(program):
 
 
 def part2(program):
-    seqs = permutations(range(5, 10), 5)
-    max_signal = -1
-    for s in seqs:
-        signal = _run_amps(program, s)
-        if signal > max_signal:
-            max_signal = signal
-    return max_signal
+    return part1(program, phases=range(5, 10))
 
 
 program = _read_input()
