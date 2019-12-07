@@ -161,6 +161,21 @@ module List = struct
       | x :: xs -> build (x :: xs') (n - 1) xs
     in build [] n xs |> rev
 
+  let chunk f xs =
+    let add x (p,xs) = p,x::xs in
+    let sorted (p,xs) = p,List.rev xs in
+    let rec build chunks chunk = function
+      | [] -> sorted chunk :: chunks |> List.rev
+      | x :: xs ->
+        let p = f x in
+        if p = fst chunk
+        then build chunks (chunk |> add x) xs
+        else build (sorted chunk :: chunks) (p,[x]) xs
+    in
+    match xs with
+    | [] -> []
+    | x :: xs -> build [] (f x, [x]) xs
+
 end
 
 module Map = struct
