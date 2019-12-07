@@ -3,7 +3,7 @@
 #include <tuple>
 #include <queue>
 
-void p07(std::istream & is) {
+void p05(std::istream & is) {
     int ans1 = 0;
     int ans2 = 0;
     const std::vector<int> input = [](auto & is){
@@ -120,5 +120,5 @@ void p07(std::istream & is) {
 }
 
 int main() {
-    p07(std::cin);
+    p05(std::cin);
 }
