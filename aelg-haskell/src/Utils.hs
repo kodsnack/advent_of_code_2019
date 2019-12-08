@@ -6,10 +6,10 @@ module Utils
     )
 where
 
-import qualified Queue                         as Q
-import qualified Data.Map.Strict               as M
-import           Data.Maybe
 import           Control.Parallel.Strategies
+import qualified Data.Map.Strict             as M
+import           Data.Maybe
+import qualified Queue                       as Q
 
 genGrid f (minX, minY, maxX, maxY) = map (map f) (line <$> [minY .. maxY])
     where line y = map (, y) [minX .. maxX]

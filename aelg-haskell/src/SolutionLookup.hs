@@ -3,7 +3,7 @@ module SolutionLookup
     )
 where
 
-import qualified Data.Map                      as M
+import qualified Data.Map as M
 
 import qualified Day01
 import qualified Day02
@@ -12,6 +12,7 @@ import qualified Day04
 import qualified Day05
 import qualified Day06
 import qualified Day07
+import qualified Day08
 
 solutions = M.fromList
     [ (1, Day01.solve)
@@ -21,4 +22,5 @@ solutions = M.fromList
     , (5, Day05.solve)
     , (6, Day06.solve)
     , (7, Day07.solve)
+    , (8, Day08.solve)
     ]
