@@ -6,8 +6,8 @@ module Parsing
     )
 where
 
-import           Text.ParserCombinators.ReadP
 import           Data.Char
+import           Text.ParserCombinators.ReadP
 
 integer :: ReadP Int
 integer =
@@ -20,9 +20,9 @@ integerAnd r = integer >>= \n -> r >> return n
 
 listOf :: ReadP a -> ReadP [a]
 listOf a = do
-  x <- a
-  xs <- many (char ',' >> a)
-  return (x:xs)
+    x  <- a
+    xs <- many (char ',' >> a)
+    return (x : xs)
 
 run :: ReadP a -> String -> a
 run parser s = fst . head $ readP_to_S parser s

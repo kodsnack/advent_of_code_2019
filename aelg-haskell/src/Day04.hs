@@ -5,8 +5,8 @@ where
 
 import           Control.Arrow
 import           Data.List
+import qualified Parsing                      as P
 import           Text.ParserCombinators.ReadP
-import qualified Parsing                       as P
 
 range = (,) <$> P.integerAnd (char '-') <*> P.integerAnd eof
 

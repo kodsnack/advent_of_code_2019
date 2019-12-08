@@ -13,7 +13,15 @@
     <Compile Include="Day04.fs" />
     <Compile Include="Day05.fs" />
     <Compile Include="Day06.fs" />
+    <Compile Include="Day07_1.fs" />
+    <Compile Include="Day07_2.fs" />
+    <Compile Include="Day08.fs" />
+    <Content Include="day08input.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Program.fs" />
   </ItemGroup>
+
+  <ItemGroup />
 
 </Project>

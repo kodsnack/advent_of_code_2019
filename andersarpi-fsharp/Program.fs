@@ -1,4 +1,5 @@
 ﻿[<EntryPoint>]
 let main argv = 
-    Day05.runIntCode Day05.input 0
+    Day08.part1()
+    Day08.part2()
     0

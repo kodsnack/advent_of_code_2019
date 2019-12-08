@@ -92,3 +92,22 @@ def test_7b():
 
     answer = day_7b.read_and_solve()
     assert(11304734 == answer)
+
+
+def test_8a():
+    import day_8a
+
+    answer = day_8a.read_and_solve()
+    assert(1330 == answer)
+
+
+def test_8b():
+    import day_8b
+
+    answer = day_8b.read_and_solve()
+    assert("""****  **  *  * **** **** 
+*    *  * *  * *    *    
+***  *  * **** ***  ***  
+*    **** *  * *    *    
+*    *  * *  * *    *    
+*    *  * *  * **** *    """ == answer)
