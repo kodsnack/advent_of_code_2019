@@ -16,12 +16,11 @@ let part2 () =
     
     let layers = input.ToCharArray() |> Seq.chunkBySize 150
 
-    let image = seq {
+    let image = [
         for i in 0..149 ->
             layers
             |> Seq.find (fun l -> l.[i] <> '2')
             |> (fun l -> if l.[i] = '1' then '#' else ' ')
-    }
-
+    ]
 
     image |> Seq.chunkBySize 25 |> Seq.iter (System.String >> printfn "%s")
