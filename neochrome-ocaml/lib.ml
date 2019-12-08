@@ -161,6 +161,21 @@ module List = struct
       | x :: xs -> build (x :: xs') (n - 1) xs
     in build [] n xs |> rev
 
+  let chunk f xs =
+    let add x (p,xs) = p,x::xs in
+    let sorted (p,xs) = p,List.rev xs in
+    let rec build chunks chunk = function
+      | [] -> sorted chunk :: chunks |> List.rev
+      | x :: xs ->
+        let p = f x in
+        if p = fst chunk
+        then build chunks (chunk |> add x) xs
+        else build (sorted chunk :: chunks) (p,[x]) xs
+    in
+    match xs with
+    | [] -> []
+    | x :: xs -> build [] (f x, [x]) xs
+
 end
 
 module Map = struct
@@ -168,6 +183,7 @@ module Map = struct
     include Map.S
     val maxf: (key -> 'a -> 'b) -> 'a t -> key * 'a
     val find_default : key -> 'a -> 'a t -> 'a
+    val keys : 'a t -> key list
   end
 
   module Make (Ord: Map.OrderedType) : S with type key = Ord.t = struct
@@ -190,6 +206,7 @@ module Map = struct
       | None -> d
       | Some x -> x
 
+    let keys m = m |> bindings |> List.rev_map fst |> List.rev
   end
 end
 

@@ -13,7 +13,7 @@ def part1(program):
     memory = program.copy()
     memory[1] = 12
     memory[2] = 2
-    memory, _ = run(memory)
+    memory, _, _, _ = run(memory)
     return memory[0]
 
 
@@ -23,7 +23,7 @@ def part2(program: list):
         memory = program.copy()
         memory[1] = n
         memory[2] = v
-        memory, _ = run(memory)
+        memory, _, _, _ = run(memory)
         if memory[0] == 19690720:
             break
     return n * 100 + v
