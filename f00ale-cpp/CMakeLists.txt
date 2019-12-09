@@ -3,6 +3,9 @@ project(aoc19_f00ale)
 
 set(CMAKE_CXX_STANDARD 17)
 
+add_compile_options($<$<BOOL:${SANITIZE}>:-fsanitize=address,leak>)
+add_link_options($<$<BOOL:${SANITIZE}>:-fsanitize=address,leak>)
+
 add_compile_options(-Wall -Wextra -march=native)
 
 add_executable(stub src/stub.cpp)
