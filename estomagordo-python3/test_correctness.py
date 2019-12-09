@@ -111,3 +111,17 @@ def test_8b():
 *    **** *  * *    *    
 *    *  * *  * *    *    
 *    *  * *  * **** *    """ == answer)
+
+
+def test_9a():
+    import day_9a
+
+    answer = day_9a.read_and_solve()
+    assert(2457252183 == answer)
+
+
+def test_9b():
+    import day_9b
+
+    answer = day_9b.read_and_solve()
+    assert(70634 == answer)
