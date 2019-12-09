@@ -17,6 +17,7 @@ pub enum Instruction {
   JumpIfFalse((Value, Value)),
   LessThan((Value, Value, Value)),
   Equals((Value, Value, Value)),
+  ReduceAbsoluteRelative(Value),
   Input(Value),
   Output(Value),
   Halt,
@@ -47,6 +48,7 @@ pub enum OpCode {
   JumpIfFalse = 6,
   LessThan = 7,
   Equals = 8,
+  ReduceAbsoluteRelative = 9,
   Halt = 99,
 }
 impl OpCode {
@@ -60,6 +62,7 @@ impl OpCode {
       6 => Ok(OpCode::JumpIfFalse),
       7 => Ok(OpCode::LessThan),
       8 => Ok(OpCode::Equals),
+      9 => Ok(OpCode::ReduceAbsoluteRelative),
       99 => Ok(OpCode::Halt),
       _ => Err(Error::Operand(val)),
     }
@@ -70,12 +73,14 @@ impl OpCode {
 pub enum Mode {
   Direct,
   Stored,
+  Relative,
 }
 impl Mode {
   pub fn dest_of_val(val: i64) -> Result<Mode, Error> {
     match val {
       0 => Ok(Mode::Direct),
       1 => Ok(Mode::Stored),
+      2 => Ok(Mode::Relative),
       _ => Err(Error::Mode),
     }
   }
@@ -83,6 +88,7 @@ impl Mode {
     match val {
       0 => Ok(Mode::Stored),
       1 => Ok(Mode::Direct),
+      2 => Ok(Mode::Relative),
       _ => Err(Error::Mode),
     }
   }
@@ -90,12 +96,14 @@ impl Mode {
 
 #[derive(Debug, Clone)]
 pub enum Value {
+  Relative(i64),
   Direct(i64),
   Stored(i64),
 }
 impl std::fmt::Display for Value {
   fn fmt(&self, fmt: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
     match self {
+      Value::Relative(base) => write!(fmt, "Relative({})", base),
       Value::Direct(val) => write!(fmt, "Direct({})", val),
       Value::Stored(addr) => write!(fmt, "Stored({})", addr),
     }

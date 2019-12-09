@@ -15,8 +15,8 @@ pub fn run(computer: &super::Computer, input: Option<Input>) -> i64 {
     computer.set(1, input.noun);
     computer.set(2, input.verb);
   }
-  super::run_to_end(&mut computer, &[]);
-  computer.get(0)
+  assert!(super::run_to_end(&mut computer, &[]).is_ok());
+  computer.read_memory(0).unwrap()
 }
 trait InputAvailable {
   fn has_input(&self) -> Option<Input>;
