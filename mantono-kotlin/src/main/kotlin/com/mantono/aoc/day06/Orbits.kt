@@ -18,15 +18,29 @@ fun orbitalTransfers(input: String): Int {
         .map { it.trim().split(")") }
         .groupBy({ it.first() }, { it.last() })
 
-    return breadthFirstSearch(orbits, "YOU", "SAN")
+    val pathToSanta: List<String> = findPathToObject(orbits, "SAN")
+    val pathToMe: List<String> = findPathToObject(orbits, "YOU")
+    val commonPath: Set<String> = pathToSanta.toSet().intersect(pathToMe.toSet())
+    return (pathToMe.size + pathToSanta.size) - (commonPath.size * 2) - 2
 }
 
-tailrec fun breadthFirstSearch(
+fun findPathToObject(
     orbits: Map<String, List<String>>,
-    origin: String,
-    destination: String
-): Int {
-    return -1
+    destination: String,
+    path: List<String> = emptyList(),
+    current: String = "COM"
+): List<String> {
+    val updatedPath: List<String> = path + current
+    if(destination == current) {
+        return updatedPath
+    }
+    val options: List<String> = orbits.getOrDefault(current, emptyList())
+    if(options.isEmpty()) {
+        return emptyList()
+    }
+    return options.asSequence()
+        .map { findPathToObject(orbits, destination, updatedPath, it) }
+        .firstOrNull { it.contains(destination) } ?: emptyList()
 }
 
 private fun computeRecursiveOrbits(
