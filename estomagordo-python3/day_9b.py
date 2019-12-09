@@ -6,8 +6,6 @@ from itertools import permutations
 
 
 def solve(data, inp):
-    # data = [209,1,203,-1,4,0,99]
-    # inp = 20
     d = defaultdict(int)
 
     for i, v in enumerate(data):
