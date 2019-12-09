@@ -15,21 +15,51 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 ## End of header boilerplate ###################################################
 
+class TrapException(RuntimeError):
+    pass
+
+class Memory:
+    def __init__(self, comp):
+        self.storage = dict()
+        self.comp = comp
+    def __getitem__(self, key):
+        if not isinstance(key, int) or key < 0:
+            self.comp.trap("Invalid memory access key {}".format(key))
+        else:
+            return self.storage.get(key, 0)
+    def __setitem__(self, key, value):
+        if not isinstance(key, int) or key < 0:
+            self.comp.trap("Invalid memory access key {}".format(key))
+        else:
+            self.storage[key] = value
+    def load(self, content, start=0):
+        for idx, value in enumerate(content):
+            self[idx+start] = value
+        return self
+
 class Comp:
+    def trap(self, msg):
+        self.error.apped((self.pc, self.msg))
+        self.mode = "halted"
+        raise TrapException()
     def writeTarget(self, argNo):
         mode = self.mem[self.pc]//(10*10**argNo)%10
         if mode == 2:
             return self.mem[self.pc+argNo] + self.relBase
-        else:
+        elif mode == 0:
             return self.mem[self.pc+argNo]
+        else:
+            self.trap("Illegal mode for write addressing {}".format(mode))
     def readVal(self, argNo):
         mode = self.mem[self.pc]//(10*10**argNo)%10
         if mode == 1:
             return self.mem[self.pc+argNo]
         elif mode == 2:
             return self.mem[self.mem[self.pc+argNo] + self.relBase]
-        else:
+        elif mode == 0:
             return self.mem[self.mem[self.pc+argNo]]
+        else:
+            self.trap("Illegal mode for read addressing {}".format(mode))
 
     def addI(self):
         target = self.writeTarget(3)
@@ -109,7 +139,7 @@ class Comp:
         9: aBase, 99:halt}
 
     def __init__(self, pinp):
-        self.mem = {address: value for address, value in enumerate(pinp)}
+        self.mem = Memory(self).load(pinp)
         self.pc = 0
         self.relBase = 0
         self.state = "ready"
@@ -139,11 +169,15 @@ class Comp:
         if instr in self.ilist:
             self.pc = self.ilist[instr](self)
         else:
-            self.error.append((self.pc, "Invalid instruction []".format(self.mem[self.pc])))
-            self.state = "halted"
+            self.trap((self.pc, "Invalid instruction {}".format(self.mem[self.pc])))
     def run(self):
-        while(not self.halted()):
-            self.step()
+        try:
+            while(self.ready()):
+                self.step()
+        except TrapException:
+            if (len(self.error) > 0):
+                for error in self.error:
+                    print("{:08D}: {}".format(error[0], error[1]))
 
 def oneInOneOut(pinp, i):
     c = Comp(pinp[0][0])
