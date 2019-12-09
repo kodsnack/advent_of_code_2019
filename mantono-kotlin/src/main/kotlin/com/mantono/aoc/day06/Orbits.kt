@@ -12,6 +12,23 @@ fun calculateOrbits(input: String): Int {
     return computeRecursiveOrbits(orbits)
 }
 
+@AoC(6, Part.B)
+fun orbitalTransfers(input: String): Int {
+    val orbits: Map<String, List<String>> = input.split("\n").asSequence()
+        .map { it.trim().split(")") }
+        .groupBy({ it.first() }, { it.last() })
+
+    return breadthFirstSearch(orbits, "YOU", "SAN")
+}
+
+tailrec fun breadthFirstSearch(
+    orbits: Map<String, List<String>>,
+    origin: String,
+    destination: String
+): Int {
+    return -1
+}
+
 private fun computeRecursiveOrbits(
     orbits: Map<String, List<String>>,
     planet: String = "COM",
