@@ -28,7 +28,7 @@ def solve(data, inp):
         c = d[p + 3] if cmode == 1 else d[d[p + 3]] if cmode == 0 else d[d[p + 3] + relbase]
 
         if d[p] % 100 == 99:
-            return 'ninety-nine', d[0], steps
+            return 'ninety-nine'
         elif d[p] % 100 == 1:
             if cmode == 0:
                 d[d[p + 3]] = a + b
@@ -48,7 +48,7 @@ def solve(data, inp):
                 d[d[p + 1] + relbase] = inp
             p += 2
         elif d[p] % 100 == 4:
-            print('output', a, d[a], d[p+1], steps)
+            return a
             p += 2
         elif d[p] % 100 == 5:
             if a != 0:
@@ -80,7 +80,7 @@ def solve(data, inp):
         else:
             print('uh oh', d[p])
 
-    return 'outside-loop', d[0], steps
+    return 'outside-loop'
 
 
 def read_and_solve():
