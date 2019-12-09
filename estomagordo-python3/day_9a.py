@@ -6,7 +6,8 @@ from itertools import permutations
 
 
 def solve(data, inp):
-    #ata = [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99]
+    # data = [209,1,203,-1,4,0,99]
+    # inp = 20
     d = defaultdict(int)
 
     for i, v in enumerate(data):
@@ -20,6 +21,8 @@ def solve(data, inp):
         steps += 1
         amode = (d[p] % 1000) // 100
         bmode = (d[p] % 10000) // 1000
+        cmode = (d[p] % 100000) // 10000
+        
         a = d[p + 1] if amode == 1 else d[d[p + 1]] if amode == 0 else d[d[p + 1] + relbase]
         b = d[p + 2] if bmode == 1 else d[d[p + 2]] if bmode == 0 else d[d[p + 2] + relbase]
 
@@ -32,10 +35,13 @@ def solve(data, inp):
             d[d[p + 3]] = a * b
             p += 4
         elif d[p] % 100 == 3:
-            d[a] = inp
+            if amode == 0:
+                d[d[p + 1]] = inp
+            else:
+                d[d[p + 1] + relbase] = inp
             p += 2
         elif d[p] % 100 == 4:
-            print('output', a, d[a], steps)
+            print('output', a, d[a], d[p+1], steps)
             p += 2
         elif d[p] % 100 == 5:
             if a != 0:
