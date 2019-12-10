@@ -59,7 +59,7 @@ def solve(d):
 
         best = max(best, (score, ax, ay))
 
-    return best
+    return best[0]
 
 def read_and_solve():
     with open('input_10.txt') as f:
