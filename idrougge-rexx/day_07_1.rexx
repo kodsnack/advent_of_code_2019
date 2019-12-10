@@ -110,7 +110,7 @@ out = ''
 do # = 1 to arg(1)
 	@ = pc + #
 	if mode.# then do
-		out = out ram.@		
+		out = out ram.@
 	end
 	else do
 		ref = ram.@
