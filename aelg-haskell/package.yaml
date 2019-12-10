@@ -32,6 +32,7 @@ dependencies:
 - directory
 - lens
 - sort
+- ilist
 
 library:
   source-dirs: src
