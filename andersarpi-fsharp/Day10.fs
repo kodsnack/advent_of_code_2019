@@ -34,13 +34,12 @@ let countVisible p1 ps =
     |> Seq.map (fun p2 -> findOnVector p1 p2 ps)
     |> Seq.sumBy (fun o -> match o with None -> 1 | Some _ -> 0)
 
-let cwAngle (x,y) : int =
+let cwAngle (x,y) =
     let a = System.Math.Atan2(float x, float y)
-    (if a > 0.0 then
-        (System.Math.PI * 2.0  - a)
+    if a > 0.0 then
+        System.Math.PI * 2.0  - a
     else
-        a * -1.0)
-    |> abs |> ((*) 1000000.0) |> int
+        a * -1.0
 
 let sqrDist (x1,y1) (x2,y2) = (x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)
 
