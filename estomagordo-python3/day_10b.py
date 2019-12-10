@@ -2,7 +2,6 @@ import re
 
 from heapq import heappop, heappush
 from collections import Counter, defaultdict
-from fractions import Fraction
 
 
 def reduce(x, y):
@@ -49,14 +48,6 @@ def solve(d):
             angles[(xdiff, ydiff)].append((ox, oy))
 
         score = len(angles)
-
-        # if (10**12, 1) in angles:
-        #     if any(ast[0] < ax for ast in angles[(10**12, 1)]) and any(ast[0] > ax for ast in angles[(10**12, 1)]):
-        #         score += 1
-
-        # if (0, 1) in angles:
-        #     if any(ast[1] < ay for ast in angles[(0, 1)]) and any(ast[1] > ax for ast in angles[(0, 1)]):
-        #         score += 1
 
         if (score, ax, ay) > best:
             best = (score, ax, ay)
@@ -127,8 +118,6 @@ def solve(d):
         for angle, asts in types[7]:
             asts.sort(key=lambda ast: -ast[1])
             new_order.append((7, asts[0]))
-
-    # new_order.sort()
 
     return new_order[199][1][0] * 100 + new_order[199][1][1]
 
