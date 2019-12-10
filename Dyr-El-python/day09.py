@@ -33,8 +33,7 @@ class Memory:
         else:
             self.storage[key] = value
     def load(self, content, start=0):
-        for idx, value in enumerate(content):
-            self[idx+start] = value
+        self.storage.update({idx+start: value for idx, value in enumerate(content)})
         return self
 
 class Comp:
