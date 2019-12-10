@@ -13,7 +13,9 @@ def _split_layers(image, w, h):
     n_layers = len(image) // layer_size
     assert len(image) % layer_size == 0
     for i in range(n_layers):
+        # fmt: off
         layers.append(image[i * layer_size:(i + 1) * layer_size])
+        # fmt: on
     return layers
 
 
