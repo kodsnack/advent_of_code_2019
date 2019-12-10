@@ -3,6 +3,8 @@ package com.mantono.aoc.day05
 import com.mantono.aoc.AoC
 import com.mantono.aoc.Part
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.log10
 import kotlin.math.pow
 
 typealias Memory = MutableList<Int>
@@ -15,16 +17,23 @@ enum class OpCode(
     val execute: Execution
 ) {
     ADD(1 , 3, { mem, input, _ ->
-        mem[input[2]] = input[0] + input[1]
+        val modes: List<Mode> = Mode.parse(input.pop())
+        val i0: Int = mem.read(modes[0], input.pop())
+        val i1: Int = mem.read(modes[1], input.pop())
+        mem[input.pop()] = i0 + i1
     }),
     MULT(2, 3, { mem, input, _ ->
-        mem[input[2]] = input[0] * input[1]
+        val modes: kotlin.collections.List<com.mantono.aoc.day05.Mode> = com.mantono.aoc.day05.Mode.parse(input.pop())
+        val i0: kotlin.Int = mem.read(modes[0], input.pop())
+        val i1: kotlin.Int = mem.read(modes[1], input.pop())
+        mem[input.pop()] = i0 + i1
     }),
     STORE(3, 1, { mem, input, addr ->
-        mem[input[0]] = input[0]
+        // TODO FIX Me!
         mem[mem[addr]] = mem[addr+1]
     }),
     READ(4, 2, { mem, input, addr ->
+        // TODO FIX Me!
         mem[addr+2]
     }),
     HALT(99, 0, { mem, _, _ ->
@@ -32,39 +41,34 @@ enum class OpCode(
     });
 
     companion object {
-        fun parse(instruction: Int): Pair<OpCode, List<Mode>> {
-            val a: Mode = Mode.values()[instruction.getDigitFromRight(4)]
-            val b: Mode = Mode.values()[instruction.getDigitFromRight(3)]
-            val c: Mode = Mode.values()[instruction.getDigitFromRight(2)]
-            val opcode: Int = instruction % 10
-            val actualCode = OpCode.values()
-                .firstOrNull { it.code == opcode } ?: error("Unsupported opcode: '$instruction'")
-            return actualCode to listOf(a, b, c)
+        fun parse(instruction: Int): OpCode {
+            val opCode: Int = instruction % 10
+            return values()
+                .firstOrNull { it.code == opCode } ?: error("Unsupported opcode: '$instruction'")
         }
     }
 }
 
-private fun readDataInMemory(memory: Memory, modes: List<Mode>, address: Int, sizeOfInputs: Int): List<Int> {
-    return modes.asSequence()
-        .take(sizeOfInputs)
-        .mapIndexed { index: Int, mode: Mode ->
-            val input: Int = memory[address + index + 1]
-            when(mode) {
-                Mode.Address -> memory[input]
-                Mode.Value -> input
-            }
-        }
-        .toList()
-}
-
-fun Int.getDigitFromRight(i: Int): Int {
-    val divideBy: Int = 10.0.pow(i.toDouble()).toInt()
-    return (this / divideBy) % 2
-}
-
 enum class Mode {
     Address,
-    Value
+    Value;
+
+    companion object {
+        fun parse(opCode: Int): List<Mode> {
+            return (1..4).asSequence()
+                .map { 10.0.pow(it.toDouble()).toInt() }
+                .map { opCode / it }
+                .map { values()[it % 2] }
+                .toList()
+        }
+    }
+}
+
+fun Memory.read(mode: Mode, address: Int): Int {
+    return when(mode) {
+        Mode.Address -> this[address]
+        Mode.Value -> address
+    }
 }
 
 @AoC(5, Part.A)
@@ -78,12 +82,19 @@ fun intCode(input: String): Int {
 }
 
 tailrec fun parseData(memory: MutableList<Int>, index: Int = 0): Int {
-    val (opCode, modes) = OpCode.parse(memory[index])
+    val opCode = OpCode.parse(memory[index])
+    val from: Int = index
+    val to: Int = from + opCode.inputs
+    val instructions: Instruction = LinkedList(memory[from..to])
     //val input: List<Int> = readDataInMemory(memory, modes, index, opCode.inputs)
-    opCode.execute(memory, input, index)
-    val address: Int = index + input.size + 1
+    opCode.execute(memory, instructions, index)
+    val address: Int = to + 1
     if(opCode == OpCode.HALT) {
         return memory[address]
     }
     return parseData(memory, address)
+}
+
+operator fun <T> List<T>.get(range: IntRange): List<T> {
+    return subList(range.first, range.last+1)
 }
