@@ -1,0 +1,18 @@
+[package]
+name = "aoc"
+version = "0.1.0"
+authors = ["Johan Oelrich <johan@oelrich.se>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+slowly = []
+[dependencies]
+day01 = { path = "day01"}
+day02 = { path = "day02"}
+day03 = { path = "day03"}
+day04 = { path = "day04"}
+day05 = { path = "day05"}
+day06 = { path = "day06"}
+day07 = { path = "day07"}
+day08 = { path = "day08"}
