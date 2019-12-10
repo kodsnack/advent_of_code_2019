@@ -49,12 +49,9 @@ private fun computeRecursiveOrbits(
     depth: Int = 0
 ): Int {
     val orbitalChildren: List<String> = orbits.getOrDefault(planet, emptyList())
-    val indent: String = String(Array<Char>(depth) { ' ' }.toCharArray())
     return if(orbitalChildren.isEmpty()) {
-        println("$indent$planet ==> $depth")
         depth
     } else {
-        println("$indent$planet ==> $orbitalChildren $depth")
         orbitalChildren.asSequence()
             .map { computeRecursiveOrbits(orbits, it, depth + 1) }
             .sum() + depth
