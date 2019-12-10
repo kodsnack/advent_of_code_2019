@@ -1,36 +1,33 @@
 package com.mantono.aoc.day05
 
+import com.mantono.aoc.AoC
+import com.mantono.aoc.Part
+import java.util.*
 import kotlin.math.pow
-import kotlin.math.sqrt
 
-typealias Instruction = (memory: MutableList<Int>, address: Int) -> Int
+typealias Memory = MutableList<Int>
+typealias Instruction = Deque<Int>
+typealias Execution = (memory: Memory, input: Instruction, address: Int) -> Unit
 
 enum class OpCode(
     val code: Int,
-    val execute: Instruction
+    val inputs: Int,
+    val execute: Execution
 ) {
-    ADD(1 ,{ mem, addr ->
-        val input0: Int = mem[addr+1]
-        val input1: Int = mem[addr+2]
-        val outputAddress: Int = mem[addr+3]
-        mem[outputAddress] = input0 + input1
-        outputAddress
+    ADD(1 , 3, { mem, input, _ ->
+        mem[input[2]] = input[0] + input[1]
     }),
-    MULT(2, { mem, addr ->
-        val input0: Int = mem[addr+1]
-        val input1: Int = mem[addr+2]
-        val outputAddress: Int = mem[addr+3]
-        mem[outputAddress] = input0 * input1
-        outputAddress
+    MULT(2, 3, { mem, input, _ ->
+        mem[input[2]] = input[0] * input[1]
     }),
-    STORE(3, { mem, addr ->
-        mem[addr] = addr
-        addr + 1
+    STORE(3, 1, { mem, input, addr ->
+        mem[input[0]] = input[0]
+        mem[mem[addr]] = mem[addr+1]
     }),
-    READ(4, { mem, addr ->
-        mem[addr]
+    READ(4, 2, { mem, input, addr ->
+        mem[addr+2]
     }),
-    HALT(99, { mem, _ ->
+    HALT(99, 0, { mem, _, _ ->
         mem[0]
     });
 
@@ -47,22 +44,46 @@ enum class OpCode(
     }
 }
 
+private fun readDataInMemory(memory: Memory, modes: List<Mode>, address: Int, sizeOfInputs: Int): List<Int> {
+    return modes.asSequence()
+        .take(sizeOfInputs)
+        .mapIndexed { index: Int, mode: Mode ->
+            val input: Int = memory[address + index + 1]
+            when(mode) {
+                Mode.Address -> memory[input]
+                Mode.Value -> input
+            }
+        }
+        .toList()
+}
+
 fun Int.getDigitFromRight(i: Int): Int {
     val divideBy: Int = 10.0.pow(i.toDouble()).toInt()
     return (this / divideBy) % 2
 }
 
 enum class Mode {
-    Position,
-    Immediate
+    Address,
+    Value
 }
 
+@AoC(5, Part.A)
+fun intCode(input: String): Int {
+    input.split(",").map { it.trim().toInt() }
+        .forEach { if(it in 1..4) print("\n$it, ") else print("$it, ") }
+    val memory: MutableList<Int> = input.split(",")
+        .map { it.trim().toInt() }
+        .toMutableList()
+    return parseData(memory)
+}
 
-tailrec fun parseData(inputData: MutableList<Int>, index: Int = 0): Int {
-    val (opCode, modes) = OpCode.parse(inputData[index])
-    val address: Int = opCode.execute(inputData, index)
+tailrec fun parseData(memory: MutableList<Int>, index: Int = 0): Int {
+    val (opCode, modes) = OpCode.parse(memory[index])
+    //val input: List<Int> = readDataInMemory(memory, modes, index, opCode.inputs)
+    opCode.execute(memory, input, index)
+    val address: Int = index + input.size + 1
     if(opCode == OpCode.HALT) {
-        return address
+        return memory[address]
     }
-    return parseData(inputData, address)
+    return parseData(memory, address)
 }
