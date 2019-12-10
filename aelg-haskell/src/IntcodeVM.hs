@@ -85,9 +85,9 @@ updateList pos new l = a ++ [new] ++ b where (a, _ : b) = splitAt pos l
 readInputs relBase mem (Instr (OpCode _ opModes) args) = inputs
   where
     inputs = zipWith (curry getInput) opModes args
-    getInput (PosMode     , arg) = mem !! arg
-    getInput (ImMode      , arg) = arg
-    getInput (RelMode     , arg) = mem !! (arg + relBase)
+    getInput (PosMode, arg) = mem !! arg
+    getInput (ImMode , arg) = arg
+    getInput (RelMode, arg) = mem !! (arg + relBase)
 
 readOutputs :: Int -> [Int] -> Instr -> [Int -> VM -> VM]
 readOutputs rBase mem (Instr (OpCode _ opModes) args) =

@@ -3,6 +3,7 @@ module Utils
     ( genGrid
     , bfs
     , parallel
+    , angleSort
     )
 where
 
@@ -28,3 +29,11 @@ bfs gen start = go (add start 0 Q.empty) M.empty
 
 parallel :: (NFData a, Traversable f) => f a -> f a
 parallel = (`using` parTraversable rdeepseq)
+
+angleSort (x1, y1) (x2, y2) | x1 >= 0 && x2 < 0 = LT
+                            | x2 >= 0 && x1 < 0 = GT
+                            | x1 >= 0           = compare k2 k1
+                            | otherwise         = compare k1 k2
+  where
+    k1 = fromIntegral y1 / fromIntegral x1
+    k2 = fromIntegral y2 / fromIntegral x2
