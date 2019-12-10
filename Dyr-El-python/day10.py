@@ -70,9 +70,11 @@ def part2(pinp):
         sg = sgd(abs(dx), abs(dy))
         nx, ny = dx//sg, dy//sg
         s2.add((nx, ny))
-    l = list(s2)
-    l.sort()
-    print(s2)
+    for a in s2:
+        x, y = a[0], -a[1]
+        print(x, y)
+        if x!=0:
+            print(-math.atan2(y,x)/math.pi*180)
     return "<solution2>"
 
 ## Start of footer boilerplate #################################################
