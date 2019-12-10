@@ -28,14 +28,17 @@ struct bignum{
 		return sign?-ret:ret;
 	}
 	bool operator<(const bignum& num)const{
+		if(sign&&!num.sign)return false;
+		if(!sign&&num.sign)return true;
 		if(di.size()!=num.di.size())
-			return di.size()<num.di.size();
+			return (di.size()<num.di.size())^sign;
 		for(int i=di.size()-1;i>=0;i--)
 			if(di[i]!=num.di[i])
-				return di[i]<num.di[i];
+				return (di[i]<num.di[i])^sign;
 		return false;
 	}
 	bool operator==(const bignum& num)const{
+		if(sign^num.sign)return false;
 		if(di.size()!=num.di.size())
 			return false;
 		for(int i=0;i<di.size();i++)
