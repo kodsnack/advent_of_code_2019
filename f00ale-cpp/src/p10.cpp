@@ -27,9 +27,6 @@ void p10(std::istream & is) {
     std::vector<std::vector<char>> v;
     {
         bool done = false;
-        int num = 0;
-        bool have_num = false;
-        std::string str;
         bool need_new = true;
         while (!done) {
             char c;
@@ -51,28 +48,20 @@ void p10(std::istream & is) {
         }
     }
 
-    // pad
-
     int max = 0, maxr = 0, maxc = 0;
-    std::vector<std::vector<int>> table(v.size());
-    for(auto & e : table) e.resize(v[0].size());
 
-
-    for(int row = 0; row < v.size(); row++) {
-        for(int col = 0; col < v[row].size(); col++) {
-            //row = 4;
-            //col = 4;
+    for(int row = 0; row < static_cast<int>(v.size()); row++) {
+        for(int col = 0; col < static_cast<int>(v[row].size()); col++) {
             if(v[row][col] != '#') continue;
 
             std::vector<pos> angs;
-            for(int r = 0; r < v.size(); r++) {
-                for(int c = 0; c < v[row].size(); c++) {
+            for(int r = 0; r < static_cast<int>(v.size()); r++) {
+                for(int c = 0; c < static_cast<int>(v[row].size()); c++) {
                     if(row==r && col == c) continue;
                     if(v[r][c] != '#') continue;
-                    auto dr = row-r;
-                    auto dc = col-c;
+
                     auto tmp = atan2(c-col, row-r);
-                    //if(tmp == M_PI) tmp -= 2*M_PI;
+
                     if(tmp < 0) tmp+=2*M_PI;
                     angs.emplace_back(tmp, sqrt(r*r+c*c), r, c);
                 }
@@ -81,18 +70,12 @@ void p10(std::istream & is) {
             std::sort(angs.begin(), angs.end());
             int ant = 0;
             auto last = -2*M_PI;
-            std::cout << row << " " << col << std::endl;
             for(auto d : angs) {
-                std::cout << d.t << " " << d.r << " " << d.c << std::endl;
                 if(fabs(last-d.t) > .0001) {
                     ant++;
-                    //next[d.r][d.c] = 'x';
                 }
-
                 last = d.t;
             }
-
-            table[row][col] = ant;
 
             if(ant > max) {
                 max = ant;
@@ -100,62 +83,48 @@ void p10(std::istream & is) {
                 maxc = col;
 
             }
-            //    exit(1);
         }
     }
-
-    for(auto & vv : table) {
-        for(auto & e : vv) {
-            std::cout << e << " ";
-        }
-        std::cout << std::endl;
-    }
-
 
     ans1 = max;
-
 
     int zapp = 0;
 
     while(zapp < 200) {
-        auto nextx = v;
+        auto nextv = v;
         int row = maxr;
         int col = maxc;
         std::vector<pos> angs;
-        for(int r = 0; r < v.size(); r++) {
-            for(int c = 0; c < v[row].size(); c++) {
+        for(int r = 0; r < static_cast<int>(v.size()); r++) {
+            for(int c = 0; c < static_cast<int>(v[row].size()); c++) {
                 if(row==r && col == c) continue;
                 if(v[r][c] != '#') continue;
-                auto dr = row-r;
-                auto dc = col-c;
+
                 auto tmp = atan2(c-col, row-r);
-                //if(tmp == M_PI) tmp -= 2*M_PI;
+
                 if(tmp < 0) tmp+=2*M_PI;
                 angs.emplace_back(tmp, sqrt(r*r+c*c), r, c);
             }
         }
 
         std::sort(angs.begin(), angs.end());
-        int ant = 0;
+
         auto last = -2*M_PI;
-        std::cout << row << " " << col << std::endl;
+        if(!angs.size()) {
+            break;
+        }
         for(auto d : angs) {
-            std::cout << d.t << " " << d.r << " " << d.c << std::endl;
             if(fabs(last-d.t) > .0001) {
                 zapp++;
-                nextx[d.r][d.c] = 'x';
+                nextv[d.r][d.c] = 'x';
                 if(zapp == 200) {
                     ans2=d.c*100+d.r;
                 }
             }
-
             last = d.t;
         }
-        v=nextx;
+        v=nextv;
     }
-
-    std::cout << max << std::endl;
-    std::cout << maxc << "," << maxr << std::endl;
 
     std::cout << ans1 << std::endl;
     std::cout << ans2 << std::endl;
