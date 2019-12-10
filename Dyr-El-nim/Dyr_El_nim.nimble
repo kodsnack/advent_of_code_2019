@@ -7,8 +7,6 @@ license       = "MIT"
 srcDir        = "src"
 bin           = @["Dyr_El_nim"]
 
-
-
 # Dependencies
 
-requires "nim >= 1.0.0"
+requires "nim >= 1.0.2", "nigui >= 0.2.2"
