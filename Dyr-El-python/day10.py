@@ -30,81 +30,70 @@ def parseAsteroids(pinp):
 
 def findBestAsteroid(asteroids):
     maxseen = 0
-    for a1 in asteroids:
+    for placement in asteroids:
         seen = 0
-        for a2 in asteroids:
-            coll = False
-            if a1 == a2:
+        for destination in asteroids:
+            if placement == destination:
                 continue
-            dx, dy = a2[0]-a1[0], a2[1]-a1[1]
-            sg = sgd(abs(dx), abs(dy))
-            dxs, dys = dx//sg, dy//sg
-            x, y = a1
-            x, y = x + dxs, y + dys
-            coll = False
-            while (x, y) != a2:
-                if (x, y) in asteroids:
-                    coll = True
-                    break
-                x, y = x + dxs, y + dys
-            if not coll:
+            hidden = False
+            placeX, placeY = placement
+            destX, destY = destination
+            deltaX, deltaY = destX-placeX, destY-placeY
+            sg = sgd(abs(deltaX), abs(deltaY))
+            xVector, yVector = deltaX//sg, deltaY//sg
+            x, y = placeX + xVector, placeY + yVector
+            hidden = False
+            while not hidden and (x, y) != destination:
+                hidden = hidden or (x, y) in asteroids
+                x, y = x + xVector, y + yVector
+            if not hidden:
                 seen += 1
         if seen > maxseen:
-            maxseen = max(seen, maxseen)
-            maxx = a1[0]
-            maxy = a1[1]
-    return maxseen, maxx, maxy
+            maxseen, bestPlacement = seen, placement
+    return maxseen, bestPlacement
 
 def part1(pinp):
     return findBestAsteroid(parseAsteroids(pinp))[0]
 
 def angs(a):
     x, y = a
-    ang = math.atan2(x,-y)/math.pi*180
+    ang = math.atan2(x,-y)
     if ang < 0:
-        ang += 360
+        ang += 2*math.pi
     return ang
 
 def part2(pinp, numberKilled):
-    s = parseAsteroids(pinp)
-    _, sx, sy = findBestAsteroid(s)
-    s.remove((sx, sy))
-    s2 = set()
-    for a in s:
-        x, y = a
-        dx, dy = x-sx, y-sy
-        sg = sgd(abs(dx), abs(dy))
-        nx, ny = dx//sg, dy//sg
-        s2.add((nx, ny))
-    l2 = list(s2)
-    l2.sort(key=angs)
-    print(sx, sy)
-    #print(l2)
+    asteroids = parseAsteroids(pinp)
+    _, baseAsteroid = findBestAsteroid(asteroids)
+    baseX, baseY = baseAsteroid
+    asteroids.remove(baseAsteroid)
+    vectors = set()
+    for asteroid in asteroids:
+        x, y = asteroid
+        deltaX, deltaY = x-baseX, y-baseY
+        sg = sgd(abs(deltaX), abs(deltaY))
+        vectorX, vectorY = deltaX//sg, deltaY//sg
+        vectors.add((vectorX, vectorY))
+    vectors = list(vectors)
+    vectors.sort(key=angs)
     killed = 0
     while(True):
-        for a in l2:
-            x, y = sx, sy
-            print(x, y, a)
+        for v in vectors:
+            x, y = baseX, baseY
+            vx, vy = v
             while 0 <= x <= 40 and 0 <= y <= 40:
-                x, y = x+a[0], y+a[1]
-                if (x, y) in s:
-                    s.remove((x, y))
+                x, y = x + vx, y + vy
+                if (x, y) in asteroids:
+                    asteroids.remove((x, y))
                     killed += 1
-                    print(killed, x, y)
                     if killed == numberKilled:
-                        return x, y
+                        return x*100 + y
                     break
-    return "<solution2>"
 
 ## Start of footer boilerplate #################################################
 
 if __name__ == "__main__":
     inp = readInput()
-#     inp = """.#....#####...#..
-# ##...##.#####..##
-# ##...#...#.#####.
-# ..#.....#...###..
-# ..#.#.....#....##"""
     
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp)
