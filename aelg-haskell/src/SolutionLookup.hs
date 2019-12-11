@@ -15,6 +15,7 @@ import qualified Day07
 import qualified Day08
 import qualified Day09
 import qualified Day10
+import qualified Day11
 
 solutions = M.fromList
     [ (1 , Day01.solve)
@@ -27,4 +28,5 @@ solutions = M.fromList
     , (8 , Day08.solve)
     , (9 , Day09.solve)
     , (10, Day10.solve)
+    , (11, Day11.solve)
     ]
