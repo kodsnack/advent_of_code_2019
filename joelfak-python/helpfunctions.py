@@ -15,3 +15,6 @@ def getCommaSeparatedIntsFromFile(filename):
     with open(filename) as file:
         str = file.readline()
     return list(map(int, str.split(",")))
+
+def getCommaSeparatedStringsFromFile(filename):
+    return list(map(lambda x: x.split(","), readFile(filename)))
