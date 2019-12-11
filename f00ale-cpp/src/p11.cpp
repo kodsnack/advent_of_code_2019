@@ -97,7 +97,7 @@ void p11(std::istream & is) {
         std::cout << s << std::endl;
     }
 }
-// 1918 fel
+
 int main() {
     p11(std::cin);
 }
