@@ -55,11 +55,18 @@ def findBestAsteroid(asteroids):
 def part1(pinp):
     return findBestAsteroid(parseAsteroids(pinp))[0]
 
+# def angs(a):
+#     x, y = a
+#     ang = math.atan2(x,-y)
+#     if ang < 0:
+#         ang += 2*math.pi
+#     return ang
+
 def angs(a):
     x, y = a
-    ang = math.atan2(x,-y)
-    if ang < 0:
-        ang += 2*math.pi
+    ang = y * abs(y) / (x*x + y*y)
+    if x < 0:
+        ang = 2 - ang
     return ang
 
 def part2(pinp, numberKilled):
@@ -98,8 +105,6 @@ if __name__ == "__main__":
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp)
 
-    print("Input is '" + str(parseInp[:10])[:100] + 
-          ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
     print("Solution to part 1: {}".format(part1(parseInp)))
     print("Solution to part 2: {}".format(part2(parseInp, 200)))
 
