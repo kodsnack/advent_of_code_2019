@@ -1,3 +1,5 @@
+import re
+
 from functools import reduce
 
 
@@ -25,3 +27,9 @@ def coord_diff(a, b):
 
 def manhattan(a, b):
     return absdist(coord_diff(a, b))
+
+
+def ints_from_line(line):
+    pattern = re.compile(r'-?\d+')
+
+    return [int(val) for val in re.findall(pattern, line) if val]
