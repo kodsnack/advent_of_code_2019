@@ -57,32 +57,37 @@ def sgd(a, b):
         return a
     return sgd(b, a%b)
 
+class CycleDetector:
+    def __init__(self, pos, vel):
+        self.pos = [planetPos[:] for planetPos in pos]
+        self.vel = [planetVel[:] for planetVel in vel]
+        self.cycles = [0, 0, 0]
+        self.steps = 0
+    def equal(self, p, v, d):
+        return ([pos[dim] for pos in self.pos] == [pos[dim] for pos in p] and
+                [vel[dim] for pos in self.pos] == [pos[dim] for pos in p])
+    def step(self, p, v):
+        self.steps += 1
+        noCycles = 0
+        for dim in range(3):
+            if self.cycles[dim] > 0 or self.equal(p, v, dim):
+                noCycles += 1
+                if self.cycles[dim] == 0:
+                    self.cycles[dim] = self.steps
+        return noCycles
+    def totalCycles(self):
+        
+
+
 def part2(pinp):
     p = initialPositions(pinp)
     v = [[0, 0, 0] for x in pinp]
+    cd = CycleDetector(p, v)
     while True:
         stepVelocities(v, p)
         stepPositions(v, p)
-        for d in range(3):
-            l = list()
-            for p1 in range(len(p)):
-                l.append(p[p1][d])
-                l.append(v[p1][d])
-            tp = tuple(l)
-            if tp in s[d] and c[d]==None:
-                c[d] = (i, i - s[d][tp])
-                count += 1
-            else:
-                s[d][tp] = i
-        if count==3:
-            cc = c[0][0]*c[1][0]
-            cc = cc//sgd(c[0][0],c[1][0])
-            ccc = cc*c[2][0]
-            ccc = ccc//sgd(cc,c[2][0])
-
-            print(ccc)
-            break
-    return "<solution2>"
+        if cd.step(p, v) == 3:
+            return cd.totalCycles()
 
 ## Start of footer boilerplate #################################################
 
