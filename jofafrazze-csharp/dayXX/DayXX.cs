@@ -28,12 +28,12 @@ namespace dayXX
 
         static void PartA()
         {
-            Console.WriteLine("Part A: Result is {0}.", 0);
+            Console.WriteLine("Part A: Result is {0}", 0);
         }
 
         static void PartB()
         {
-            Console.WriteLine("Part B: Result is {0}.", 0);
+            Console.WriteLine("Part B: Result is {0}", 0);
         }
 
         static void Main(string[] args)

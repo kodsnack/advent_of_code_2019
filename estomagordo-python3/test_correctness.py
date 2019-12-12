@@ -139,3 +139,36 @@ def test_10b():
 
     answer = day_10b.read_and_solve()
     assert(1119 == answer)
+
+
+def test_11a():
+    import day_11a
+
+    answer = day_11a.read_and_solve()
+    assert(2883 == answer)
+
+
+def test_11b():
+    import day_11b
+
+    answer = day_11b.read_and_solve()
+    assert(""".#....####.###...##..###..#.....##..####...
+.#....#....#..#.#..#.#..#.#....#..#....#...
+.#....###..#..#.#....#..#.#....#......#....
+.#....#....###..#....###..#....#.##..#.....
+.#....#....#....#..#.#....#....#..#.#......
+.####.####.#.....##..#....####..###.####...""" == answer)
+
+
+def test_12a():
+    import day_12a
+
+    answer = day_12a.read_and_solve()
+    assert(8538 == answer)
+
+
+def test_12b():
+    import day_12b
+
+    answer = day_12b.read_and_solve()
+    assert(506359021038056 == answer)
