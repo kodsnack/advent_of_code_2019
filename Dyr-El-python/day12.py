@@ -33,10 +33,55 @@ def part1(pinp):
                 totk += abs(v[p1][d])
                 totp += abs(p[p1][d])
             tot += totk*totp
-        print(tot)
+    print(tot)
     return "<solution1>"
 
+def sgd(a, b):
+    if b==0:
+        return a
+    return sgd(b, a%b)
+
 def part2(pinp):
+    p = [list(x) for x in pinp]
+    v = [[0, 0, 0] for x in pinp]
+    s = [dict(), dict(), dict()]
+    c = [None, None, None]
+    count = 0
+    for i in range(10000000):
+        for p1 in range(len(v)):
+            for p2 in range(len(v)):
+                for d in range(3):
+                    if p[p1][d] > p[p2][d]:
+                        v[p1][d] = (v[p1][d]-1)
+                    elif p[p1][d] < p[p2][d]:
+                        v[p1][d] = (v[p1][d]+1)
+        tot = 0
+        for p1 in range(len(p)):
+            totk, totp = 0, 0
+            for d in range(3):
+                p[p1][d] += v[p1][d]
+                totk += abs(v[p1][d])
+                totp += abs(p[p1][d])
+            tot += totk*totp
+        for d in range(3):
+            l = list()
+            for p1 in range(len(p)):
+                l.append(p[p1][d])
+                l.append(v[p1][d])
+            tp = tuple(l)
+            if tp in s[d] and c[d]==None:
+                c[d] = (i, i - s[d][tp])
+                count += 1
+            else:
+                s[d][tp] = i
+        if count==3:
+            cc = c[0][0]*c[1][0]
+            cc = cc//sgd(c[0][0],c[1][0])
+            ccc = cc*c[2][0]
+            ccc = ccc//sgd(cc,c[2][0])
+
+            print(ccc)
+            break
     return "<solution2>"
 
 ## Start of footer boilerplate #################################################
