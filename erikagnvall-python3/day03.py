@@ -71,8 +71,9 @@ def part2(w1, w2):
 
 
 w1, w2 = _read_input()
-print(part1(w1, w2))
-print(part2(w1, w2))
+if __name__ == '__main__':
+    print(part1(w1, w2))
+    print(part2(w1, w2))
 
 
 ############

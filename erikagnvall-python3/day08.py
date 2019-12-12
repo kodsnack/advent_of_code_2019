@@ -53,8 +53,9 @@ def part2(image, w=25, h=6, output=True):
 
 
 image = _read_input()
-print(part1(image))
-part2(image)
+if __name__ == '__main__':
+    print(part1(image))
+    part2(image)
 
 
 ############

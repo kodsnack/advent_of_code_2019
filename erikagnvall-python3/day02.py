@@ -30,8 +30,9 @@ def part2(program: list):
 
 
 program = _read_input()
-print(part1(program))
-print(part2(program))
+if __name__ == '__main__':
+    print(part1(program))
+    print(part2(program))
 
 
 ############

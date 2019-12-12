@@ -47,8 +47,9 @@ def part2(neighbors):
 
 orbits = _read_input()
 neighbors = _build_neighbor_map(orbits)
-print(part1(orbits))
-print(part2(neighbors))
+if __name__ == '__main__':
+    print(part1(orbits))
+    print(part2(neighbors))
 
 
 ############
