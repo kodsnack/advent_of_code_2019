@@ -14,27 +14,43 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 ## End of header boilerplate ###################################################
 
-def part1(pinp):
-    p = [list(x) for x in pinp]
+def initialPositions(pinp):
+    return [list(x) for x in pinp]
+
+def initialVelocities(pinp):
+    return [list(x) for x in pinp]
+
+def stepVelocities(v, p):
+    for i1 in range(len(v)):
+        for i2 in range(len(v)):
+            if i1 == i2: continue
+            for dim in range(3):
+                if p[i1][dim] > p[i2][dim]:
+                    v[i1][dim] -= 1
+                elif p[i1][dim] < p[i2][dim]:
+                    v[i1][dim] += 1
+
+def stepPositions(v, p):
+    for i in range(len(p)):
+        for dim in range(3):
+            p[i][dim] += v[i][dim]
+
+def calcKineticEnergy(v, i):
+    return sum(map(abs, v[i]))
+
+def calcPotentialEnergy(p, i):
+    return sum(map(abs, p[i]))
+
+def calcTotalEnergy(v, p):
+    return sum((calcKineticEnergy(v, i)*calcPotentialEnergy(p, i) for i in range(len(v))))
+
+def part1(pinp, steps):
+    p = initialPositions(pinp)
     v = [[0, 0, 0] for x in pinp]
-    for i in range(1000):
-        for p1 in range(len(v)):
-            for p2 in range(len(v)):
-                for d in range(3):
-                    if p[p1][d] > p[p2][d]:
-                        v[p1][d] = (v[p1][d]-1)
-                    elif p[p1][d] < p[p2][d]:
-                        v[p1][d] = (v[p1][d]+1)
-        tot = 0
-        for p1 in range(len(p)):
-            totk, totp = 0, 0
-            for d in range(3):
-                p[p1][d] += v[p1][d]
-                totk += abs(v[p1][d])
-                totp += abs(p[p1][d])
-            tot += totk*totp
-    print(tot)
-    return "<solution1>"
+    for i in range(steps):
+        stepVelocities(v, p)
+        stepPositions(v, p)
+    return calcTotalEnergy(v, p)
 
 def sgd(a, b):
     if b==0:
@@ -42,27 +58,11 @@ def sgd(a, b):
     return sgd(b, a%b)
 
 def part2(pinp):
-    p = [list(x) for x in pinp]
+    p = initialPositions(pinp)
     v = [[0, 0, 0] for x in pinp]
-    s = [dict(), dict(), dict()]
-    c = [None, None, None]
-    count = 0
-    for i in range(10000000):
-        for p1 in range(len(v)):
-            for p2 in range(len(v)):
-                for d in range(3):
-                    if p[p1][d] > p[p2][d]:
-                        v[p1][d] = (v[p1][d]-1)
-                    elif p[p1][d] < p[p2][d]:
-                        v[p1][d] = (v[p1][d]+1)
-        tot = 0
-        for p1 in range(len(p)):
-            totk, totp = 0, 0
-            for d in range(3):
-                p[p1][d] += v[p1][d]
-                totk += abs(v[p1][d])
-                totp += abs(p[p1][d])
-            tot += totk*totp
+    while True:
+        stepVelocities(v, p)
+        stepPositions(v, p)
         for d in range(3):
             l = list()
             for p1 in range(len(p)):
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     print("Input is '" + str(parseInp[:10])[:100] + 
           ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
-    print("Solution to part 1: {}".format(part1(parseInp)))
+    print("Solution to part 1: {}".format(part1(parseInp, 1000)))
     print("Solution to part 2: {}".format(part2(parseInp)))
 
 ## End of footer boilerplate ###################################################
