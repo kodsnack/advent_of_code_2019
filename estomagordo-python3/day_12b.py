@@ -1,30 +1,32 @@
+import helpers
 import re
 
 from heapq import heappop, heappush
 from collections import Counter, defaultdict
 
 
-def solve(moons):
-    # seen = set()
-    # seen_a_pos = set()
-    # seen_a_vel = set()
-    # seen_b_pos = set()
-    # seen_b_vel = set()
-    # seen_c_pos = set()
-    # seen_c_vel = set()
-    # seen_d_pos = set()
-    # seen_d_vel = set()
+def get_state(moons, coord):
+    statelist = []
 
+    for moon in moons:
+        statelist.append(moon[coord])
+        statelist.append(moon[coord + 3])
+
+    return tuple(statelist)
+
+
+def solve(moons):
     for i in range(len(moons)):
         moons[i] = [0, 0, 0] + moons[i]
 
-    initial = []
-
-    for m in moons:
-        initial.append(list(m))
-
     steps = 0
 
+    initial_xstate = get_state(moons, 0)
+    initial_ystate = get_state(moons, 1)
+    initial_zstate = get_state(moons, 2)
+    
+    repeats = [-1, -1, -1]
+    
     while True:
         velchanges = [[0, 0, 0] for _ in range(len(moons))]
         
@@ -65,34 +67,22 @@ def solve(moons):
             moons[i][4] += moon[1]
             moons[i][5] += moon[2]
 
-        if all(v == 0 for v in moons[0][:3]) and all(v == 0 for v in moons[1][:3]) and all(v == 0 for v in moons[2][:3]) and all(v == 0 for v in moons[3][:3]):
-            print(steps)
-
-        # if tuple(moons[3][:3]) in seen_a_vel:
-        #     print(steps, 'a vel')
-        # seen_a_vel.add(tuple(moons[3][:3]))
-
-        # if tuple(moons[3][3:]) in seen_a_pos:
-        #     print(steps, 'a pos')
-        # seen_a_pos.add(tuple(moons[3][3:]))
-
-        # statelist = []
-
-        # for moon in moons:
-        #     statelist += moon
-
-        # state = tuple(statelist)
-        
-        # if state in seen:
-        #     return steps
-        # seen.add(state)
-
-        if moons == initial:
-            return steps
-
         steps += 1
-        if steps % 1000000 == 0:
-            print(steps)
+
+        xstate = get_state(moons, 0)
+        ystate = get_state(moons, 1)
+        zstate = get_state(moons, 2)
+        
+        if xstate == initial_xstate and repeats[0] == -1:
+            repeats[0] = steps
+        if ystate == initial_ystate and repeats[1] == -1:
+            repeats[1] = steps
+        if zstate == initial_zstate and repeats[2] == -1:
+            repeats[2] = steps
+
+        if all(repeat > -1 for repeat in repeats):
+            return helpers.lcm_many(repeats)
+            
 
 def read_and_solve():
     pattern = re.compile(r'-?\d+')

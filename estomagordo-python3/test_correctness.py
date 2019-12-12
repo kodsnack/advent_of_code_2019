@@ -158,3 +158,17 @@ def test_11b():
 .#....#....###..#....###..#....#.##..#.....
 .#....#....#....#..#.#....#....#..#.#......
 .####.####.#.....##..#....####..###.####...""" == answer)
+
+
+def test_12a():
+    import day_12a
+
+    answer = day_12a.read_and_solve()
+    assert(8538 == answer)
+
+
+def test_12b():
+    import day_12b
+
+    answer = day_12b.read_and_solve()
+    assert(506359021038056 == answer)
