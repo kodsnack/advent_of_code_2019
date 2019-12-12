@@ -63,9 +63,9 @@ class CycleDetector:
         self.vel = [planetVel[:] for planetVel in vel]
         self.cycles = [0, 0, 0]
         self.steps = 0
-    def equal(self, p, v, d):
-        return ([pos[dim] for pos in self.pos] == [pos[dim] for pos in p] and
-                [vel[dim] for pos in self.pos] == [pos[dim] for pos in p])
+    def equal(self, pos, vel, dim):
+        return ([p[dim] for p in self.pos] == [p[dim] for p in pos] and
+                [v[dim] for v in self.vel] == [v[dim] for v in vel])
     def step(self, p, v):
         self.steps += 1
         noCycles = 0
@@ -76,8 +76,10 @@ class CycleDetector:
                     self.cycles[dim] = self.steps
         return noCycles
     def totalCycles(self):
-        
-
+        cycles = self.cycles[0]
+        for cycle in self.cycles[1:]:
+            cycles = cycles * cycle // sgd(cycle, cycles)
+        return cycles
 
 def part2(pinp):
     p = initialPositions(pinp)
@@ -93,10 +95,6 @@ def part2(pinp):
 
 if __name__ == "__main__":
     inp = readInput()
-#     inp = """<x=-1, y=0, z=2>
-# <x=2, y=-10, z=-7>
-# <x=4, y=-8, z=8>
-# <x=3, y=5, z=-1>"""
     
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp, fp=re.compile(r"^<x=([-0-9]*), y=([-0-9]*), z=([-0-9]*)>$"), ff=int)
