@@ -6,9 +6,9 @@ where
 import           Control.Arrow
 import           Data.List
 import           Data.List.Index
-import qualified Data.Map.Strict              as M
+import qualified Data.Map.Strict as M
 import           IntcodeVM
-import qualified Parsing                      as P
+import qualified Parsing         as P
 
 dirs n = [(0, -1), (1, 0), (0, 1), (-1, 0)] !! (n `rem` 4)
 
