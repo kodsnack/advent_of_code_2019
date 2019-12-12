@@ -76,9 +76,10 @@ def part2(station, asteroids):
 
 
 asteroids = _read_input()
-station, n = part1(asteroids)
-print(n)
-print(part2(station, asteroids))
+if __name__ == '__main__':
+    station, n = part1(asteroids)
+    print(n)
+    print(part2(station, asteroids))
 
 
 ############

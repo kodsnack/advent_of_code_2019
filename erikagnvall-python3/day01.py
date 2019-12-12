@@ -39,9 +39,10 @@ def part2_rec(modules):
 
 
 masses = _read_input()
-print(part1(masses))
-print(part2(masses))
-print(f'{part2_rec(masses)} (recursive)')
+if __name__ == '__main__':
+    print(part1(masses))
+    print(part2(masses))
+    print(f'{part2_rec(masses)} (recursive)')
 
 
 ############
