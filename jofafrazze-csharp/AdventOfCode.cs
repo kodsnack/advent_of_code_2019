@@ -81,6 +81,13 @@ namespace AdventOfCode
             p.y = Extensions.Multiply(p.y, k);
             return p;
         }
+        public static GenericPosition2D<T> operator *(GenericPosition2D<T> p1, GenericPosition2D<T> p2)
+        {
+            GenericPosition2D<T> p = new GenericPosition2D<T>(p1);
+            p.x = Extensions.Multiply(p.x, p2.x);
+            p.y = Extensions.Multiply(p.y, p2.y);
+            return p;
+        }
         public static GenericPosition2D<T> operator /(GenericPosition2D<T> p1, T k)
         {
             GenericPosition2D<T> p = new GenericPosition2D<T>(p1);
@@ -184,6 +191,14 @@ namespace AdventOfCode
             p.x = Extensions.Multiply(p.x, k);
             p.y = Extensions.Multiply(p.y, k);
             p.z = Extensions.Multiply(p.z, k);
+            return p;
+        }
+        public static GenericPosition3D<T> operator *(GenericPosition3D<T> p1, GenericPosition3D<T> p2)
+        {
+            GenericPosition3D<T> p = new GenericPosition3D<T>(p1);
+            p.x = Extensions.Multiply(p.x, p2.x);
+            p.y = Extensions.Multiply(p.y, p2.y);
+            p.z = Extensions.Multiply(p.z, p2.z);
             return p;
         }
         public static GenericPosition3D<T> operator /(GenericPosition3D<T> p1, T k)
