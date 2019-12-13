@@ -132,7 +132,7 @@ namespace day05
             List<int> input = ReadInput();
             int reg = 1;
             RunProgram(ref input, ref reg);
-            Console.WriteLine("Part A: Result is {0}.", reg);
+            Console.WriteLine("Part A: Result is {0}", reg);
         }
 
         static void PartB()
@@ -140,7 +140,7 @@ namespace day05
             List<int> input = ReadInput();
             int reg = 5;
             RunProgram(ref input, ref reg);
-            Console.WriteLine("Part B: Result is {0}.", reg);
+            Console.WriteLine("Part B: Result is {0}", reg);
         }
 
         static void Main(string[] args)

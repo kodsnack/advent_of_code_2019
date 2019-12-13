@@ -40,7 +40,7 @@ namespace day08
             }
             List<int> l = input.GetRange(resOffs, size);
             int sum = l.Where(i => i == 1).Count() * l.Where(i => i == 2).Count();
-            Console.WriteLine("Part A: Result is {0}.", sum);
+            Console.WriteLine("Part A: Result is {0}", sum);
         }
 
         static readonly Dictionary<int, char> dict = new Dictionary<int, char>()

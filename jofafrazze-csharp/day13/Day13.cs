@@ -7,20 +7,12 @@ using System.Reflection;
 using AdventOfCode;
 using Position = AdventOfCode.GenericPosition2D<int>;
 
-namespace day11
+namespace day13
 {
-    class Day11
+    class Day13
     {
         public class IntComputer
         {
-            static readonly Position goUp = new Position(0, -1);
-            static readonly Position goRight = new Position(1, 0);
-            static readonly Position goDown = new Position(0, 1);
-            static readonly Position goLeft = new Position(-1, 0);
-            static readonly List<Position> directions = new List<Position>()
-            {
-                goUp, goRight, goDown, goLeft, 
-            };
             struct OpCode
             {
                 public int length;
@@ -31,12 +23,14 @@ namespace day11
             public long reg;
             public long rbase;
             public long pc;
-            private Dictionary<int, OpCode> instructionSet;
+            private readonly Dictionary<int, OpCode> instructionSet;
             public int instructionsExecuted;
+            public Position ballPos;
+            public Position paddlePos;
             public Position curPos;
-            public int dirIndex;
             public Dictionary<Position, int> paintedPos;
             public int nOut;
+            public int curX, curY;
             public IntComputer(List<long> mem0, long reg0)
             {
                 mem = mem0.Select((v, i) => new { v, i }).ToDictionary(x => (long)x.i, x => x.v);
@@ -44,30 +38,52 @@ namespace day11
                 rbase = 0;
                 pc = 0;
                 curPos = new Position(0, 0);
-                dirIndex = 0;
+                ballPos = new Position(-1, -1);
+                paddlePos = new Position(-1, -1);
                 paintedPos = new Dictionary<Position, int>();
                 nOut = 0;
+                curX = 0;
+                curY = 0;
                 instructionSet = new Dictionary<int, OpCode>()
                 {
                     { 1, new OpCode(4, /* add */ delegate() { Write(Addr(3), Read(Addr(1)) + Read(Addr(2))); return true; }) },
                     { 2, new OpCode(4, /* mul */ delegate() { Write(Addr(3), Read(Addr(1)) * Read(Addr(2))); return true; }) },
                     { 3, new OpCode(2, /* inp */ delegate() {
-                        reg = paintedPos.ContainsKey(curPos) ? paintedPos[curPos] : 0;
+                        reg = 0;
+                        if (ballPos.x >= 0 && paddlePos.x > 0)
+                            reg = ballPos.x.CompareTo(paddlePos.x);
                         Write(Addr(1), reg);
                         return true;
                         })
                     },
                     { 4, new OpCode(2, /* out */ delegate() {
                         reg = Read(Addr(1));
-                        if (nOut % 2 == 0)
+                        if (nOut % 3 == 0)
                         {
-                            paintedPos[curPos] = (int) reg;
+                            curPos.x = (int) reg;
+                        }
+                        else if (nOut % 3 == 1)
+                        {
+                            curPos.y = (int) reg;
                         }
                         else
                         {
-                            int dirAdd = (reg == 0) ? -1 : 1;
-                            dirIndex = (dirIndex + dirAdd + 4) % 4;
-                            curPos += directions[dirIndex];
+                            if (curPos == new Position(-1, 0))
+                            {
+                                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                                Console.WriteLine("{0}", reg);
+                            }
+                            else
+                            {
+                                if (reg == 3) // paddle
+                                    paddlePos = curPos;
+                                if (reg == 4) // ball
+                                    ballPos = curPos;
+                                paintedPos[curPos] = (int) reg;
+                                Console.SetCursorPosition(0, 0);
+                                PrintPanel();
+                                Console.WriteLine();
+                            }
                         }
                         nOut++;
                         return true;
@@ -113,7 +129,6 @@ namespace day11
                     if (instructionSet[opc].func())
                         pc += instructionSet[opc].length;
                 }
-                return;
             }
 
             public void PrintPanel()
@@ -136,7 +151,16 @@ namespace day11
                 foreach (var kvp in paintedPos)
                 {
                     Position p = kvp.Key;
-                    map.data[p.x - x0, p.y - y0] = (kvp.Value == 0 ? ' ' : '#');
+                    char c = ' ';
+                    switch (kvp.Value)
+                    {
+                        case 0: c = ' '; break;
+                        case 1: c = '#'; break;
+                        case 2: c = '*'; break;
+                        case 3: c = '='; break;
+                        case 4: c = 'O'; break;
+                    }
+                    map.data[p.x - x0, p.y - y0] = c;
                 }
                 map.Print();
             }
@@ -160,22 +184,23 @@ namespace day11
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 0);
             a.Execute();
-            Console.WriteLine("Part A: Result is {0}", a.paintedPos.Count);
+            int res = a.paintedPos.Where(x => x.Value == 2).Count();
+            Console.WriteLine("Part A: Result is {0}", res);
         }
 
         static void PartB()
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 0);
-            a.paintedPos[new Position(0, 0)] = 1;
+            a.mem[0] = 2;
             a.Execute();
-            Console.WriteLine("Part B: Result is:");
-            a.PrintPanel();
+            Console.SetCursorPosition(0, Console.CursorTop + 1);
+            Console.WriteLine("Part B: Result is {0}", a.reg);
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day11).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + typeof(Day13).Namespace + ":");
             PartA();
             PartB();
         }

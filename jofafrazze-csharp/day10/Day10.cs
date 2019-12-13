@@ -100,7 +100,7 @@ namespace day10
             }
             Position resPos = c + resDelta;
             int res = resPos.x * 100 + resPos.y;
-            Console.WriteLine("Part B: Result is {0}.", res);
+            Console.WriteLine("Part B: Result is {0}", res);
         }
 
         static void Main(string[] args)

@@ -70,7 +70,7 @@ namespace day04
                 i++;
             }
             while (i <= inputMax);
-            Console.WriteLine("Part A: Result is {0}.", valid);
+            Console.WriteLine("Part A: Result is {0}", valid);
         }
 
         static void PartB()
@@ -85,7 +85,7 @@ namespace day04
                 i++;
             }
             while (i <= inputMax);
-            Console.WriteLine("Part B: Result is {0}.", valid);
+            Console.WriteLine("Part B: Result is {0}", valid);
         }
 
         static void Main(string[] args)

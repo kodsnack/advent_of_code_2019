@@ -97,7 +97,7 @@ namespace day09
             IntComputer a = new IntComputer(input, 1);
             a.Execute();
             Console.WriteLine();
-            Console.WriteLine("Part A: Result is {0}.", a.reg);
+            Console.WriteLine("Part A: Result is {0}", a.reg);
         }
 
         static void PartB()
@@ -106,7 +106,7 @@ namespace day09
             IntComputer a = new IntComputer(input, 2);
             a.Execute();
             Console.WriteLine();
-            Console.WriteLine("Part B: Result is {0}.", a.reg);
+            Console.WriteLine("Part B: Result is {0}", a.reg);
         }
 
         static void Main(string[] args)

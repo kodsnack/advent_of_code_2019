@@ -166,7 +166,7 @@ namespace day07
                 if (signal > maxSignal)
                     maxSignal = signal;
             }
-            Console.WriteLine("Part A: Result is {0}.", maxSignal);
+            Console.WriteLine("Part A: Result is {0}", maxSignal);
         }
 
         static void PartB()
@@ -192,7 +192,7 @@ namespace day07
                         lastOutput = amps[0].reg;
                 }
             }
-            Console.WriteLine("Part B: Result is {0}.", lastOutput);
+            Console.WriteLine("Part B: Result is {0}", lastOutput);
         }
 
         static void Main(string[] args)

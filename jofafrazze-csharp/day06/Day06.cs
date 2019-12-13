@@ -52,7 +52,7 @@ namespace day06
             while (top.parent != null)
                 top = top.parent;
             int sum = CountOrbits(top, 0);
-            Console.WriteLine("Part A: Result is {0}.", sum);
+            Console.WriteLine("Part A: Result is {0}", sum);
         }
 
         static void PartB()
@@ -78,7 +78,7 @@ namespace day06
                 a++;
             }
             int sum = steps[n] + a;
-            Console.WriteLine("Part B: Result is {0}.", sum);
+            Console.WriteLine("Part B: Result is {0}", sum);
         }
 
         static void Main(string[] args)

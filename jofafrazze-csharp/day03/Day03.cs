@@ -60,7 +60,7 @@ namespace day03
                     }
                 }
             }
-            Console.WriteLine("Part A: Result is {0}.", minDist);
+            Console.WriteLine("Part A: Result is {0}", minDist);
         }
 
         static void PartB()
@@ -101,7 +101,7 @@ namespace day03
                     }
                 }
             }
-            Console.WriteLine("Part B: Result is {0}.", minSum);
+            Console.WriteLine("Part B: Result is {0}", minSum);
         }
 
         static void Main(string[] args)
