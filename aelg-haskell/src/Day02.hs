@@ -6,6 +6,7 @@ where
 import           Control.Arrow
 import           Control.Lens
 import qualified Data.Map.Strict              as M
+import qualified Data.Sequence                as S
 import           IntcodeVM
 import qualified Parsing                      as P
 import           Text.ParserCombinators.ReadP
@@ -13,7 +14,7 @@ import           Text.ParserCombinators.ReadP
 parse :: [String] -> [Int]
 parse = P.run programParser . head
 
-runProgram program noun verb = head . view memory . runVM $ initVM
+runProgram program noun verb = (`S.index` 0) . view memory . runVM $ initVM
     []
     (head program : noun : verb : drop 3 program)
 
