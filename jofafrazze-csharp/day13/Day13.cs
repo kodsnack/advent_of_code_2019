@@ -133,18 +133,10 @@ namespace day13
 
             public void PrintPanel()
             {
-                int x0 = int.MaxValue;
-                int x1 = int.MinValue;
-                int y0 = int.MaxValue;
-                int y1 = int.MinValue;
-                foreach (var kvp in paintedPos)
-                {
-                    Position p = kvp.Key;
-                    if (p.x < x0) x0 = p.x;
-                    if (p.x > x1) x1 = p.x;
-                    if (p.y < y0) y0 = p.y;
-                    if (p.y > y1) y1 = p.y;
-                }
+                int x0 = paintedPos.Min(a => a.Key.x);
+                int x1 = paintedPos.Max(a => a.Key.x);
+                int y0 = paintedPos.Min(a => a.Key.y);
+                int y1 = paintedPos.Max(a => a.Key.y);
                 int w = x1 - x0 + 1;
                 int h = y1 - y0 + 1;
                 Map map = new Map(w, h, new Position(0, 0), ' ');
