@@ -14,8 +14,6 @@ void p11(std::istream & is) {
     for(int problem : {1,2}) {
         intcodemachine mach(input);
         bool done = false;
-        int x = 0, y = 0;
-        int dx = 0, dy = -1;
         std::map<std::tuple<int, int>, int> painted;
         std::vector<int> outputs;
         if(problem == 2) {
@@ -52,7 +50,7 @@ void p11(std::istream & is) {
             for (auto &v : screen) std::cout << v << std::endl;
 
         };
-
+        int bx = 0, px = 0;
         while (!done) {
             while (mach.step());
             switch (mach.state) {
@@ -62,7 +60,10 @@ void p11(std::istream & is) {
                 case intcodemachine::WAITING:
                 {
                     draw();
-                    mach.addInput(0);
+                    if(bx < px)
+                    mach.addInput(-1);
+                    else if(bx > px) mach.addInput(1);
+                    else mach.addInput(0);
                 }
                     break;
                 case intcodemachine::OUTPUT:
@@ -73,6 +74,11 @@ void p11(std::istream & is) {
                         } else {
                             painted[std::tuple(outputs[0],outputs[1])] = outputs[2];
                         }
+                        if(problem == 1 && outputs[2] == 2) ans1++;
+                        if(outputs[2] == 3) px = outputs[0];
+                        if(outputs[2] == 4) {
+                            bx = outputs[0];
+                        }
                         outputs.clear();
                     }
 
@@ -81,13 +87,6 @@ void p11(std::istream & is) {
                     done = true;
                     break;
             }
-        }
-        if(problem == 1) {
-            for(auto & [t,b] : painted) {
-                if(b == 2) ans1++;
-            }
-
-        } else {
         }
     }
     std::cout << ans1 << std::endl;
