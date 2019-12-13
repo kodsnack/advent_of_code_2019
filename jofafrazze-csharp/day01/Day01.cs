@@ -31,7 +31,7 @@ namespace day01
                 sum += (add / 3) - 2;
                 i++;
             }
-            Console.WriteLine("Part A: Result is {0}.", sum);
+            Console.WriteLine("Part A: Result is {0}", sum);
         }
 
         static void PartB()
@@ -50,7 +50,7 @@ namespace day01
                 while (w > 0);
                 i++;
             }
-            Console.WriteLine("Part B: Result is {0}.", sum);
+            Console.WriteLine("Part B: Result is {0}", sum);
         }
 
         static void Main(string[] args)

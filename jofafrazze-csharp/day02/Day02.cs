@@ -57,7 +57,7 @@ namespace day02
             input[1] = 12;
             input[2] = 2;
             RunProgram(ref input);
-            Console.WriteLine("Part A: Result is {0}.", input[0]);
+            Console.WriteLine("Part A: Result is {0}", input[0]);
         }
 
         static void PartB()
@@ -80,7 +80,7 @@ namespace day02
                     }
                 }
             }
-            Console.WriteLine("Part B: Result is {0}.", result);
+            Console.WriteLine("Part B: Result is {0}", result);
         }
 
         static void Main(string[] args)
