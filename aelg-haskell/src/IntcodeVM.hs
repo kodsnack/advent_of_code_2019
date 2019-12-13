@@ -5,6 +5,7 @@ module IntcodeVM
     , initVM
     , initNamedVM
     , runVM
+    , runInOutVM
     , getOutput
     , getOutputs
     , addInputs
@@ -18,8 +19,11 @@ where
 
 import           Control.Arrow
 import           Control.Lens
+import           Data.Foldable
 import           Data.List
 import qualified Data.Map.Strict              as M
+import           Data.Maybe
+import qualified Data.Sequence                as S
 import           Debug.Trace
 import qualified Parsing                      as P
 import           Text.ParserCombinators.ReadP
@@ -30,7 +34,7 @@ data OpCode = OpCode Int [OpMode] deriving Show
 data Instr = Instr OpCode [Int]
 type InstructionSet = M.Map Int Op
 data VMState = VMExecuting | VMWaiting | VMHalted deriving Eq
-data VM = VM { _memory             :: [Int]
+data VM = VM { _memory             :: S.Seq Int
              , _instructionPointer :: Int
              , _instructionSet     :: InstructionSet
              , _outputs            :: [Int]
@@ -62,13 +66,14 @@ parseInstruction i = OpCode opCode modes
 
 stepVM :: VM -> VM
 stepVM vm@VM { _memory = m, _instructionPointer = i, _instructionSet = is } =
-    runOp op instruction (vm { _instructionPointer = i + instructionLength op })
+    runOp op instruction
+        $! (vm { _instructionPointer = i + instructionLength op })
   where
-    OpCode opCode mode = parseInstruction (m !! i)
+    OpCode opCode mode = parseInstruction (fromJust $ S.lookup i m)
     op                 = is M.! opCode
     instruction        = Instr
         (OpCode opCode mode)
-        (drop 1 . take (instructionLength op) . snd . splitAt i $ m)
+        (toList . S.drop 1 . S.take (instructionLength op) . S.drop i $ m)
 
 continueVM vm | vm ^. vmState == VMHalted = error "Can't continue halted VM"
               | otherwise                 = vmState .~ VMExecuting $ vm
@@ -80,22 +85,23 @@ getOutputs vm = (view outputs vm, outputs .~ [] $ vm)
 
 output (a : _) _ = outputs %~ (++ [a])
 
-updateList pos new l = a ++ [new] ++ b where (a, _ : b) = splitAt pos l
 
 readInputs relBase mem (Instr (OpCode _ opModes) args) = inputs
   where
     inputs = zipWith (curry getInput) opModes args
-    getInput (PosMode, arg) = mem !! arg
+    getInput (PosMode, arg) = fromJust $ mem S.!? arg
     getInput (ImMode , arg) = arg
-    getInput (RelMode, arg) = mem !! (arg + relBase)
+    getInput (RelMode, arg) = fromJust $ mem S.!? (arg + relBase)
 
-readOutputs :: Int -> [Int] -> Instr -> [Int -> VM -> VM]
-readOutputs rBase mem (Instr (OpCode _ opModes) args) =
-    map ((memory %~) .) $ zipWith (outputUpdater mem) opModes args
+readOutputs :: Int -> Instr -> [Int -> VM -> VM]
+readOutputs rBase (Instr (OpCode _ opModes) args) = zipWith outputUpdater
+                                                            opModes
+                                                            args
   where
-    outputUpdater mem PosMode arg newValue = updateList arg newValue
-    outputUpdater mem RelMode arg newValue = updateList (arg + rBase) newValue
-    outputUpdater mem mode    arg a        = \_ -> error "Illegal mode"
+    outputUpdater PosMode arg newValue m = update arg newValue m
+    outputUpdater RelMode arg newValue m = update (arg + rBase) newValue m
+    outputUpdater mode    arg a        m = error "Illegal opmode"
+    update at newValue = memory %~ S.update at newValue
 
 isHalted vm = vm ^. vmState == VMHalted
 
@@ -104,17 +110,18 @@ operation :: String -> Int -> InstructionImplementation -> Op
 operation message len f = Op {runOp = run, instructionLength = len}
   where
     run instr vm =
-        maybeTraceInstr name message ip instr inputs . f inputs outputs $! vm
+        maybeTraceInstr name message ip instr inputs
+            $! ((f inputs $! outputs) $! vm)
       where
         name    = vm ^. vmName
         ip      = vm ^. instructionPointer
         mem     = vm ^. memory
         rBase   = vm ^. relBase
         inputs  = readInputs rBase mem instr
-        outputs = readOutputs rBase mem instr
+        outputs = readOutputs rBase instr
 
 initNamedVM name inputs mem = VM
-    { _memory             = mem ++ repeat 0
+    { _memory             = S.fromList mem S.>< S.replicate 100000 0
     , _instructionPointer = 0
     , _instructionSet     = vmInstructionSet
     , _inputs             = inputs
@@ -129,6 +136,9 @@ initVM = initNamedVM "vm"
 runVM :: VM -> VM
 runVM vm | vm ^. vmState == VMExecuting = runVM . stepVM $ vm
          | otherwise                    = vm
+
+runInOutVM :: [Int] -> VM -> ([Int], VM)
+runInOutVM inputs = getOutputs . runVM . addInputs inputs
 
 traceInstr name message ip (Instr (OpCode _ opModes) args) inputs = trace
     (  name

@@ -4,10 +4,13 @@ module Utils
     , bfs
     , parallel
     , angleSort
+    , paintGrid
     )
 where
 
 import           Control.Parallel.Strategies
+import           Data.List
+import           Data.List.Index
 import qualified Data.Map.Strict             as M
 import           Data.Maybe
 import qualified Queue                       as Q
@@ -37,3 +40,11 @@ angleSort (x1, y1) (x2, y2) | x1 >= 0 && x2 < 0 = LT
   where
     k1 = fromIntegral y1 / fromIntegral x1
     k2 = fromIntegral y2 / fromIntegral x2
+
+paintGrid :: (Int, Int) -> (a -> Char) -> M.Map (Int, Int) a -> String
+paintGrid (xMax, yMax) f m =
+    unlines . map (intersperse ' ') $ [] : M.foldrWithKey line grid m
+  where
+    line (x, y) c = modifyAt y (char x c)
+    char x c = setAt x (f c)
+    grid = replicate yMax (replicate xMax ' ')
