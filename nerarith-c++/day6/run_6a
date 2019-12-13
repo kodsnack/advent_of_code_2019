@@ -1,0 +1,2 @@
+g++ -std=c++17 6a.cpp -o 6a
+./6a < input
