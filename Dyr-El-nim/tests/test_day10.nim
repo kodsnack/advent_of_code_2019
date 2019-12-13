@@ -15,9 +15,8 @@ suite "day10, problem 1":
             ...##"""
             expected = 8
         check(findBestAsteroid(input) == expected)
-    # test "solution":
-    #     let
-    #         input = open("inputs/day09.txt").readAll()
-    #         expected:seq[Value] = @[sol1]
-    #     check(runProgram(input, @[1'i64]) == expected)
-    #     echo("Solution 1: ", sol1)
+    test "solution":
+        let
+            input = open("inputs/day10.txt").readAll()
+        check(findBestAsteroid(input) == sol1)
+        echo("Solution 1: ", sol1)
