@@ -6,7 +6,7 @@
 
 #include "intcode.h"
 
-void p11(std::istream & is) {
+void p13(std::istream & is) {
     int ans1 = 0;
     int ans2 = 0;
     auto input = readIntcode(is);
@@ -63,5 +63,5 @@ void p11(std::istream & is) {
 }
 
 int main() {
-    p11(std::cin);
+    p13(std::cin);
 }
