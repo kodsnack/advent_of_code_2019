@@ -2,7 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include <tuple>
-#include <map>
+#include <unordered_map>
 #include <queue>
 
 void p14(std::istream & is) {
@@ -17,7 +17,7 @@ void p14(std::istream & is) {
         std::string str;
         std::vector<R> v;
         int saved_num = 0;
-        std::map<R, std::vector<R>> m;
+        std::unordered_map<std::string, std::tuple<int64_t, std::vector<R>>> m;
 
         while (!done) {
             char c;
@@ -42,9 +42,9 @@ void p14(std::istream & is) {
 
                 if(c == '\n') {
                     if(!v.empty()) {
-                        auto s = v.back();
+                        auto [s,n] = v.back();
                         v.pop_back();
-                        m[s] = v;
+                        m[s] = std::tuple(n,v);
                     }
                     v.clear();
                 }
@@ -59,39 +59,39 @@ void p14(std::istream & is) {
 
     constexpr int64_t trillion = 1000000000000;
     int64_t min = 0;
-    int64_t max = 10000000;
-    ans2 = 1; // check 1 first
+    int64_t max = 1000000000;
+    ans2 = 1; // check 1 first (for part 1)
     do {
         std::queue<R> q;
-        std::map<std::string, int64_t> rest;
+        std::unordered_map<std::string, int64_t> rest;
         q.emplace("FUEL", ans2);
         int64_t nore = 0;
         while (!q.empty()) {
             auto[needs, needn] = q.front();
             q.pop();
-            for (auto &[rk, rv] : m) {
-                auto &[rs, rn] = rk;
-                if (rs == needs) {
-                    if (auto & tmp = rest[needs]; tmp <= needn) {
-                        needn -= tmp;
-                        tmp = 0;
-                    } else {
-                        tmp -= needn;
-                        needn = 0;
-                        continue;
-                    }
-                    int64_t mult = needn / rn;
-                    if (needn % rn) mult++;
-                    rest[needs] += mult * rn - needn;
-                    for (auto &[sx, nx] : rv) {
-                        auto ant = (mult * nx);
+            auto it = m.find(needs);
+            if (it == m.end()) {
+                exit(-1);
+            }
+            auto &[rn, rv] = it->second;
+            if (auto &tmp = rest[needs]; tmp <= needn) {
+                needn -= tmp;
+                tmp = 0;
+            } else {
+                tmp -= needn;
+                needn = 0;
+                continue;
+            }
+            int64_t mult = needn / rn;
+            if (needn % rn) mult++;
+            rest[needs] += mult * rn - needn;
+            for (auto &[sx, nx] : rv) {
+                auto ant = (mult * nx);
 
-                        if (sx == "ORE") {
-                            nore += ant;
-                        } else {
-                            q.emplace(sx, ant);
-                        }
-                    }
+                if (sx == "ORE") {
+                    nore += ant;
+                } else {
+                    q.emplace(sx, ant);
                 }
             }
         }
