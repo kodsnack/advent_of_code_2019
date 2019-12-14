@@ -8,37 +8,36 @@ import kotlin.math.log10
 import kotlin.math.pow
 
 typealias Memory = MutableList<Int>
-typealias Instruction = Deque<Int>
-typealias Execution = (memory: Memory, input: Instruction, address: Int) -> Unit
+typealias Execution = (memory: Memory, data: List<Int>, address: Int, output: Deque<Int>) -> Unit
 
 enum class OpCode(
     val code: Int,
     val inputs: Int,
     val execute: Execution
 ) {
-    ADD(1 , 3, { mem, input, _ ->
-        val modes: List<Mode> = Mode.parse(input.pop())
-        val i0: Int = mem.read(modes[0], input.pop())
-        val i1: Int = mem.read(modes[1], input.pop())
-        mem[input.pop()] = i0 + i1
+    ADD(1 , 3, { mem, data, _, _ ->
+        val modes: List<Mode> = Mode.parse(data[0])
+        val i0: Int = mem.read(modes[0], data[1])
+        val i1: Int = mem.read(modes[1], data[2])
+        val resultAddr: Int = data[3]
+        mem[resultAddr] = i0 + i1
     }),
-    MULT(2, 3, { mem, input, _ ->
-        val modes: List<Mode> = Mode.parse(input.pop())
-        val i0: Int = mem.read(modes[0], input.pop())
-        val i1: Int = mem.read(modes[1], input.pop())
-        mem[input.pop()] = i0 + i1
+    MULT(2, 3, { mem, data, _, _ ->
+        val modes: List<Mode> = Mode.parse(data[0])
+        val i0: Int = mem.read(modes[0], data[1])
+        val i1: Int = mem.read(modes[1], data[2])
+        mem[data[3]] = i0 + i1
     }),
-    STORE(3, 1, { mem, input, addr ->
-        val modes: List<Mode> = Mode.parse(input.pop())
-        val i0: Int = mem.read(modes[0], input.pop())
-        mem[i0] = i0
+    INPUT(3, 1, { mem, data, _, _ ->
+        val i = data[1]
+        mem[i] = 1
     }),
-    READ(4, 2, { mem, input, addr ->
-        val modes: List<Mode> = Mode.parse(input.pop())
-        val i0: Int = mem.read(modes[0], input.pop())
-        mem[addr+2] = i0
+    OUTPUT(4, 2, { mem, data, _, output ->
+        val modes: List<Mode> = Mode.parse(data[0])
+        val i0: Int = mem.read(modes[0], data[1])
+        output.push(i0)
     }),
-    HALT(99, 0, { mem, _, _ ->
+    HALT(99, 0, { mem, _, _, _ ->
         mem[0]
     });
 
@@ -75,8 +74,6 @@ fun Memory.read(mode: Mode, address: Int): Int {
 
 @AoC(5, Part.A)
 fun intCode(input: String): Int {
-//    input.split(",").map { it.trim().toInt() }
-//        .forEach { if(it in 1..4) print("\n$it, ") else print("$it, ") }
     val memory: MutableList<Int> = input.split(",")
         .map { it.trim().toInt() }
         .toMutableList()
@@ -84,12 +81,12 @@ fun intCode(input: String): Int {
     return parseData(memory)
 }
 
-tailrec fun parseData(memory: MutableList<Int>, index: Int = 0): Int {
-    Thread.sleep(1500L)
+tailrec fun parseData(memory: MutableList<Int>, index: Int = 0, output: Deque<Int> = LinkedList()): Int {
+    Thread.sleep(200L)
     val opCode = OpCode.parse(memory[index])
     val from: Int = index
     val to: Int = from + opCode.inputs
-    val instructions: Instruction = LinkedList(memory[from..to])
+    val instructions: List<Int> = memory[from..to]
     val line: String = memory.mapIndexed { i, n ->
         when {
             i == from -> "[$n"
@@ -98,12 +95,13 @@ tailrec fun parseData(memory: MutableList<Int>, index: Int = 0): Int {
         }
     }.joinToString(separator = ", ") { it.toString() }
     println(line)
-    opCode.execute(memory, instructions, index)
+    opCode.execute(memory, instructions, index, output)
     val address: Int = to + 1
     if(opCode == OpCode.HALT) {
+        println(output.joinToString { it.toString() })
         return memory[address]
     }
-    return parseData(memory, address)
+    return parseData(memory, address, output)
 }
 
 operator fun <T> List<T>.get(range: IntRange): List<T> {
