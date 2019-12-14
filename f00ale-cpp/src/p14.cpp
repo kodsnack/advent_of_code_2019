@@ -9,7 +9,7 @@ void p14(std::istream & is) {
     int64_t ans1 = 0;
     int64_t ans2 = 0;
     using R = std::tuple<std::string, int64_t>;
-    std::map<R, std::vector<R>> m;
+    const auto m = [&is]
     {
         bool done = false;
         int num = 0;
@@ -17,6 +17,8 @@ void p14(std::istream & is) {
         std::string str;
         std::vector<R> v;
         int saved_num = 0;
+        std::map<R, std::vector<R>> m;
+
         while (!done) {
             char c;
             is.get(c);
@@ -52,76 +54,54 @@ void p14(std::istream & is) {
             }
 
         }
-    }
-/*
-    for(auto & [k,v] : m) {
-        auto & [s,n] = k;
-        std::cout << n << " " << s << " <- ";
-        for(auto & [sx, nx] : v) {
-            std::cout << nx << " " << sx << ", ";
-        }
-        std::cout <<std::endl;
-    }
-*/
-    bool found = false;
+        return m;
+    }();
 
-    std::map<std::string, int> needed;
-    needed["FUEL"] = 1;
-    std::queue<R> q;
-    /*
-    while(needed.find("ORE") == needed.end()) {
-        for (auto &[k, v] : m) {
-            auto & [s, ned] = k;
-            auto it = needed.find(s);
-            if(it != needed.end()) {
-                auto nn = it->second;
-                needed.erase(it);
-                std::cout << s << " " << nn << " : ";
-                for(auto & [sx, nx] : v) {
-                    needed[sx] += nn*nx/ned;
-                    std::cout << " " << sx << " " << nn*nx/ned <<  ", ";
-                }
-                std::cout << std::endl;
-            }
-        }
-    }
-*/
-    std::map<std::string, int64_t> rest;
-
-    q.emplace("FUEL",3445249);
-    while(!q.empty()) {
-        auto[needs, needn] = q.front();
-        q.pop();
-        for (auto &[rk, rv] : m) {
-            auto & [rs ,rn] = rk;
-            if(rs == needs) {
-                auto tmp = rest[needs];
-                //std::cout << needn << " " << needs << "(have " << tmp << ") <- ";
-                if(tmp <= needn) { needn-=tmp; rest[needs] = 0; }
-                else {
-                    rest[needs] -= needn;
-                    needn = 0;
-                    //std::cout << "-------" << std::endl;
-                    continue;
-                }
-                int64_t mult = 0;
-                mult = needn / rn;
-                if(needn % rn) mult++;
-                rest[needs] += mult*rn - needn;
-                for(auto & [sx, nx] : rv) {
-                    auto ant = (mult*nx);
-                    //std::cout << ant << " " << sx << " (" << needn << "," << nx << "," << rn << ") ";
-                    if(sx == "ORE") {
-                        ans1 += ant;
+    constexpr int64_t trillion = 1000000000000;
+    int64_t min = 0;
+    int64_t max = 10000000;
+    ans2 = 1; // check 1 first
+    do {
+        std::queue<R> q;
+        std::map<std::string, int64_t> rest;
+        q.emplace("FUEL", ans2);
+        int64_t nore = 0;
+        while (!q.empty()) {
+            auto[needs, needn] = q.front();
+            q.pop();
+            for (auto &[rk, rv] : m) {
+                auto &[rs, rn] = rk;
+                if (rs == needs) {
+                    if (auto & tmp = rest[needs]; tmp <= needn) {
+                        needn -= tmp;
+                        tmp = 0;
                     } else {
-                        q.emplace(sx, ant);
+                        tmp -= needn;
+                        needn = 0;
+                        continue;
+                    }
+                    int64_t mult = needn / rn;
+                    if (needn % rn) mult++;
+                    rest[needs] += mult * rn - needn;
+                    for (auto &[sx, nx] : rv) {
+                        auto ant = (mult * nx);
+
+                        if (sx == "ORE") {
+                            nore += ant;
+                        } else {
+                            q.emplace(sx, ant);
+                        }
                     }
                 }
-                //std::cout << std::endl;
             }
         }
-    }
-    std::cout << "1000000000000" << std::endl;
+
+        if(ans2 == 1) ans1 = nore;
+        if(nore > trillion) max = ans2;
+        else min = ans2;
+        ans2 = (max + min) / 2;
+    } while(max-min > 1);
+
     std::cout << ans1 << std::endl;
     std::cout << ans2 << std::endl;
 }
