@@ -20,36 +20,6 @@ void p11(std::istream & is) {
             mach.data[0] = 2;
         }
 
-        auto draw = [&]() {
-            int minx = std::numeric_limits<int>::max();
-            int miny = std::numeric_limits<int>::max();
-            int maxx = std::numeric_limits<int>::min();
-            int maxy = std::numeric_limits<int>::min();
-            for (auto[t, c] : painted) {
-                auto[x, y] = t;
-                if (x < minx) minx = x;
-                if (y < miny) miny = y;
-                if (x > maxx) maxx = x;
-                if (y > maxy) maxy = y;
-            }
-
-            auto xs = maxx - minx + 1;
-            auto ys = maxy - miny + 1;
-            std::vector<std::string> screen;
-            screen.resize(ys);
-            for (auto &v : screen) v.resize(xs, ' ');
-            for( auto & [t,c] : painted) {
-                auto [x,y] = t;
-                switch (c) {
-                    case 1: screen[y][x] = '|'; break;
-                    case 2: screen[y][x] = 'X'; break;
-                    case 3: screen[y][x] = '-'; break;
-                    case 4: screen[y][x] = '0'; break;
-                }
-            }
-            for (auto &v : screen) std::cout << v << std::endl;
-
-        };
         int bx = 0, px = 0;
         while (!done) {
             while (mach.step());
@@ -59,7 +29,6 @@ void p11(std::istream & is) {
                     break;
                 case intcodemachine::WAITING:
                 {
-                    draw();
                     if(bx < px)
                     mach.addInput(-1);
                     else if(bx > px) mach.addInput(1);
