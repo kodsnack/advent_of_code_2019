@@ -5,6 +5,7 @@ module Utils
     , parallel
     , angleSort
     , paintGrid
+    , binarySearch
     )
 where
 
@@ -48,3 +49,10 @@ paintGrid (xMax, yMax) f m =
     line (x, y) c = modifyAt y (char x c)
     char x c = setAt x (f c)
     grid = replicate yMax (replicate xMax ' ')
+
+
+-- binary Search finds x such that f(x) = True and f(x+1) = False
+binarySearch f a b | a + 1 == b = a
+                   | f guess    = binarySearch f guess b
+                   | otherwise  = binarySearch f a guess
+    where guess = (a + b) `div` 2
