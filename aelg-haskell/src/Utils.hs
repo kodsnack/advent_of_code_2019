@@ -2,6 +2,7 @@
 module Utils
     ( genGrid
     , bfs
+    , bfsStoppable
     , parallel
     , angleSort
     , paintGrid
@@ -29,6 +30,19 @@ bfs gen start = go (add start 0 Q.empty) M.empty
         | M.member next seen = go tail seen
         | otherwise = go (add (gen next) (w + 1) tail) (M.insert next w seen)
         where (Just (w, next), tail) = Q.pop q
+
+-- bfsStoppable can be stopped by returning True from then gen function
+bfsStoppable :: Ord k => (k -> (Bool, [k])) -> [k] -> (Maybe k, M.Map k Int)
+bfsStoppable gen start = go (add start 0 Q.empty) M.empty
+  where
+    add k w = Q.pushList (zip (repeat w) k)
+    go q seen | Q.null q           = (Nothing, seen)
+              | M.member next seen = go tail seen
+              | done               = (Just next, M.insert next w seen)
+              | otherwise = go (add new (w + 1) tail) (M.insert next w seen)
+      where
+        (Just (w, next), tail) = Q.pop q
+        (done          , new ) = gen next
 
 
 parallel :: (NFData a, Traversable f) => f a -> f a
