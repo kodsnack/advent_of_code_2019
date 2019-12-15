@@ -25,7 +25,7 @@ def draw(cells, lowest, highest):
 
 
 def solve(d):
-    computer = Computer(d, 0)
+    computer = Computer(d, 0, 2)
     count = 0
     retcode = 0
     loops = 0
@@ -61,8 +61,6 @@ def solve(d):
         computer.set_input(0 if ballx == padx else -1 if ballx < padx else 1)
         
         loops += 1
-
-    print(draw(cells, lowest, highest))
 
     return score
     
