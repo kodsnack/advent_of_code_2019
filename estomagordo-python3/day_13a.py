@@ -8,11 +8,11 @@ from intcode import Computer
 def solve(d):
     computer = Computer(d, 0)
     count = 0
-    done = True
+    running = 0
     loops = 0
     
-    while done:
-        done, retval = computer.get_output()
+    while running != -1:
+        running, retval = computer.get_output()
         if loops % 3 == 2 and retval == 2:
             count += 1
         loops += 1
