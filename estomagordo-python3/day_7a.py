@@ -11,19 +11,31 @@ def solve(d, lo, hi, ampcount):
     for perm in permutations(range(lo, hi)):
         computers = [Computer(d, perm[pos]) for pos in range(ampcount)]
         inp = 0
+        step = 0
 
-        for i, computer in enumerate(computers):
-            computer.set_input(perm[i])
+        while True:
+            computer = computers[step % ampcount]
+            
+            if step < ampcount:
+                computer.set_input(perm[step])
+            else:
+                computer.set_input(inp)
+
             retcode, retval = 0, 0
 
             while retcode == 0:
                 retcode, retval = computer.step()
 
-                if retcode == 0 and retval == 3:
+                if step < ampcount and retcode == 0 and retval == 3:
                     computer.set_input(inp)
 
                 if retcode == 1:
                     inp = retval
+
+            if retcode == -1:
+                break
+
+            step += 1
 
         best = max(best, inp)
         
