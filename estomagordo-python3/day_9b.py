@@ -8,7 +8,7 @@ from intcode import Computer
 
 def solve(data, inp):
     computer = Computer(data, inp)
-    return computer.get_output()
+    return computer.get_output()[1]
 
 
 def read_and_solve():

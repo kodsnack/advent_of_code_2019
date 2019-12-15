@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 class Computer:
-    def __init__(self, program, input):
+    def __init__(self, program, input, startval=None):
         self.input = input
         self.program = defaultdict(int)
         self.p = 0
@@ -11,7 +11,8 @@ class Computer:
         for i, v in enumerate(program):
             self.program[i] = v
 
-        self.program[0] = 2
+        if startval:
+            self.program[0] = startval
 
     def step(self):
         self.steps += 1
@@ -35,14 +36,11 @@ class Computer:
             self.p += 4
         elif instruction % 100 == 2:
             if cmode == 0:
-                print(self.program[self.program[self.p + 3]])
                 self.program[self.program[self.p + 3]] = a * b
-                print(self.program[self.program[self.p + 3]])
             else:
                 self.program[self.program[self.p + 3] + self.relbase] = a * b
             self.p += 4
         elif instruction % 100 == 3:
-            print('döden')
             if amode == 0:
                 self.program[self.program[self.p + 1]] = self.input
             else:
