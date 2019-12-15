@@ -35,7 +35,9 @@ class Computer:
             self.p += 4
         elif instruction % 100 == 2:
             if cmode == 0:
+                print(self.program[self.program[self.p + 3]])
                 self.program[self.program[self.p + 3]] = a * b
+                print(self.program[self.program[self.p + 3]])
             else:
                 self.program[self.program[self.p + 3] + self.relbase] = a * b
             self.p += 4
