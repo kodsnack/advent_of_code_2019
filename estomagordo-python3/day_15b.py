@@ -6,30 +6,6 @@ from copy import deepcopy
 from intcode import Computer
 
 
-def bfs(walls, oy, ox):
-    seen = { (0, 0) }
-    frontier = [(0, 0, 0)]
-
-    while True:
-        steps, y, x = heappop(frontier)
-        
-        if y == oy and x == ox:
-            return steps
-        
-        if (y + 1, x) not in walls | seen:
-            seen.add((y + 1, x))
-            heappush(frontier, (steps + 1, y + 1, x))
-        if (y - 1, x) not in walls | seen:
-            seen.add((y - 1, x))
-            heappush(frontier, (steps + 1, y - 1, x))
-        if (y, x + 1) not in walls | seen:
-            seen.add((y, x + 1))
-            heappush(frontier, (steps + 1, y, x + 1))
-        if (y, x - 1) not in walls | seen:
-            seen.add((y, x - 1))
-            heappush(frontier, (steps + 1, y, x - 1))
-
-
 def next_pos(y, x, command):
     if command == 1:
         return y - 1, x
@@ -85,25 +61,6 @@ def explore(d):
     return walls, seen, oy, ox
 
 
-def paint(walls, seen):
-    xmin = 100
-    xmax = -100
-    ymin = 100
-    ymax = -100
-
-    for y, x in walls:
-        xmin = min(xmin, x)
-        xmax = max(xmax, x)
-        ymin = min(ymin, y)
-        ymax = max(ymax, y)
-
-    for y in range(ymin, ymax + 1):
-        row = []
-        for x in range(xmin, xmax + 1):
-            row.append('#' if (y, x) in walls else '.' if (y, x) in seen else ' ')
-        print(''.join(row))
-
-
 def flood_fill(walls, seen, oxygen):
     minutes = 0
 
@@ -111,13 +68,13 @@ def flood_fill(walls, seen, oxygen):
         newox = set()
 
         for oy, ox in oxygen:
-            if (oy - 1, ox) in seen - oxygen:
+            if (oy - 1, ox) in seen - oxygen and (oy - 1, ox) not in newox:
                 newox.add((oy - 1, ox))
-            if (oy + 1, ox) in seen - oxygen:
+            if (oy + 1, ox) in seen - oxygen and (oy + 1, ox) not in newox:
                 newox.add((oy + 1, ox))
-            if (oy, ox - 1) in seen - oxygen:
+            if (oy, ox - 1) in seen - oxygen and (oy, ox - 1) not in newox:
                 newox.add((oy, ox - 1))
-            if (oy, ox + 1) in seen - oxygen:
+            if (oy, ox + 1) in seen - oxygen and (oy, ox + 1) not in newox:
                 newox.add((oy, ox + 1))
 
         oxygen |= newox
