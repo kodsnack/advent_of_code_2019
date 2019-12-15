@@ -15,18 +15,13 @@ def heuristic(elements, fuel_need):
 
 
 def solve(data):
-    reactions = {}
-    name_to_pos = {}
-    pos_to_name = {}
-    names = set()
+    elements = {}
 
     for i, line in enumerate(data):
         last = line[-1]
         last_amount = int(line[-2])
         requirements = []
         l = len(line)
-
-        names.add(last)
 
         for x in range(0, l - 3, 2):
             cost = int(line[x])
@@ -35,73 +30,33 @@ def solve(data):
             if name[-1] == ',':
                 name = name[:-1]
 
-            names.add(name)
-
             requirements.append((name, cost))
 
-        reactions[(i, tuple(requirements))] = [last_amount, last]
+        elements[last] = [last_amount, 0, 0, requirements]
 
-    for i, name in enumerate(sorted(names)):
-        name_to_pos[name] = i
-        pos_to_name[i] = name
+    elements['FUEL'][1] = 1
+    elements['ORE'] = [1, 0, 0, []]
 
-    fuel_need = [0 for _ in range(len(names))]
-
-    for req, result in reactions.items():
-        res_amount, res_name = result
-        
-        if res_name != 'FUEL':
-            continue
-
-        i, requirements = req
-
-        for req_name, req_cost in requirements:
-            fuel_need[name_to_pos[req_name]] = req_cost
-    
-    frontier = [[heuristic([0 for _ in range(len(names))], fuel_need), 0, tuple([0 for _ in range(len(names))])]]
-    seen = set()
-    
     while True:
-        remaining, used, elements = heappop(frontier)
-        print(remaining, used)
+        updated = False
 
-        if remaining == 0:
-            return used
-
-        for req, result in reactions.items():
-            _, requirement = req
-            result_amount, result_name = result
-
-            if len(requirement) == 1 and requirement[0][0] == 'ORE':
-                # print('ore')
-                new_els = list(elements)
-                new_els[name_to_pos[result_name]] += result_amount
-                if tuple(new_els) not in seen:
-                    score = heuristic(new_els, fuel_need)
-                    heappush(frontier, (score, used + requirement[0][1], tuple(new_els)))
-                    seen.add(tuple(new_els))
-                continue
-            # print('not ore')
-            possible = True
-            # print(requirement, elements)
-            for name, needed in requirement:
-                if elements[name_to_pos[name]] < needed:
-                    possible = False
-                    break
-
-            if not possible:
-                continue
+        for element, info in elements.items():
+            per_batch, needed, created, requirements = info
             
-            new_els = list(elements)
+            if needed <= created:
+                continue
 
-            for name, needed in requirement:
-                new_els[name_to_pos[name]] -=  needed
+            updated = True
+            new_batches = ceil((needed - created) / per_batch)
+            elements[element][2] += new_batches * per_batch
 
-            new_els[name_to_pos[result_name]] += result_amount
-            if tuple(new_els) not in seen:
-                score = heuristic(new_els, fuel_need)
-                heappush(frontier, (score, used, tuple(new_els)))
-                seen.add(tuple(new_els))
+            for req_name, req_cost in requirements:
+                elements[req_name][1] += req_cost * new_batches
+
+            break
+
+        if not updated:
+            return elements['ORE'][2]
     
 
 def read_and_solve():
