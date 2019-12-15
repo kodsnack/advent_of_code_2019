@@ -79,7 +79,7 @@ class Computer:
         else:
             print('uh oh', self.program[self.p])
 
-        return 0, 0
+        return 0, instruction % 100
 
     def get_output(self):
         retcode, retval = 0, 0
