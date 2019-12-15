@@ -2,6 +2,7 @@
 
 from aocbase import readInput
 import re
+import collections
 
 def lineParse(s, f, fp):
     m = fp.match(s)
@@ -188,101 +189,75 @@ def move(c, dir):
     else:
         return c.out()
 
-def drawFloor(m):
-    xmin = min(map(lambda x:x[0], m.keys()))
-    xmax = max(map(lambda x:x[0], m.keys()))
-    ymin = min(map(lambda x:x[1], m.keys()))
-    ymax = max(map(lambda x:x[1], m.keys()))
-    print("="*(xmax-xmin+1))
+def drawMap(m, default=' ', separator=''):
+    keys = [(key[0], key[1]) for key in m.keys() if isinstance(key, tuple)]
+    xmin = min(map(lambda x:x[0], keys))
+    xmax = max(map(lambda x:x[0], keys))
+    ymin = min(map(lambda x:x[1], keys))
+    ymax = max(map(lambda x:x[1], keys))
+    lines = []
+    lines.append(separator*(xmax-xmin+1))
     for y in range(ymax, ymin-1, -1):
-        for x in range(xmin, xmax+1):
-            print(m.get((x, y), '.'), end='')
-        print()
+        line = ''.join((m.get((x, y), default) for x in range(xmin, xmax+1)))
+        lines.append(line)
+    lines.append(separator*(xmax-xmin+1))
+    return '\n'.join(lines)
 
 def mapFloor(c):
     x, y = 0, 0
     m = {(x, y):"X"}
-    d = "N"
-    notimes = 0
-    while True:
-        r = move(c, d)
-        if r == 0:
-            if d == "N":
-                m[x, y+1] = "#"
-                d = "E"
-            elif d == "E":
-                m[x + 1, y] = "#"
-                d = "S"
-            elif d == "S":
-                m[x, y-1] = "#"
-                d = "W"
-            else:
-                m[x-1, y] = "#"
-                d = "N"
-        elif r == 1:
-            if d == "N":
-                y += 1
-                d = "W"
-            elif d == "E":
-                x += 1
-                d = "N"
-            elif d == "S":
-                y -= 1
-                d = "E"
-            else:
-                x -= 1
-                d = "S"
-            if (x, y) not in m:
-                m[x, y] = " "
-            elif m[x, y] in "X":
-                notimes += 1
-                if notimes == 4:
-                    return m
-                
-        else:
-            if d == "N":
-                y += 1
-                m[x, y] = "O"
-                d = "W"
-            elif d == "E":
-                x += 1
-                m[x, y] = "O"
-                d = "N"
-            elif d == "S":
-                y -= 1
-                m[x, y] = "O"
-                d = "E"
-            else:
-                x -= 1
-                m[x, y] = "O"
-                d = "S"
+    moves = collections.deque("NSEWSNWE")
+    while len(moves) > 0:
+        nextMove = moves.popleft()
+        dx, dy = {"N":(0, 1),"S":(0, -1),"W":(-1, 0),"E":(1, 0)}[nextMove]
+        nx, ny = x+dx, y+dy
+        moveResult = move(c, nextMove)
+        if moveResult == 0:
+            m[nx, ny] = "#"
+            moves.popleft()
+            continue
+        elif moveResult in (1, 2):
+            if (nx, ny) not in m:
+                if moveResult == 1:
+                    m[nx, ny] = " "
+                else:
+                    m[nx, ny] = "O"
+                    m["oxygen"] = nx, ny
+                for nextNextMove in "WSEN":
+                    ndx, ndy = {"N":(0, 1),"S":(0, -1),
+                                "W":(-1, 0),"E":(1, 0)}[nextNextMove]
+                    nnx, nny = nx+ndx, ny+ndy
+                    if (nnx, nny) in m: continue
+                    moves.appendleft({"N":"S","S":"N","E":"W","W":"E"}[nextNextMove])
+                    moves.appendleft(nextNextMove)
+            x, y = nx, ny
+    return m
 
 def colorMap(m, x, y):
-    pos = [(x, y)]
+    pos = collections.deque(((x, y),))
     m2 = {(x,y):0}
     while len(pos)>0:
-        x, y = pos[0]
-        if m[x, y] == "O":
-            ox, oy = x, y
-        pos = pos[1:]
-        for dx, dy in [(0, 1), (1, 0), (-1, 0), (0, -1)]:
+        x, y = pos.popleft()
+        for dx, dy in ((0, 1), (1, 0), (-1, 0), (0, -1)):
             nx, ny = x+dx, y+dy
             if m[nx, ny] != "#" and (nx, ny) not in m2:
                 m2[nx, ny] = m2[x, y] + 1
                 pos.append((nx, ny))
-    return m2, ox, oy
+    return m2
 
 def part1(pinp):
     c = Comp(pinp[0][0])
     m = mapFloor(c)
-    cm, x, y = colorMap(m, 0, 0)
+    cm = colorMap(m, 0, 0)
+    x, y = m["oxygen"]
     return cm[x, y]
 
 def part2(pinp):
     c = Comp(pinp[0][0])
     m = mapFloor(c)
-    cm, x, y = colorMap(m, 0, 0)
-    cm, x, y = colorMap(m, x, y)
+    cm = colorMap(m, 0, 0)
+    x, y = m["oxygen"]
+    cm = colorMap(m, x, y)
     return max(cm.values())
 
 ## Start of footer boilerplate #################################################
