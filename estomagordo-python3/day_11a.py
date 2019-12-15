@@ -3,101 +3,42 @@ import re
 from heapq import heappop, heappush
 from collections import Counter, defaultdict
 from itertools import permutations
+from intcode import Computer
 
 
 def solve(data, inp):
-    d = defaultdict(int)
-
-    for i, v in enumerate(data):
-        d[i] = v
-
-    painted = {}
+    painted = defaultdict(int)
     y = 0
     x = 0
+    output_count = 0    
     directions = ((-1, 0), (0, 1), (1, 0), (0, -1))
     facing = 0
+    computer = Computer(data, inp)
+    retval, retcode = 0, 0
 
-    p = 0
-    relbase = 0
-    steps = 0
-    output_count = 0
-    first = True
+    while retcode != -1:
+        retcode, retval = computer.step()
 
-    while True:
-        steps += 1
-        amode = (d[p] % 1000) // 100
-        bmode = (d[p] % 10000) // 1000
-        cmode = (d[p] % 100000) // 10000
+        if retcode == 0:
+            computer.set_input(painted[(y, x)])
+            continue
 
-        a = d[p + 1] if amode == 1 else d[d[p + 1]] if amode == 0 else d[d[p + 1] + relbase]
-        b = d[p + 2] if bmode == 1 else d[d[p + 2]] if bmode == 0 else d[d[p + 2] + relbase]
-        c = d[p + 3] if cmode == 1 else d[d[p + 3]] if cmode == 0 else d[d[p + 3] + relbase]
-
-        if d[p] % 100 == 99:
-            return len(painted)
-        elif d[p] % 100 == 1:
-            if cmode == 0:
-                d[d[p + 3]] = a + b
-            else:
-                d[d[p + 3] + relbase] = a + b
-            p += 4
-        elif d[p] % 100 == 2:
-            if cmode == 0:
-                d[d[p + 3]] = a * b
-            else:
-                d[d[p + 3] + relbase] = a * b
-            p += 4
-        elif d[p] % 100 == 3:
-            if amode == 0:
-                d[d[p + 1]] = inp if first else 0 if not (y, x) in painted else painted[(y, x)]
-            else:
-                d[d[p + 1] + relbase] = inp if first else 0 if not (y, x) in painted else painted[(y, x)]
-            first = False
-            p += 2
-        elif d[p] % 100 == 4:
-            if output_count % 2 == 0:
-                painted[(y, x)] = a
-            else:
-                if a == 0:
-                    facing = (facing - 1) % 4
-                else:
-                    facing = (facing + 1) % 4
-
-                y += directions[facing][0]
-                x += directions[facing][1]
-            output_count += 1
-            p += 2
-        elif d[p] % 100 == 5:
-            if a != 0:
-                p = b
-            else:
-                p += 3
-        elif d[p] % 100 == 6:
-            if a == 0:
-                p = b
-            else:
-                p += 3
-        elif d[p] % 100 == 7:
-            cc = 1 if a < b else 0
-            if cmode == 0:
-                d[d[p + 3]] = cc
-            else:
-                d[d[p + 3] + relbase] = cc
-            p += 4
-        elif d[p] % 100 == 8:
-            cc = 1 if a == b else 0
-            if cmode == 0:
-                d[d[p + 3]] = cc
-            else:
-                d[d[p + 3] + relbase] = cc
-            p += 4
-        elif d[p] % 100 == 9:
-            relbase += a
-            p += 2
+        if output_count % 2 == 0:
+            painted[(y, x)] = retval
         else:
-            print('uh oh', d[p])
+            if retval == 0:
+                facing = (facing - 1) % 4
+            else:
+                facing = (facing + 1) % 4
 
-    return 'outside-loop'
+            y += directions[facing][0]
+            x += directions[facing][1]
+
+        computer.set_input(painted[(y, x)])
+
+        output_count += 1
+
+    return len(painted)
 
 
 def read_and_solve():
