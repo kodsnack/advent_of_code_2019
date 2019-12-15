@@ -47,8 +47,8 @@ def explore(d):
     xmax = 100
     
     walls = set()
-    seen = { 0, 0 }
-    frontier = [(Computer(d, 1), 1, 0, 0)]
+    seen = { (0, 0) }
+    frontier = [(Computer(d, 1), 1, 0, 0), (Computer(d, 2), 2, 0, 0), (Computer(d, 3), 3, 0, 0), (Computer(d, 4), 4, 0, 0)]
     oy, ox = -1, -1
 
     for computer, command, y, x in frontier:
@@ -62,29 +62,50 @@ def explore(d):
             oy = ny
             ox = nx
 
-        if y > ymin and (y - 1, x) not in walls | seen:
+        seen.add((ny, nx))
+
+        if ny > ymin and (ny - 1, nx) not in walls | seen:
             newcomp = deepcopy(computer)
-            computer.set_input(1)
+            newcomp.set_input(1)
             frontier.append((newcomp, 1, ny, nx))
-        if y < ymax and (y + 1, x) not in walls | seen:
+        if ny < ymax and (ny + 1, nx) not in walls | seen:
             newcomp = deepcopy(computer)
-            computer.set_input(2)
+            newcomp.set_input(2)
             frontier.append((newcomp, 2, ny, nx))
-        if x > xmin and (y, x - 1) not in walls | seen:
+        if nx > xmin and (ny, nx - 1) not in walls | seen:
             newcomp = deepcopy(computer)
-            computer.set_input(3)
+            newcomp.set_input(3)
             frontier.append((newcomp, 3, ny, nx))
-        if x < xmax and (y, x + 1) not in walls | seen:
+        if nx < xmax and (ny, nx + 1) not in walls | seen:
             newcomp = deepcopy(computer)
-            computer.set_input(4)
+            newcomp.set_input(4)
             frontier.append((newcomp, 4, ny, nx))
 
         
-    return walls, oy, ox
+    return walls, seen, oy, ox
+
+
+def paint(walls, seen):
+    xmin = 100
+    xmax = -100
+    ymin = 100
+    ymax = -100
+
+    for y, x in walls:
+        xmin = min(xmin, x)
+        xmax = max(xmax, x)
+        ymin = min(ymin, y)
+        ymax = max(ymax, y)
+
+    for y in range(ymin, ymax + 1):
+        row = []
+        for x in range(xmin, xmax + 1):
+            row.append('#' if (y, x) in walls else '.' if (y, x) in seen else ' ')
+        print(''.join(row))
 
 
 def solve(d):
-    walls, oy, ox = explore(d)
+    walls, seen, oy, ox = explore(d)
 
     return bfs(walls, oy, ox)
     
