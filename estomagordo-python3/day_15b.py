@@ -63,25 +63,28 @@ def explore(d):
 
 def flood_fill(walls, seen, oxygen):
     minutes = 0
+    lastox = oxygen
 
-    while seen - oxygen:
+    while True:
         newox = set()
 
-        for oy, ox in oxygen:
-            if (oy - 1, ox) in seen - oxygen and (oy - 1, ox) not in newox:
+        for oy, ox in lastox:
+            if (oy - 1, ox) not in oxygen and (oy - 1, ox) not in walls:
                 newox.add((oy - 1, ox))
-            if (oy + 1, ox) in seen - oxygen and (oy + 1, ox) not in newox:
+            if (oy + 1, ox) not in oxygen and (oy + 1, ox) not in walls:
                 newox.add((oy + 1, ox))
-            if (oy, ox - 1) in seen - oxygen and (oy, ox - 1) not in newox:
+            if (oy, ox - 1) not in oxygen and (oy, ox - 1) not in walls:
                 newox.add((oy, ox - 1))
-            if (oy, ox + 1) in seen - oxygen and (oy, ox + 1) not in newox:
+            if (oy, ox + 1) not in oxygen and (oy, ox + 1) not in walls:
                 newox.add((oy, ox + 1))
 
+        if not newox:
+            return minutes
+        
         oxygen |= newox
+        lastox = newox
 
         minutes += 1
-
-    return minutes
 
 
 def solve(d):
