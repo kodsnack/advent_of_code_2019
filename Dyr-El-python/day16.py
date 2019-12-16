@@ -14,74 +14,19 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 ## End of header boilerplate ###################################################
 
-def seq2(d, offset):
-    i = -offset
-    s = -1
-    d += 1
-    while i < 0:
-        i += d * 2
-        s = s * (-1)
-    while True:
-        for j in range(i, i+d):
-            yield j, s
-        i = i + d*2
-        s *= -1
-
-def sgd(a, b):
-    if b==0:
-        return a
-    return sgd(b, a%b)
-
-cache = {}
-def calcDigit(d, i, l, mul):
-    if (d, i, mul) in cache:
-        return cache[d, i, mul]
-    if i == 0:
-        return l[d%mul]
-    cycle = 4*(d+1)
-    offsets = sgd(cycle, len(l))
-    noLeft = mul
-    noPerCycle = mul // cycle
-    smm = 0
-    offset = 1
-    while True:
-        print(i, d, cycle, noLeft, noPerCycle)
-        sm = 0
-        for j, s in seq2(d, offset):
-            print(j, s)
-            input()
-            if j>=len(l):
-                break
-            sm += s * calcDigit(j, i-1, l, mul)
-        if noLeft % cycle == 0:
-            smm += noPerCycle * sm
-            noLeft -= noPerCycle
-        else:
-            smm += (noPerCycle + 1) * sm
-            noLeft -= (noPerCycle + 1)
-        if noLeft == 0:
-            break
-        offset += cycle // offsets
-    cache[d, i, mul] = abs(smm)%10
-    return abs(smm)%10
-
 def part1(pinp):
     l = [int(c) for c in pinp[0][0]]
-    s = 0
-    for i in range(8):
-        s = s * 10 + calcDigit(i, 100, l, 1)
-    return s
+    inputLen = len(l)
+    for _ in range(100):
+        l = [abs(sum((0, 1, 0, -1)[(i+1)//(k+1)%4]*l[i] for i in range(inputLen))) % 10 for k in range(inputLen)]
+    return ''.join(map(str, l[:8]))
 
 def part2(pinp):
-    global cache
-    cache = dict()
-    l = [int(c) for c in pinp[0][0]]*10000
-    offset = int(''.join(map(str, pinp[0][0][:7])))
-    print(offset, len(l))
-    s = 0
-    for i in range(offset, offset+8):
-        s = s * 10 + calcDigit(i, 100, l, 10000)
-    return s
+    l = (10000*[int(c) for c in pinp[0][0]])[int(pinp[0][0][:7]):]
+    for _ in range(100):
+        for i in range(len(l)-1, 0, -1):
+            l[i-1] = (l[i-1]+l[i]) % 10
+    return ''.join(str(x) for x in l[:8])
 
 ## Start of footer boilerplate #################################################
 
