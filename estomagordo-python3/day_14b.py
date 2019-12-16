@@ -76,8 +76,6 @@ def solve(data):
         if fuel_need > 10:
             fuel_need -= 8 # Make sure we don't overshoot.
 
-        g = 7
-
     return elements['FUEL'][2]
     
 
