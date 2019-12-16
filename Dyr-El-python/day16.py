@@ -17,6 +17,7 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 def seq2(d):
     i = -1
     s = 1
+    d += 1
     while True:
         for j in range(i+d, i+d*2):
             yield j, s
@@ -48,25 +49,24 @@ def calcDigit(d, i, l):
     if i == 0:
         return l[d]
     for j, s in seq2(d):
-        print(i, d, j, s)
         if j>=len(l):
             break
         sum += s * calcDigit(j, i-1, l)
     cache[d, i] = abs(sum)%10
-    if len(cache)%10000 == 0:
+    if len(cache)%1000 == 0:
         print(len(cache))
     return abs(sum)%10
 
 def part2(pinp):
     global cache
-    # cache = dict()
-    # l = [int(c) for c in pinp[0][0]]*10000
-    # offset = int(''.join(map(str, pinp[0][0][:7])))
-    # print(offset, len(l))
-    # s = 0
-    # for i in range(offset, offset+8):
-    #     s = s * 10 + calcDigit(i, 100, l)
-    # return s
+    cache = dict()
+    l = [int(c) for c in pinp[0][0]]*10000
+    offset = int(''.join(map(str, pinp[0][0][:7])))
+    print(offset, len(l))
+    s = 0
+    for i in range(offset, offset+8):
+        s = s * 10 + calcDigit(i, 100, l)
+    return s
 
 ## Start of footer boilerplate #################################################
 
