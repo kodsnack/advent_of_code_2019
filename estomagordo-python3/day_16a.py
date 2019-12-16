@@ -4,20 +4,28 @@ from heapq import heappop, heappush
 from collections import Counter, defaultdict
 
 
+def patternize(i, j):
+    if i == 0 and j == 0:
+        return 1
+
+    j += 1
+
+    width = i + 1
+
+    band = j // width
+
+    return [0, 1, 0, -1][band % 4]
+
+
 def solve(nums):
     for _ in range(100):
         new_nums = []
 
         for i, _ in enumerate(nums):
-            pattern = [0] * (i + 1)
-            pattern += [1] * (i + 1)
-            pattern += [0] * (i + 1)
-            pattern += [-1] * (i + 1)
-
             tot = 0
 
             for j, num in enumerate(nums):
-                tot += num * pattern[(j + 1) % len(pattern)]
+                tot += num * patternize(i, j)
 
             new_nums.append(abs(tot) % 10)
 
