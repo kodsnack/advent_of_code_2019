@@ -14,48 +14,63 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 ## End of header boilerplate ###################################################
 
-def seq2(d):
-    i = -1
-    s = 1
+def seq2(d, offset):
+    i = -offset
+    s = -1
     d += 1
+    while i < 0:
+        i += d * 2
+        s = s * (-1)
     while True:
-        for j in range(i+d, i+d*2):
+        for j in range(i, i+d):
             yield j, s
         i = i + d*2
         s *= -1
 
-def seq(d):
-    i = 1
-    v = (0, 1, 0, -1)
-    while True:
-        yield v[(i//(d+1)) % 4]
-        i = i + 1
+def sgd(a, b):
+    if b==0:
+        return a
+    return sgd(b, a%b)
 
-def falt(l, d):
-    return sum(map(lambda x, y:x*y, l, seq(d)))
+cache = {}
+def calcDigit(d, i, l, mul):
+    if (d, i, mul) in cache:
+        return cache[d, i, mul]
+    if i == 0:
+        return l[d%mul]
+    cycle = 4*(d+1)
+    offsets = sgd(cycle, len(l))
+    noLeft = mul
+    noPerCycle = mul // cycle
+    smm = 0
+    offset = 1
+    while True:
+        print(i, d, cycle, noLeft, noPerCycle)
+        sm = 0
+        for j, s in seq2(d, offset):
+            print(j, s)
+            input()
+            if j>=len(l):
+                break
+            sm += s * calcDigit(j, i-1, l, mul)
+        if noLeft % cycle == 0:
+            smm += noPerCycle * sm
+            noLeft -= noPerCycle
+        else:
+            smm += (noPerCycle + 1) * sm
+            noLeft -= (noPerCycle + 1)
+        if noLeft == 0:
+            break
+        offset += cycle // offsets
+    cache[d, i, mul] = abs(smm)%10
+    return abs(smm)%10
 
 def part1(pinp):
     l = [int(c) for c in pinp[0][0]]
     s = 0
     for i in range(8):
-        s = s * 10 + calcDigit(i, 100, l)
+        s = s * 10 + calcDigit(i, 100, l, 1)
     return s
-
-cache = {}
-def calcDigit(d, i, l):
-    if (d, i) in cache:
-        return cache[d, i]
-    sum = 0
-    if i == 0:
-        return l[d]
-    for j, s in seq2(d):
-        if j>=len(l):
-            break
-        sum += s * calcDigit(j, i-1, l)
-    cache[d, i] = abs(sum)%10
-    if len(cache)%1000 == 0:
-        print(len(cache))
-    return abs(sum)%10
 
 def part2(pinp):
     global cache
@@ -65,7 +80,7 @@ def part2(pinp):
     print(offset, len(l))
     s = 0
     for i in range(offset, offset+8):
-        s = s * 10 + calcDigit(i, 100, l)
+        s = s * 10 + calcDigit(i, 100, l, 10000)
     return s
 
 ## Start of footer boilerplate #################################################
