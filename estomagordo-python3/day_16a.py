@@ -31,7 +31,7 @@ def solve(nums):
 
         nums = new_nums
 
-    return ''.join(str(num) for num in nums[:8])
+    return int(''.join(str(num) for num in nums[:8]))
     
 
 def read_and_solve():
