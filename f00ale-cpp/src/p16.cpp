@@ -53,32 +53,27 @@ void p16(std::istream & is) {
     }();
 
     for(auto problem : {1,2}) {
-        int offset = 0;
+        size_t offset = 0;
         auto v = input;
-
+        v.reserve(input.size() * 10000);
         if(problem == 2) {
             for (int i = 0; i < 7; i++) {
                 offset *= 10;
                 offset += v[i];
             }
             auto cpy = v;
-            for (int i = 1; i < 10000; i++) for (auto e : cpy) v.push_back(e);
+            for (int i = 1; i < 10000; i++) v.insert(v.end(), cpy.begin(), cpy.end());
         }
 
         const std::vector<int> phase{0, 1, 0, -1};
+        std::vector<int> precalc(v.size()+1);
 
         for (int varv = 0; varv < 100; varv++) {
-            //if(problem == 2) std::cout << varv << std::endl;
-            std::vector<int> precalc(v.size()+1);
-            {
-                for (size_t i = 0; i < v.size(); i++) {
-                    precalc[i+1] = precalc[i]+v[i];
-                }
+            for (size_t i = offset; i < v.size(); i++) {
+                precalc[i+1] = precalc[i]+v[i];
             }
-            if(problem == 1) {
-            std::vector<int> next(v.size());
 
-            for(size_t i = 0; i < v.size(); i++) {
+            for(size_t i = offset; i < v.size()/2; i++) {
                 int pp = 0;
                 int tmp = 0;
                 size_t stride = i;
@@ -87,31 +82,24 @@ void p16(std::istream & is) {
                     stride = nextstride;
                     tmp += phase[pp]*(precalc[std::min(static_cast<size_t>(j+stride),v.size())]-precalc[j]);
                     nextstride = i+1;
-                    pp = (pp+1)%4;
+                    pp++;
+                    if(pp > 3) pp = 0;
                 }
-                next[i] = (std::abs(tmp) % 10);
+                v[i] = (std::abs(tmp) % 10);
             }
-            v.swap(next);
-            } else {
-                for(size_t i = offset; i < v.size(); i++) {
-                    v[i] = std::abs(precalc[v.size()]-precalc[i])%10;
-                }
+            for(size_t i = std::max(offset, v.size()/2); i < v.size(); i++) {
+                v[i] = std::abs(precalc[v.size()]-precalc[i]) % 10; //phase is always 1
             }
         }
         int ans = 0;
-        for(int i = offset; i < offset+8; i++) {
+        for(size_t i = offset; i < offset+8; i++) {
             ans *= 10;
             ans += v[i];
         }
         if(problem == 1) ans1 = ans;
         else ans2 = ans;
     }
-/*
-    std::cout << 53296082 << std::endl;
-    std::cout << 43310035 << std::endl;
-    std::cout << (53296082==ans1) << std::endl;
-    std::cout << (43310035==ans2) << std::endl;
-*/
+
     std::cout << ans1 << std::endl;
     std::cout << ans2 << std::endl;
 }
