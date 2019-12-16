@@ -26,7 +26,7 @@ enum class OpCode(
         val modes: List<Mode> = Mode.parse(data[0])
         val i0: Int = mem.read(modes[0], data[1])
         val i1: Int = mem.read(modes[1], data[2])
-        mem[data[3]] = i0 + i1
+        mem[data[3]] = i0 * i1
     }),
     INPUT(3, 1, { mem, data, _, _ ->
         val i = data[1]
