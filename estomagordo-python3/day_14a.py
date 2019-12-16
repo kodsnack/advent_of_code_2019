@@ -5,15 +5,6 @@ from collections import Counter, defaultdict
 from math import ceil
 
 
-def heuristic(elements, fuel_need):
-    tot = 0
-
-    for x in range(len(elements)):
-        tot += max(0, fuel_need[x] - elements[x])
-
-    return tot
-
-
 def solve(data):
     elements = {}
 
