@@ -172,3 +172,58 @@ def test_12b():
 
     answer = day_12b.read_and_solve()
     assert(506359021038056 == answer)
+
+
+def test_13a():
+    import day_13a
+
+    answer = day_13a.read_and_solve()
+    assert(309 == answer)
+
+
+def test_13b():
+    import day_13b
+
+    answer = day_13b.read_and_solve()
+    assert(15410 == answer)
+
+
+def test_14a():
+    import day_14a
+
+    answer = day_14a.read_and_solve()
+    assert(485720 == answer)
+
+
+def test_14b():
+    import day_14b
+
+    answer = day_14b.read_and_solve()
+    assert(3848998 == answer)
+
+def test_15a():
+    import day_15a
+
+    answer = day_15a.read_and_solve()
+    assert(354 == answer)
+
+
+def test_15b():
+    import day_15b
+
+    answer = day_15b.read_and_solve()
+    assert(370 == answer)
+
+
+def test_16a():
+    import day_16a
+
+    answer = day_16a.read_and_solve()
+    assert(69549155 == answer)
+
+
+def test_16b():
+    import day_16b
+
+    answer = day_16b.read_and_solve()
+    assert(83253465 == answer)

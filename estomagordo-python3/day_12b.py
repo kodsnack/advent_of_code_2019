@@ -82,14 +82,13 @@ def solve(moons):
 
         if all(repeat > -1 for repeat in repeats):
             return helpers.lcm_many(repeats)
-            
 
-def read_and_solve():
-    pattern = re.compile(r'-?\d+')
+
+def read_and_solve():    
     with open('input_12.txt') as f:
         data = []
         for line in f:
-            data.append([int(val) for val in re.findall(pattern, line) if val])
+            data.append(helpers.ints_from_line(line))
         return solve(data)
 
 if __name__ == '__main__':

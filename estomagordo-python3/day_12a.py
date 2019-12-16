@@ -1,3 +1,4 @@
+import helpers
 import re
 
 from heapq import heappop, heappush
@@ -59,11 +60,10 @@ def solve(moons, steps):
     
 
 def read_and_solve():
-    pattern = re.compile(r'-?\d+')
     with open('input_12.txt') as f:
         data = []
         for line in f:
-            data.append([int(val) for val in re.findall(pattern, line) if val])
+            data.append(helpers.ints_from_line(line))
         return solve(data, 1000)
 
 if __name__ == '__main__':

@@ -3,75 +3,42 @@ import re
 from heapq import heappop, heappush
 from collections import Counter, defaultdict
 from itertools import permutations
-
-
-def solve_amp(d, p, inputs):
-    inp_pos = 0
-
-    while p < len(d):
-        a = -1 if p > len(d) - 2 else d[p + 1] if ((d[p] % 1000) // 100) == 1 else d[d[p + 1]]
-        b = -1 if p > len(d) - 3 else d[p + 2] if ((d[p] % 10000) // 1000) == 1 else -1 if d[p + 2] >= len(d) else d[d[p + 2]]
-
-        if d[p] % 100 == 99:
-            return d[0], d, 0, True
-        if d[p] % 100 == 1:
-            d[d[p + 3]] = a + b
-            p += 4
-        elif d[p] % 100 == 2:
-            d[d[p + 3]] = a * b
-            p += 4
-        elif d[p] % 100 == 3:
-            d[d[p + 1]] = inputs[inp_pos]
-            inp_pos = 1
-            p += 2
-        elif d[p] % 100 == 4:
-            if a != 0:
-                return a, d, p + 2, False
-            p += 2
-        elif d[p] % 100 == 5:
-            if a != 0:
-                p = b
-            else:
-                p += 3
-        elif d[p] % 100 == 6:
-            if a == 0:
-                p = b
-            else:
-                p += 3
-        elif d[p] % 100 == 7:
-            c = 1 if a < b else 0
-            d[d[p + 3]] = c
-            p += 4
-        elif d[p] % 100 == 8:
-            c = 1 if a == b else 0
-            d[d[p + 3]] = c
-            p += 4
-
+from intcode import Computer
 
 def solve(d, lo, hi, ampcount):
     best = 0
 
     for perm in permutations(range(lo, hi)):
-        ds = [list(d) for _ in range(ampcount)]
-        pointers = [0 for _ in range(ampcount)]
-        val = 0
+        computers = [Computer(d, perm[pos]) for pos in range(ampcount)]
+        inp = 0
+        step = 0
 
-        pos = 0
-        prev = 0
-        
         while True:
-            data = ds[pos % ampcount]
-            pointer = pointers[pos % ampcount]
-            inputs = (perm[pos] if pos < ampcount else val, val)
-            val, dp, p, finished = solve_amp(data, pointer, inputs)
+            computer = computers[step % ampcount]
+            
+            if step < ampcount:
+                computer.set_input(perm[step])
+            else:
+                computer.set_input(inp)
 
-            ds[pos % ampcount] = dp
-            pointers[pos % ampcount] = p
-            if finished:
-                best = max(best, prev)
+            retcode, retval = 0, 0
+
+            while retcode == 0:
+                retcode, retval = computer.step()
+
+                if step < ampcount and retcode == 0 and retval == 3:
+                    computer.set_input(inp)
+
+                if retcode == 1:
+                    inp = retval
+
+            if retcode == -1:
                 break
-            prev = val
-            pos += 1
+
+            step += 1
+
+        best = max(best, inp)
+        
 
     return best
 
