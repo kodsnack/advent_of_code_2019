@@ -27,7 +27,7 @@ class Computer:
         instruction = self.program[self.p]
 
         if instruction % 100 == 99:
-            return -1, 99
+            return -1, self.program[0]
         elif instruction % 100 == 1:
             if cmode == 0:
                 self.program[self.program[self.p + 3]] = a + b
