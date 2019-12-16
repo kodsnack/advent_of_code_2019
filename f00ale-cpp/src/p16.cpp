@@ -75,14 +75,15 @@ void p16(std::istream & is) {
                     precalc[i+1] = precalc[i]+v[i];
                 }
             }
+            if(problem == 1) {
             std::vector<int> next(v.size());
 
             for(size_t i = 0; i < v.size(); i++) {
                 int pp = 0;
                 int tmp = 0;
-                int stride = i;
-                int nextstride = i;
-                for(int j = 0; j < v.size(); j+=stride) {
+                size_t stride = i;
+                size_t nextstride = i;
+                for (size_t j = 0; j < v.size(); j += stride) {
                     stride = nextstride;
                     tmp += phase[pp]*(precalc[std::min(static_cast<size_t>(j+stride),v.size())]-precalc[j]);
                     nextstride = i+1;
@@ -90,9 +91,12 @@ void p16(std::istream & is) {
                 }
                 next[i] = (std::abs(tmp) % 10);
             }
-
-
             v.swap(next);
+            } else {
+                for(size_t i = offset; i < v.size(); i++) {
+                    v[i] = std::abs(precalc[v.size()]-precalc[i])%10;
+                }
+            }
         }
         int ans = 0;
         for(int i = offset; i < offset+8; i++) {
