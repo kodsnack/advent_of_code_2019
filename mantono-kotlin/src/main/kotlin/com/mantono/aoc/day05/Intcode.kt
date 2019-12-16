@@ -32,9 +32,10 @@ enum class OpCode(
         val i = data[1]
         mem[i] = 1
     }),
-    OUTPUT(4, 2, { mem, data, _, output ->
+    OUTPUT(4, 1, { mem, data, _, output ->
         val modes: List<Mode> = Mode.parse(data[0])
         val i0: Int = mem.read(modes[0], data[1])
+        println(i0)
         output.push(i0)
     }),
     HALT(99, 0, { mem, _, _, _ ->
@@ -43,7 +44,7 @@ enum class OpCode(
 
     companion object {
         fun parse(instruction: Int): OpCode {
-            val opCode: Int = instruction % 10
+            val opCode: Int = instruction % 100
             return values()
                 .firstOrNull { it.code == opCode } ?: error("Unsupported opcode: '$instruction'")
         }
@@ -56,7 +57,7 @@ enum class Mode {
 
     companion object {
         fun parse(opCode: Int): List<Mode> {
-            return (1..4).asSequence()
+            return (2..4).asSequence()
                 .map { 10.0.pow(it.toDouble()).toInt() }
                 .map { opCode / it }
                 .map { values()[it % 2] }
