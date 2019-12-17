@@ -19,6 +19,6 @@ class TestDayXX(unittest.TestCase):
 
 if __name__ == '__main__':
 
-    print("Advent of code day XX")
+    print("Advent of code day X")
     print("Part1 result: {}".format(part1(getIntsFromFile(sys.argv[1]))))
     print("Part2 result: {}".format(part2(getIntsFromFile(sys.argv[1]))))
