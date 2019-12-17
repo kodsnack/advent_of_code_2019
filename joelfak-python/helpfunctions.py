@@ -11,6 +11,9 @@ def readFile(filename):
 def getIntsFromFile(filename):
     return map(lambda x: int(x), readFile(filename))
 
+def getStringsFromFile(filename):
+    return readFile(filename)
+
 def getCommaSeparatedIntsFromFile(filename):
     with open(filename) as file:
         str = file.readline()

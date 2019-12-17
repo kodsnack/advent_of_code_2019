@@ -64,7 +64,7 @@ class TestDay02(unittest.TestCase):
         self.assertEqual(intcode([1,9,10,3,2,3,11,0,99,30,40,50]), [3500,9,10,70,2,3,11,0,99,30,40,50])
 
     def test_part1(self):
-        self.assertEqual(part1([1,9,10,3,2,3,11,0,99,30,40,50]), 3500)
+        self.assertEqual(part1([1,9,10,0,99,3,11,0,99,30,40,50,60]), 62)
 
 
 ## Main ########################################################
