@@ -237,7 +237,10 @@ n
     comp.run()
     while not comp.outEmpty():
         c = comp.out()
-        print(c)
+        if c<128:
+            print(chr(c), end='')
+        else:
+            print(c)
     return c
 
 ## Start of footer boilerplate #################################################
