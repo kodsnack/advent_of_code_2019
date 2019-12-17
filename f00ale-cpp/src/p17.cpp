@@ -18,7 +18,11 @@ void p17(std::istream & is) {
     intcodemachine mach(input);
     {
         bool done = false;
-        mach.data[0] = 1;
+        mach.data[0] = 2;
+        std::string input = "A,B,C\nL,12,L,10\nR,8\nL,5\ny\n";
+        for(auto c : input) mach.addInput(c);
+
+        int idx = 0;
         while (!done) {
             //bool done = false;
             while (!done) {
@@ -27,13 +31,15 @@ void p17(std::istream & is) {
                     case intcodemachine::RUNNING:
                         // do nothing, we should not end up here
                         break;
-                    case intcodemachine::WAITING: {
+                    case intcodemachine::WAITING:
+                        {
                         std::cout << "should not wait" << std::endl;
                         done = true;
                     }
                         break;
                     case intcodemachine::OUTPUT:
-                        output.push_back((char)mach.output);
+                        if(mach.output > 127) ans2 = mach.output;
+                        else output.push_back((char)mach.output);
                         break;
                     case intcodemachine::TERMINATED:
                         std::cout << "terminate" << std::endl;
