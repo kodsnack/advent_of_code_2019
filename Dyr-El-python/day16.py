@@ -22,7 +22,8 @@ def part1(pinp):
     return ''.join(map(str, l[:8]))
 
 def part2(pinp):
-    l = (10000*[int(c) for c in pinp[0][0]])[int(pinp[0][0][:7]):]
+    offset = int(pinp[0][0][:7])
+    l = (10000*[int(c) for c in pinp[0][0]])[offset:]
     for _ in range(100):
         for i in range(len(l)-1, 0, -1):
             l[i-1] = (l[i-1]+l[i]) % 10
