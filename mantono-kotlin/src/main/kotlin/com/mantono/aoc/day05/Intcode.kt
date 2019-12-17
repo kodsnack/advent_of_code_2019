@@ -3,42 +3,42 @@ package com.mantono.aoc.day05
 import com.mantono.aoc.AoC
 import com.mantono.aoc.Part
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.math.log10
 import kotlin.math.pow
 
 typealias Memory = MutableList<Int>
-typealias Execution = (memory: Memory, data: List<Int>, address: Int, output: Deque<Int>) -> Unit
+typealias Execution = (memory: Memory, addr: Int, output: Deque<Int>) -> Int
 
 enum class OpCode(
     val code: Int,
-    val inputs: Int,
     val execute: Execution
 ) {
-    ADD(1 , 3, { mem, data, _, _ ->
-        val modes: List<Mode> = Mode.parse(data[0])
-        val i0: Int = mem.read(modes[0], data[1])
-        val i1: Int = mem.read(modes[1], data[2])
-        val resultAddr: Int = data[3]
-        mem[resultAddr] = i0 + i1
+    ADD(1 , { mem, addr, _ ->
+        val modes: List<Mode> = Mode.parse(mem[addr])
+        val i0: Int = mem.read(modes[0], mem[addr+1])
+        val i1: Int = mem.read(modes[1], mem[addr+2])
+        mem[mem[addr+3]] = i0 + i1
+        addr + 4
     }),
-    MULT(2, 3, { mem, data, _, _ ->
-        val modes: List<Mode> = Mode.parse(data[0])
-        val i0: Int = mem.read(modes[0], data[1])
-        val i1: Int = mem.read(modes[1], data[2])
-        mem[data[3]] = i0 * i1
+    MULT(2, { mem, addr, _ ->
+        val modes: List<Mode> = Mode.parse(mem[addr])
+        val i0: Int = mem.read(modes[0], mem[addr+1])
+        val i1: Int = mem.read(modes[1], mem[addr+2])
+        mem[mem[addr+3]] = i0 * i1
+        addr + 4
     }),
-    INPUT(3, 1, { mem, data, _, _ ->
-        val i = data[1]
+    INPUT(3, { mem, addr, _ ->
+        val i = mem[addr+1]
         mem[i] = 1
+        addr+2
     }),
-    OUTPUT(4, 1, { mem, data, _, output ->
-        val modes: List<Mode> = Mode.parse(data[0])
-        val i0: Int = mem.read(modes[0], data[1])
+    OUTPUT(4, { mem, addr, output ->
+        val modes: List<Mode> = Mode.parse(mem[addr])
+        val i0: Int = mem.read(modes[0], mem[addr+1])
         println(i0)
         output.push(i0)
+        addr+2
     }),
-    HALT(99, 0, { mem, _, _, _ ->
+    HALT(99, { mem, _, _ ->
         mem[0]
     });
 
@@ -82,27 +82,27 @@ fun intCode(input: String): Int {
     return parseData(memory)
 }
 
-tailrec fun parseData(memory: MutableList<Int>, index: Int = 0, output: Deque<Int> = LinkedList()): Int {
+tailrec fun parseData(memory: MutableList<Int>, pointer: Int = 0, output: Deque<Int> = LinkedList()): Int {
     Thread.sleep(200L)
-    val opCode = OpCode.parse(memory[index])
-    val from: Int = index
-    val to: Int = from + opCode.inputs
-    val instructions: List<Int> = memory[from..to]
-    val line: String = memory.mapIndexed { i, n ->
-        when {
-            i == from -> "[$n"
-            i == to -> "$n]"
-            else -> n.toString()
-        }
-    }.joinToString(separator = ", ") { it.toString() }
-    println(line)
-    opCode.execute(memory, instructions, index, output)
-    val address: Int = to + 1
+    val opCode = OpCode.parse(memory[pointer])
+    val pointerMoved: Int = opCode.execute(memory, pointer, output)
+    dumpMemory(memory, pointer, pointerMoved)
     if(opCode == OpCode.HALT) {
         println(output.joinToString { it.toString() })
-        return memory[address]
+        return memory[pointerMoved]
     }
-    return parseData(memory, address, output)
+    return parseData(memory, pointerMoved, output)
+}
+
+fun dumpMemory(memory: Memory, from: Int, to: Int) {
+    val line: String = memory.mapIndexed { i, n ->
+        when(i) {
+            from -> "[$n"
+            to - 1 -> "$n]"
+            else -> n.toString()
+        }
+    }.joinToString(separator = ", ") { it }
+    println(line)
 }
 
 operator fun <T> List<T>.get(range: IntRange): List<T> {
