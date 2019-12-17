@@ -31,7 +31,7 @@ enum class OpCode(
         mem[i] = input.poll()
         addr+2
     }),
-    OUTPUT(4, { mem, addr, output, _ ->
+    OUTPUT(4, { mem, addr, _, output ->
         val modes: List<Mode> = Mode.parse(mem[addr])
         val i0: Int = mem.read(modes[0], addr+1)
         println(i0)
@@ -41,7 +41,7 @@ enum class OpCode(
     JUMP_IF_TRUE(5, { mem, addr, _, _ ->
         if(mem[addr+1] != 0) {
             val modes: List<Mode> = Mode.parse(mem[addr])
-            mem.read(modes[0], mem[addr+2])
+            mem.read(modes[0], addr+2)
         } else {
             addr+3
         }
@@ -49,16 +49,16 @@ enum class OpCode(
     JUMP_IF_FALSE(6, { mem, addr, _, _ ->
         if(mem[addr+1] == 0) {
             val modes: List<Mode> = Mode.parse(mem[addr])
-            mem.read(modes[0], mem[addr+2])
+            mem.read(modes[0], addr+2)
         } else {
             addr+3
         }
     }),
     LESS_THAN(7, { mem, addr, _, _ ->
-        0
+        TODO("Opcode 7 not done yet")
     }),
     EQUALS(8, { mem, addr, _, _ ->
-        0
+        TODO("Opcode 8 not done yet")
     }),
     HALT(99, { mem, _, _, _ ->
         mem[0]
@@ -100,7 +100,7 @@ fun intCode(input: String): Int {
     return parseMemory(input, 1)
 }
 
-//@AoC(5, Part.B)
+@AoC(5, Part.B)
 fun intCodeExtended(input: String): Int {
     return parseMemory(input, 5)
 }
@@ -120,9 +120,9 @@ tailrec fun parseData(
     output: Deque<Int> = LinkedList()
 ): Int {
     Thread.sleep(200L)
+    dumpMemory(memory, pointer)
     val opCode = OpCode.parse(memory[pointer])
     val pointerMoved: Int = opCode.execute(memory, pointer, input, output)
-    dumpMemory(memory, pointer, pointerMoved)
     check(pointerMoved in memory.indices) {
         "Address is outside memory: $pointerMoved"
     }
@@ -133,11 +133,10 @@ tailrec fun parseData(
     return parseData(memory, pointerMoved, input, output)
 }
 
-fun dumpMemory(memory: Memory, from: Int, to: Int) {
+fun dumpMemory(memory: Memory, pointer: Int) {
     val line: String = memory.mapIndexed { i, n ->
         when(i) {
-            from -> "[$n"
-            to - 1 -> "$n]"
+            pointer -> "[$n]"
             else -> n.toString()
         }
     }.joinToString(separator = ", ") { it }
