@@ -32,6 +32,7 @@ class IncodeComputer:
         p = 0
         oc = parseOpcode(self.program[p])
 
+        exitStatus = False
         output = []
 
         while oc.opcode != 99:
@@ -42,6 +43,9 @@ class IncodeComputer:
                 self.program[self.program[p+3]] = self.getParameter(p+1, oc.parameterModes) * self.getParameter(p+2, oc.parameterModes)
                 p = p + 4
             elif oc.opcode == 3: # Read input
+                if len(input) == 0:
+                    exitStatus = False
+                    break
                 self.program[self.program[p+1]] = input.pop(0)
                 p = p + 2
             elif oc.opcode == 4: # Write output
@@ -72,16 +76,31 @@ class IncodeComputer:
             else:
                 raise Exception('Invalid operator', oc.opcode)
             oc = parseOpcode(self.program[p])
+            if oc.opcode == 99:
+                exitStatus = True
 
-        return IntcodeResult(True, output)
+        return IntcodeResult(exitStatus, output)
 
 def runAmplifiers(program, phaseSettings):
-    res = IncodeComputer(program.copy()).runUntilHalt([phaseSettings[0], 0]).output[0]
-    res = IncodeComputer(program.copy()).runUntilHalt([phaseSettings[1], res]).output[0]
-    res = IncodeComputer(program.copy()).runUntilHalt([phaseSettings[2], res]).output[0]
-    res = IncodeComputer(program.copy()).runUntilHalt([phaseSettings[3], res]).output[0]
-    res = IncodeComputer(program.copy()).runUntilHalt([phaseSettings[4], res]).output[0]
-    return res
+    ampA = IncodeComputer(program)
+    ampB = IncodeComputer(program)
+    ampC = IncodeComputer(program)
+    ampD = IncodeComputer(program)
+    ampE = IncodeComputer(program)
+
+    exitStatus = 0
+    signal = 0
+
+    while exitStatus == 0:
+        signal = ampA.runUntilHalt([phaseSettings[0], signal]).output[0]
+        signal = ampB.runUntilHalt([phaseSettings[1], signal]).output[0]
+        signal = ampC.runUntilHalt([phaseSettings[2], signal]).output[0]
+        signal = ampD.runUntilHalt([phaseSettings[3], signal]).output[0]
+        res = ampE.runUntilHalt([phaseSettings[4], signal])
+        exitStatus = res.programdone
+        signal = res.output[0]
+
+    return signal
 
 def findBestAmplifierPhaseSettings(program, startingParameters):
     bestParams = max(itertools.permutations(startingParameters), key=lambda x: runAmplifiers(program, x))
@@ -221,19 +240,19 @@ class TestDay07_part1(unittest.TestCase):
                                                         [0,1,2,3,4]),
                                                         ([1,0,4,3,2], 65210))
 
-# class TestDay07_part2(unittest.TestCase):
-    # def test_part2_example_program_1(self):
-    #     self.assertEqual(runAmplifiers([3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
-    #                                     27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5],
-    #                                     [9,8,7,6,5]),
-    #                                     139629729)
+class TestDay07_part2(unittest.TestCase):
+    def test_part2_example_program_1(self):
+        self.assertEqual(runAmplifiers([3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
+                                        27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5],
+                                        [9,8,7,6,5]),
+                                        139629729)
 
-    # def test_part2_example_program_2(self):
-    #     self.assertEqual(runAmplifiers([3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,
-    #                                     -5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,
-    #                                     53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10],
-    #                                     [9,7,8,5,6]),
-    #                                     18216)
+    def test_part2_example_program_2(self):
+        self.assertEqual(runAmplifiers([3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,
+                                        -5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,
+                                        53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10],
+                                        [9,7,8,5,6]),
+                                        18216)
 
 ## Main ########################################################
 
