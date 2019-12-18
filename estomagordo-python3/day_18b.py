@@ -89,19 +89,20 @@ def heuristic(grid, keys, allkeys, y, x):
     return dist
 
 
-def get_places_of_interest(grid, height, width, keys, y, x):
+def get_places_of_interest(grid, height, width, keys, oy, ox):
     places = {}
-    seen = { (y, x) }
-    frontier = [[0, y, x]]
+    seen = { (oy, ox) }
+    frontier = [[0, oy, ox]]
 
     for steps, y, x in frontier:
         for my, mx in helpers.get_moves(height, width, y, x):
             if (my, mx) not in seen and grid[my][mx] != '#':
                 if grid[my][mx].isupper() and grid[my][mx].lower() not in keys:
-                    places[(my, mx)] = steps
+                    places[(my, mx)] = steps + 1
                 elif grid[my][mx].islower() and grid[my][mx] not in keys:
-                    places[(my, mx)] = steps
-                else:
+                    places[(my, mx)] = steps + 1
+                elif (my, mx) not in seen:
+                    seen.add((my, mx))
                     frontier.append([steps + 1, my, mx])
 
     return places
@@ -156,38 +157,95 @@ def solve(d):
         if steps > largest:
             largest = steps
             print(largest, len(keys), len(allkeys))
-        
-        moves = get_moves(d, height, width, keys, y1, x1)
 
-        for dsteps, dy, dx, dkeys in moves:
-            tup = (dy, dx, y2, x2, y3, x3, y4, x4, str(dkeys))
-            if tup not in seen:
+        if not (d[y1][x1].isupper() and d[y1][x1].lower() not in keys):
+            moves = get_places_of_interest(d, height, width, keys, y1, x1)
+
+            for destination, dsteps in moves.items():
+                dy, dx = destination
+                dkeys = set(keys)
+
+                if d[dy][dx].islower():
+                    dkeys.add(d[dy][dx])
+
+                tup = (dy, dx, y2, x2, y3, x3, y4, x4, str(dkeys))
                 seen.add(tup)
                 heappush(frontier, (steps + dsteps, dy, dx, y2, x2, y3, x3, y4, x4, dkeys))
 
-        moves = get_moves(d, height, width, keys, y2, x2)
+        if not (d[y2][x2].isupper() and d[y2][x2].lower() not in keys):
+            moves = get_places_of_interest(d, height, width, keys, y2, x2)
 
-        for dsteps, dy, dx, dkeys in moves:
-            tup = (y1, x1, dy, dx, y3, x3, y4, x4, str(dkeys))
-            if tup not in seen:
+            for destination, dsteps in moves.items():
+                dy, dx = destination
+                dkeys = set(keys)
+
+                if d[dy][dx].islower():
+                    dkeys.add(d[dy][dx])
+
+                tup = (y1, x1, dy, dx, y3, x3, y4, x4, str(dkeys))
                 seen.add(tup)
                 heappush(frontier, (steps + dsteps, y1, x1, dy, dx, y3, x3, y4, x4, dkeys))
 
-        moves = get_moves(d, height, width, keys, y3, x3)
+        if not (d[y3][x3].isupper() and d[y3][x3].lower() not in keys):
+            moves = get_places_of_interest(d, height, width, keys, y3, x3)
 
-        for dsteps, dy, dx, dkeys in moves:
-            tup = (y1, x1, y2, x2, dy, dx, y4, x4, str(dkeys))
-            if tup not in seen:
+            for destination, dsteps in moves.items():
+                dy, dx = destination
+                dkeys = set(keys)
+
+                if d[dy][dx].islower():
+                    dkeys.add(d[dy][dx])
+
+                tup = (y1, x1, y2, x2, dy, dx, y4, x4, str(dkeys))
                 seen.add(tup)
                 heappush(frontier, (steps + dsteps, y1, x1, y2, x2, dy, dx, y4, x4, dkeys))
 
-        moves = get_moves(d, height, width, keys, y4, x4)
+        if not (d[y4][x4].isupper() and d[y4][x4].lower() not in keys):
+            moves = get_places_of_interest(d, height, width, keys, y4, x4)
 
-        for dsteps, dy, dx, dkeys in moves:
-            tup = (y1, x1, y2, x2, y3, x3, dy, dx, str(dkeys))
-            if tup not in seen:
+            for destination, dsteps in moves.items():
+                dy, dx = destination
+                dkeys = set(keys)
+
+                if d[dy][dx].islower():
+                    dkeys.add(d[dy][dx])
+
+                tup = (y1, x1, y2, x2, y3, x3, dy, dx, str(dkeys))
                 seen.add(tup)
-                heappush(frontier, (steps + dsteps, y1, x1, y2, x2, y3, x3, dy, dx, dkeys))        
+                heappush(frontier, (steps + dsteps, y1, x1, y2, x2, y3, x3, dy, dx, dkeys))
+                
+        
+        # moves = get_moves(d, height, width, keys, y1, x1)
+
+        # for dsteps, dy, dx, dkeys in moves:
+        #     tup = (dy, dx, y2, x2, y3, x3, y4, x4, str(dkeys))
+        #     if tup not in seen:
+        #         seen.add(tup)
+        #         heappush(frontier, (steps + dsteps, dy, dx, y2, x2, y3, x3, y4, x4, dkeys))
+
+        # moves = get_moves(d, height, width, keys, y2, x2)
+
+        # for dsteps, dy, dx, dkeys in moves:
+        #     tup = (y1, x1, dy, dx, y3, x3, y4, x4, str(dkeys))
+        #     if tup not in seen:
+        #         seen.add(tup)
+        #         heappush(frontier, (steps + dsteps, y1, x1, dy, dx, y3, x3, y4, x4, dkeys))
+
+        # moves = get_moves(d, height, width, keys, y3, x3)
+
+        # for dsteps, dy, dx, dkeys in moves:
+        #     tup = (y1, x1, y2, x2, dy, dx, y4, x4, str(dkeys))
+        #     if tup not in seen:
+        #         seen.add(tup)
+        #         heappush(frontier, (steps + dsteps, y1, x1, y2, x2, dy, dx, y4, x4, dkeys))
+
+        # moves = get_moves(d, height, width, keys, y4, x4)
+
+        # for dsteps, dy, dx, dkeys in moves:
+        #     tup = (y1, x1, y2, x2, y3, x3, dy, dx, str(dkeys))
+        #     if tup not in seen:
+        #         seen.add(tup)
+        #         heappush(frontier, (steps + dsteps, y1, x1, y2, x2, y3, x3, dy, dx, dkeys))        
     
 
 def read_and_solve():
