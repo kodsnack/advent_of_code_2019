@@ -20,8 +20,8 @@ def solve(d):
             if c.isalpha() and c.islower():
                 allkeys.add(c)
 
-    frontier = [[0, py, px, '']]
-    seen = { (y, x, '') }
+    frontier = [[0, py, px, set()]]
+    seen = { (y, x, str(set())) }
     largest = 0
 
     for steps, y, x, keys in frontier:
@@ -35,84 +35,88 @@ def solve(d):
         if y > 0 and d[y - 1][x] != '#':
             c = d[y - 1][x]
             if c in '.@':
-                tup = (y - 1, x, keys)
+                newkeys = set(keys)
+                tup = (y - 1, x, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
-                    frontier.append([steps + 1, y - 1, x, keys])
+                    frontier.append([steps + 1, y - 1, x, newkeys])
             elif c.islower():
-                newkeys = str(keys)
-                if c not in newkeys:
-                    newkeys += c
-                tup = (y - 1, x, newkeys)
+                newkeys = set(keys)
+                newkeys.add(c)
+                tup = (y - 1, x, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
                     frontier.append([steps + 1, y - 1, x, newkeys])
             elif c.isupper() and c.lower() in keys:
-                tup = (y - 1, x, keys)
+                newkeys = set(keys)
+                tup = (y - 1, x, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
-                    frontier.append([steps + 1, y - 1, x, keys])
+                    frontier.append([steps + 1, y - 1, x, newkeys])
         if y < height - 1 and d[y + 1][x] != '#':
             c = d[y + 1][x]
             if c in '.@':
-                tup = (y + 1, x, keys)
+                newkeys = set(keys)
+                tup = (y + 1, x, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
-                    frontier.append([steps + 1, y + 1, x, keys])
+                    frontier.append([steps + 1, y + 1, x, newkeys])
             elif c.islower():
-                newkeys = str(keys)
-                if c not in newkeys:
-                    newkeys += c
-                tup = (y + 1, x, newkeys)
+                newkeys = set(keys)
+                newkeys.add(c)
+                tup = (y + 1, x, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
                     frontier.append([steps + 1, y + 1, x, newkeys])
             elif c.isupper() and c.lower() in keys:
-                tup = (y + 1, x, keys)
+                newkeys = set(keys)
+                tup = (y + 1, x, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
-                    frontier.append([steps + 1, y + 1, x, keys])
+                    frontier.append([steps + 1, y + 1, x, newkeys])
         
         if x > 0 and d[y][x - 1] != '#':
             c = d[y][x - 1]
             if c in '.@':
-                tup = (y, x - 1, keys)
+                newkeys = set(keys)
+                tup = (y, x - 1, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x - 1, keys])
+                    frontier.append([steps + 1, y, x - 1, newkeys])
             elif c.islower():
-                newkeys = str(keys)
-                if c not in newkeys:
-                    newkeys += c
-                tup = (y, x - 1, newkeys)
+                newkeys = set(keys)
+                newkeys.add(c)
+                tup = (y, x - 1, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
                     frontier.append([steps + 1, y, x - 1, newkeys])
             elif c.isupper() and c.lower() in keys:
-                tup = (y, x - 1, keys)
+                newkeys = set(keys)
+                tup = (y, x - 1, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x - 1, keys])
-        if x < width - 1 and d[y][x + 1] != '#':
+                    frontier.append([steps + 1, y, x - 1, newkeys])
+        if x > 0 and d[y][x + 1] != '#':
             c = d[y][x + 1]
             if c in '.@':
-                tup = (y, x + 1, keys)
+                newkeys = set(keys)
+                tup = (y, x + 1, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x + 1, keys])
+                    frontier.append([steps + 1, y, x + 1, newkeys])
             elif c.islower():
-                newkeys = str(keys)
-                if c not in newkeys:
-                    newkeys += c
-                tup = (y, x + 1, newkeys)
+                newkeys = set(keys)
+                newkeys.add(c)
+                tup = (y, x + 1, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
                     frontier.append([steps + 1, y, x + 1, newkeys])
             elif c.isupper() and c.lower() in keys:
-                tup = (y, x + 1, keys)
+                newkeys = set(keys)
+                tup = (y, x + 1, str(newkeys))
                 if tup not in seen:
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x + 1, keys])    
+                    frontier.append([steps + 1, y, x + 1, newkeys])    
     
 
 def read_and_solve():
