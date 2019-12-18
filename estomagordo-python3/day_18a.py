@@ -1,7 +1,17 @@
+import helpers
 import re
 
 from heapq import heappop, heappush
 from collections import Counter, defaultdict
+
+
+def heuristic(grid, keys, allkeys, y, x):
+    dist = 0
+
+    for key in allkeys.keys() - keys:
+        dist += helpers.manhattan((y, x), allkeys[key])
+
+    return dist
 
 
 def solve(d):
@@ -9,7 +19,7 @@ def solve(d):
     width = len(d[0])
 
     py, px = -1, -1
-    allkeys = set()
+    allkeys = {}
 
     for y in range(height):
         for x in range(width):
@@ -18,13 +28,16 @@ def solve(d):
             if c == '@':
                 py, px = y, x
             if c.isalpha() and c.islower():
-                allkeys.add(c)
+                allkeys[c] = (y, x)
 
-    frontier = [[0, py, px, set()]]
+    h = heuristic(d, set(), allkeys, py, px)
+    frontier = [[h, 0, py, px, set()]]
     seen = { (y, x, str(set())) }
     largest = 0
 
-    for steps, y, x, keys in frontier:
+    while True:
+        score, steps, y, x, keys = heappop(frontier)
+
         if len(keys) == len(allkeys):
             return steps
 
@@ -38,42 +51,48 @@ def solve(d):
                 newkeys = set(keys)
                 tup = (y - 1, x, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y - 1, x)
                     seen.add(tup)
-                    frontier.append([steps + 1, y - 1, x, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y - 1, x, newkeys))
             elif c.islower():
                 newkeys = set(keys)
                 newkeys.add(c)
                 tup = (y - 1, x, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y - 1, x)
                     seen.add(tup)
-                    frontier.append([steps + 1, y - 1, x, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y - 1, x, newkeys))
             elif c.isupper() and c.lower() in keys:
                 newkeys = set(keys)
                 tup = (y - 1, x, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y - 1, x)
                     seen.add(tup)
-                    frontier.append([steps + 1, y - 1, x, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y - 1, x, newkeys))
         if y < height - 1 and d[y + 1][x] != '#':
             c = d[y + 1][x]
             if c in '.@':
                 newkeys = set(keys)
                 tup = (y + 1, x, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y + 1, x)
                     seen.add(tup)
-                    frontier.append([steps + 1, y + 1, x, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y + 1, x, newkeys))
             elif c.islower():
                 newkeys = set(keys)
                 newkeys.add(c)
                 tup = (y + 1, x, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y + 1, x)
                     seen.add(tup)
-                    frontier.append([steps + 1, y + 1, x, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y + 1, x, newkeys))
             elif c.isupper() and c.lower() in keys:
                 newkeys = set(keys)
                 tup = (y + 1, x, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y + 1, x)
                     seen.add(tup)
-                    frontier.append([steps + 1, y + 1, x, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y + 1, x, newkeys))
         
         if x > 0 and d[y][x - 1] != '#':
             c = d[y][x - 1]
@@ -81,42 +100,48 @@ def solve(d):
                 newkeys = set(keys)
                 tup = (y, x - 1, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y, x - 1)
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x - 1, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y, x - 1, newkeys))
             elif c.islower():
                 newkeys = set(keys)
                 newkeys.add(c)
                 tup = (y, x - 1, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y, x - 1)
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x - 1, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y, x - 1, newkeys))
             elif c.isupper() and c.lower() in keys:
                 newkeys = set(keys)
                 tup = (y, x - 1, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y, x - 1)
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x - 1, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y, x - 1, newkeys))
         if x > 0 and d[y][x + 1] != '#':
             c = d[y][x + 1]
             if c in '.@':
                 newkeys = set(keys)
                 tup = (y, x + 1, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y, x + 1)
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x + 1, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y, x + 1, newkeys))
             elif c.islower():
                 newkeys = set(keys)
                 newkeys.add(c)
                 tup = (y, x + 1, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y, x + 1)
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x + 1, newkeys])
+                    heappush(frontier, (score + steps + 1, steps + 1, y, x + 1, newkeys))
             elif c.isupper() and c.lower() in keys:
                 newkeys = set(keys)
                 tup = (y, x + 1, str(newkeys))
                 if tup not in seen:
+                    score = heuristic(d, newkeys, allkeys, y, x + 1)
                     seen.add(tup)
-                    frontier.append([steps + 1, y, x + 1, newkeys])    
+                    heappush(frontier, (score + steps + 1, steps + 1, y, x + 1, newkeys)) 
     
 
 def read_and_solve():
