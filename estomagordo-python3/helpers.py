@@ -3,6 +3,21 @@ import re
 from functools import reduce
 
 
+def get_moves(height, width, y, x):
+    moves = []
+
+    if y > 0:
+        moves.append([y - 1, x])
+    if y < height - 1:
+        moves.append([y + 1, x])
+    if x > 0:
+        moves.append([y, x - 1])
+    if x < width - 1:
+        moves.append([y, x + 1])
+
+    return moves
+
+
 def gcd(a, b):
     for x in range(min(a, b), 0, -1):
         if a % x == 0 and b % x == 0:

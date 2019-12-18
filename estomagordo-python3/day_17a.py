@@ -53,7 +53,7 @@ def solve(d):
                 continue
 
             score += y * x
-
+            
     return score
     
 
