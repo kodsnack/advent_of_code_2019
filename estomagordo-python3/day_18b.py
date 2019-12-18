@@ -80,32 +80,69 @@ def get_moves(d, height, width, keys, y, x):
     return moves
 
 
-def heuristic(grid, keys, allkeys, y, x):
-    dist = 0
+def heuristic_clique(grid, clique, distances, keys, y, x):
+    distance = 0
 
-    for key in allkeys.keys() - keys:
-        dist = max(dist, helpers.manhattan((y, x), allkeys[key]))
+    ci = 0
+    while clique[ci] != (y, x):
+        ci += 1
 
-    return dist
+    for cj, pair in enumerate(clique):
+        if cj == ci:
+            continue
+
+        cy, cx = pair
+        cell = grid[cy][cx]
+        if cell.islower() and cell not in keys:
+            distance = max(distance, distances[ci][cj])
+
+    return distance
 
 
-def get_places_of_interest(grid, height, width, keys, oy, ox):
-    places = {}
+def heuristic(grid, cliques, clique_distances, keys, y1, x1, y2, x2, y3, x3, y4, x4):
+    return heuristic_clique(grid, cliques[0], clique_distances[0], keys, y1, x1) + heuristic_clique(grid, cliques[1], clique_distances[1], keys, y2, x2) + heuristic_clique(grid, cliques[2], clique_distances[2], keys, y3, x3) + heuristic_clique(grid, cliques[3], clique_distances[3], keys, y4, x4)
+
+
+def get_clique(grid, height, width, oy, ox):
+    clique = [(oy, ox)]
     seen = { (oy, ox) }
-    frontier = [[0, oy, ox]]
+    frontier = [[oy, ox]]
 
-    for steps, y, x in frontier:
+    for y, x in frontier:
         for my, mx in helpers.get_moves(height, width, y, x):
             if (my, mx) not in seen and grid[my][mx] != '#':
-                if grid[my][mx].isupper() and grid[my][mx].lower() not in keys:
-                    places[(my, mx)] = steps + 1
-                elif grid[my][mx].islower() and grid[my][mx] not in keys:
-                    places[(my, mx)] = steps + 1
-                elif (my, mx) not in seen:
-                    seen.add((my, mx))
-                    frontier.append([steps + 1, my, mx])
+                if grid[my][mx].isalpha():
+                    clique.append((my, mx))
+                seen.add((my, mx))
+                frontier.append([my, mx])
 
-    return places
+    return clique
+
+
+def measure_distances(grid, height, width, clique, oy, ox):    
+    distances = [0 for _ in range(len(clique))]
+    seen = { (oy, ox) }
+
+    frontier = [[0, oy, ox]]
+
+    for distance, y, x in frontier:
+        for my, mx in helpers.get_moves(height, width, y, x):            
+            cell = grid[my][mx]
+            if cell == '#':
+                continue
+            if (my, mx) in seen:
+                continue
+            seen.add((my, mx))
+            frontier.append([distance + 1, my, mx])
+            if (my, mx) in clique:
+                cp = 0
+                for ci, coords in enumerate(clique):
+                    cp = ci
+                    if (my, mx) == coords:
+                        break
+                distances[cp] = distance + 1
+
+    return distances
 
 
 def solve(d):
@@ -143,76 +180,220 @@ def solve(d):
 
     # h = heuristic(d, set(), allkeys, py, px)
     # frontier = [[h, 0, py, px, set()]]
-    frontier = [[0, sy - 1, sx - 1, sy - 1, sx + 1, sy + 1, sx + 1, sy + 1, sx - 1, set()]]
+    
     seen = { (sy - 1, sx - 1, sy - 1, sx + 1, sy + 1, sx + 1, sy + 1, sx - 1, str(set())) }
     largest = 0
 
+    cliques = [get_clique(d, height, width, sy - 1, sx - 1), get_clique(d, height, width, sy - 1, sx + 1), get_clique(d, height, width, sy + 1, sx + 1), get_clique(d, height, width, sy + 1, sx - 1)]
+    clique_distances = []
+    # clique_keys = []
+
+    # for clique in cliques:
+    #     keys = []
+    #     for cy, cx in clique:
+    #         if d[cy][cx].islower():
+    #             keys.append((cy, cx))
+    #     clique_keys.append(keys)
+
+    for ci in range(4):
+        distances = []
+        for pi, coords in enumerate(cliques[ci]):
+            distances.append(measure_distances(d, height, width, cliques[ci], coords[0], coords[1]))
+        clique_distances.append(distances)
+
+    # print(cliques)
+    # print('')
+    # print(clique_distances)
+
+    score = heuristic(d, cliques, clique_distances, set(), sy - 1, sx - 1, sy - 1, sx + 1, sy + 1, sx + 1, sy + 1, sx - 1)
+
+    frontier = [[score, 0, sy - 1, sx - 1, sy - 1, sx + 1, sy + 1, sx + 1, sy + 1, sx - 1, set()]]
+
     while True:
         # score, steps, y, x, keys = heappop(frontier)
-        steps, y1, x1, y2, x2, y3, x3, y4, x4, keys = heappop(frontier)
+        score, steps, y1, x1, y2, x2, y3, x3, y4, x4, keys = heappop(frontier)
 
-        if len(keys) == len(allkeys):
+        if score == steps:
             return steps
 
+        keysleft = [0, 0, 0, 0]
+        for ci, clique in enumerate(cliques):
+            for cy, cx in clique:
+                cell = d[cy][cx]
+                if cell.islower() and cell not in keys:
+                    keysleft[ci] += 1
+
         if steps > largest:
-            largest = steps
-            print(largest, len(keys), len(allkeys))
+            largest = steps            
+            print(largest, len(keys), len(allkeys), keysleft[0], keysleft[1], keysleft[2], keysleft[3])
 
-        if not (d[y1][x1].isupper() and d[y1][x1].lower() not in keys):
-            moves = get_places_of_interest(d, height, width, keys, y1, x1)
+        # if not (d[y1][x1].isupper() and d[y1][x1].lower() not in keys):
+        if keysleft[0] > 0:
+            ci = 0
+            
+            while cliques[0][ci] != (y1, x1):
+                ci += 1
+            
+            for cj in range(len(cliques[0])):
+                if ci == cj:
+                    continue
 
-            for destination, dsteps in moves.items():
-                dy, dx = destination
-                dkeys = set(keys)
+                cjy, cjx = cliques[0][cj]
+                cell = d[cjy][cjx]
 
-                if d[dy][dx].islower():
-                    dkeys.add(d[dy][dx])
+                if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                    dkeys = set(keys)
+                    
+                    if cell.islower():
+                        dkeys.add(cell)
 
-                tup = (dy, dx, y2, x2, y3, x3, y4, x4, str(dkeys))
-                seen.add(tup)
-                heappush(frontier, (steps + dsteps, dy, dx, y2, x2, y3, x3, y4, x4, dkeys))
+                    dsteps = clique_distances[0][ci][cj]
+                    dy, dx = cliques[0][cj]
 
-        if not (d[y2][x2].isupper() and d[y2][x2].lower() not in keys):
-            moves = get_places_of_interest(d, height, width, keys, y2, x2)
+                    tup = (dy, dx, y2, x2, y3, x3, y4, x4, str(dkeys))
 
-            for destination, dsteps in moves.items():
-                dy, dx = destination
-                dkeys = set(keys)
+                    if tup not in seen:
+                        seen.add(tup)
+                        dscore = heuristic(d, cliques, clique_distances, dkeys, dy, dx, y2, x2, y3, x3, y4, x4)
+                        heappush(frontier, (dscore + steps + dsteps, steps + dsteps, dy, dx, y2, x2, y3, x3, y4, x4, dkeys))
+        if keysleft[1] > 0:
+            ci = 0
+            
+            while cliques[1][ci] != (y2, x2):
+                ci += 1
+            
+            for cj in range(len(cliques[1])):
+                if ci == cj:
+                    continue
 
-                if d[dy][dx].islower():
-                    dkeys.add(d[dy][dx])
+                cjy, cjx = cliques[1][cj]
+                cell = d[cjy][cjx]
 
-                tup = (y1, x1, dy, dx, y3, x3, y4, x4, str(dkeys))
-                seen.add(tup)
-                heappush(frontier, (steps + dsteps, y1, x1, dy, dx, y3, x3, y4, x4, dkeys))
+                if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                    dkeys = set(keys)
+                    
+                    if cell.islower():
+                        dkeys.add(cell)
 
-        if not (d[y3][x3].isupper() and d[y3][x3].lower() not in keys):
-            moves = get_places_of_interest(d, height, width, keys, y3, x3)
+                    dsteps = clique_distances[1][ci][cj]
+                    dy, dx = cliques[1][cj]
 
-            for destination, dsteps in moves.items():
-                dy, dx = destination
-                dkeys = set(keys)
+                    tup = (y1, x1, dy, dx, y3, x3, y4, x4, str(dkeys))
 
-                if d[dy][dx].islower():
-                    dkeys.add(d[dy][dx])
+                    if tup not in seen:
+                        seen.add(tup)
+                        dscore = heuristic(d, cliques, clique_distances, dkeys, y1, x1, dy, dx, y3, x3, y4, x4)
+                        heappush(frontier, (dscore + steps + dsteps, steps + dsteps, y1, x1, dy, dx, y3, x3, y4, x4, dkeys))
+        if keysleft[2] > 0:
+            ci = 0
+            
+            while cliques[2][ci] != (y3, x3):
+                ci += 1
+            
+            for cj in range(len(cliques[2])):
+                if ci == cj:
+                    continue
 
-                tup = (y1, x1, y2, x2, dy, dx, y4, x4, str(dkeys))
-                seen.add(tup)
-                heappush(frontier, (steps + dsteps, y1, x1, y2, x2, dy, dx, y4, x4, dkeys))
+                cjy, cjx = cliques[2][cj]
+                cell = d[cjy][cjx]
 
-        if not (d[y4][x4].isupper() and d[y4][x4].lower() not in keys):
-            moves = get_places_of_interest(d, height, width, keys, y4, x4)
+                if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                    dkeys = set(keys)
+                    
+                    if cell.islower():
+                        dkeys.add(cell)
 
-            for destination, dsteps in moves.items():
-                dy, dx = destination
-                dkeys = set(keys)
+                    dsteps = clique_distances[2][ci][cj]
+                    dy, dx = cliques[2][cj]
 
-                if d[dy][dx].islower():
-                    dkeys.add(d[dy][dx])
+                    tup = (y1, x1, y2, x2, dy, dx, y4, x4, str(dkeys))
 
-                tup = (y1, x1, y2, x2, y3, x3, dy, dx, str(dkeys))
-                seen.add(tup)
-                heappush(frontier, (steps + dsteps, y1, x1, y2, x2, y3, x3, dy, dx, dkeys))
+                    if tup not in seen:
+                        seen.add(tup)
+                        dscore = heuristic(d, cliques, clique_distances, dkeys, y1, x1, y2, x2, dy, dx, y4, x4)
+                        heappush(frontier, (dscore + steps + dsteps, steps + dsteps, y1, x1, y2, x2, dy, dx, y4, x4, dkeys))
+        if keysleft[3] > 0:
+            ci = 0
+            
+            while cliques[3][ci] != (y4, x4):
+                ci += 1
+            
+            for cj in range(len(cliques[3])):
+                if ci == cj:
+                    continue
+
+                cjy, cjx = cliques[3][cj]
+                cell = d[cjy][cjx]
+
+                if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                    dkeys = set(keys)
+                    
+                    if cell.islower():
+                        dkeys.add(cell)
+
+                    dsteps = clique_distances[3][ci][cj]
+                    dy, dx = cliques[3][cj]
+
+                    tup = (y1, x1, y2, x2, y3, x3, dy, dx, str(dkeys))
+
+                    if tup not in seen:
+                        seen.add(tup)
+                        dscore = heuristic(d, cliques, clique_distances, dkeys, y1, x1, y2, x2, y3, x3, dy, dx)
+                        heappush(frontier, (dscore + steps + dsteps, steps + dsteps, y1, x1, y2, x2, y3, x3, dy, dx, dkeys))
+
+
+        #     for destination, dsteps in moves.items():
+        #         dy, dx = destination
+        #         dkeys = set(keys)
+
+        #         if d[dy][dx].islower():
+        #             dkeys.add(d[dy][dx])
+
+        #         tup = (dy, dx, y2, x2, y3, x3, y4, x4, str(dkeys))
+        #         seen.add(tup)
+        #         heappush(frontier, (steps + dsteps, dy, dx, y2, x2, y3, x3, y4, x4, dkeys))
+
+        # if not (d[y2][x2].isupper() and d[y2][x2].lower() not in keys):
+        #     moves = get_places_of_interest(d, height, width, keys, y2, x2)
+
+        #     for destination, dsteps in moves.items():
+        #         dy, dx = destination
+        #         dkeys = set(keys)
+
+        #         if d[dy][dx].islower():
+        #             dkeys.add(d[dy][dx])
+
+        #         tup = (y1, x1, dy, dx, y3, x3, y4, x4, str(dkeys))
+        #         seen.add(tup)
+        #         heappush(frontier, (steps + dsteps, y1, x1, dy, dx, y3, x3, y4, x4, dkeys))
+
+        # if not (d[y3][x3].isupper() and d[y3][x3].lower() not in keys):
+        #     moves = get_places_of_interest(d, height, width, keys, y3, x3)
+
+        #     for destination, dsteps in moves.items():
+        #         dy, dx = destination
+        #         dkeys = set(keys)
+
+        #         if d[dy][dx].islower():
+        #             dkeys.add(d[dy][dx])
+
+        #         tup = (y1, x1, y2, x2, dy, dx, y4, x4, str(dkeys))
+        #         seen.add(tup)
+        #         heappush(frontier, (steps + dsteps, y1, x1, y2, x2, dy, dx, y4, x4, dkeys))
+
+        # if not (d[y4][x4].isupper() and d[y4][x4].lower() not in keys):
+        #     moves = get_places_of_interest(d, height, width, keys, y4, x4)
+
+        #     for destination, dsteps in moves.items():
+        #         dy, dx = destination
+        #         dkeys = set(keys)
+
+        #         if d[dy][dx].islower():
+        #             dkeys.add(d[dy][dx])
+
+        #         tup = (y1, x1, y2, x2, y3, x3, dy, dx, str(dkeys))
+        #         seen.add(tup)
+        #         heappush(frontier, (steps + dsteps, y1, x1, y2, x2, y3, x3, dy, dx, dkeys))
                 
         
         # moves = get_moves(d, height, width, keys, y1, x1)
