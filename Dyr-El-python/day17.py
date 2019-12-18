@@ -190,8 +190,23 @@ class Comp:
             if (len(self.error) > 0):
                 for error in self.error:
                     print("{:08D}: {}".format(error[0], error[1]))
+    def asciiOut(self):
+        l = list()
+        while not self.outEmpty():
+            c = self.out()
+            if c > 255:
+                return c
+            c = chr(c)
+            if c == '\n':
+                return ''.join(l)
+            else:
+                l.append(c)
+        return ''.join(l)
+    def asciiIn(self, s):
+        for c in s:
+            self.inp(ord(c))
 
-def findIntercectionr(d):
+def findIntercections(d):
     for x, y in d.keys():
         if d[x, y] in '#^v<>':
             if d.get((x+1, y), ' ') not in '#^v<>': continue
@@ -200,10 +215,7 @@ def findIntercectionr(d):
             if d.get((x, y-1), ' ') not in '#^v<>': continue
             yield (x, y)
 
-def part1(pinp):
-    c = Comp(pinp[0][0])
-    c.run()
-    d = dict()
+def mapFromOutput(c, d):
     x, y = 0, 0
     while not c.outEmpty():
         o = c.out()
@@ -214,34 +226,35 @@ def part1(pinp):
         else:
             d[x, y] = oc
             x += 1
-        print(oc, end='')
-    print(drawMap(d))
-    sm = 0
-    for x, y in findIntercectionr(d):
-        print(x,y)
-        sm += x*y 
-    return sm
+    return d
+
+def part1(pinp):
+    comp = Comp(pinp[0][0])
+    comp.run()
+    d = mapFromOutput(comp, dict())
+    return sum((x*y for x, y in findIntercections(d)))
 
 def part2(pinp):
-    inp = """B,A,B,C,A,C,A,C,B,A
-R,8,L,6,L,4,L,10,R,8
-L,6,L,4,R,8
-L,4,R,4,L,4,R,8
-n
-"""
+    conversation = {
+        "Main:":"B,A,B,C,A,C,A,C,B,A\n",
+        "Function A:":"R,8,L,6,L,4,L,10,R,8\n",
+        "Function B:":"L,6,L,4,R,8\n",
+        "Function C:":"L,4,R,4,L,4,R,8\n",
+        "Continuous video feed?":"n\n"
+    }
+
     comp = Comp(pinp[0][0])
     comp.mem[0] = 2
-    for c in inp:
-        print(ord(c))
-        comp.inp(ord(c))
-    comp.run()
-    while not comp.outEmpty():
-        c = comp.out()
-        if c<128:
-            print(chr(c), end='')
+
+    while True:
+        comp.run()
+        a = comp.asciiOut()
+        if isinstance(a, int):
+            return a
+        if a in conversation:
+            comp.asciiIn(conversation[a])
         else:
-            print(c)
-    return c
+            print(a)
 
 ## Start of footer boilerplate #################################################
 
