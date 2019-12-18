@@ -1,7 +1,7 @@
 ## Start of header boilerplate #################################################
 
 from aocbase import readInput
-import re
+#import re
 
 def lineParse(s, f, fp):
     m = fp.match(s)
