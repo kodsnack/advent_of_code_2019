@@ -88,23 +88,27 @@ void p18(std::istream & is) {
 */
     std::queue<std::tuple<int, int, int, std::set<char>>> q;
     q.emplace(sx,sy,0,std::set<char>());
-
+    std::map<std::set<char>, int> minsteps;
     ans1 = std::numeric_limits<int>::max();
     while(!q.empty()) {
         auto [x,y,step,keys] = q.front(); q.pop();
         //std::cout << step << std::endl;
         auto reachabe = buildreachable(x,y,keys,map);
         for(auto [nx, ny, nk, ns] : reachabe) {
+            //std::cout << step << " " << ns << " " << nk << std::endl;
             auto keycopy = keys;
             keycopy.insert(nk);
             if(keycopy.size() == nkeys) {
                 ans1 = std::min(step+ns,ans1);
                 std::cout << ans1 << std::endl;
             }
-            q.emplace(nx,ny,step+ns,keycopy);
+            if(auto it = minsteps.find(keycopy); it == minsteps.end() || it->second > step+ns) {
+                minsteps[keycopy] = step+ns;
+                q.emplace(nx,ny,step+ns,keycopy);
+            }
         }
     }
-
+    // 3620 too high
     std::cout << ans1 << std::endl;
     std::cout << ans2 << std::endl;
 }
