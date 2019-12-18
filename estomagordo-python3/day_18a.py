@@ -9,7 +9,7 @@ def heuristic(grid, keys, allkeys, y, x):
     dist = 0
 
     for key in allkeys.keys() - keys:
-        dist += helpers.manhattan((y, x), allkeys[key])
+        dist = max(dist, helpers.manhattan((y, x), allkeys[key]))
 
     return dist
 
@@ -43,7 +43,7 @@ def solve(d):
 
         if steps > largest:
             largest = steps
-            print(largest)
+            print(largest, len(keys), len(allkeys))
 
         if y > 0 and d[y - 1][x] != '#':
             c = d[y - 1][x]
