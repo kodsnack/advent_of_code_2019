@@ -159,6 +159,27 @@ def measure_distances(grid, height, width, clique, oy, ox):
     return distances
 
 
+def get_between(grid, height, width, y1, x1, y2, x2):
+    seen = { (y1, x1) }
+    frontier = [[set(), y1, x1]]
+
+    for noted, y, x in frontier:
+        if y == y2 and x == x2:
+            return noted
+
+        for ny, nx in helpers.get_moves(height, width, y, x):
+            if grid[ny][nx] == '#' or (ny, nx) in seen:
+                continue
+
+            seen.add((ny, nx))
+            newnoted = set(noted)
+
+            if grid[ny][nx].isalpha() and (ny != y2 or nx != x2):
+                newnoted.add(grid[ny][nx])
+
+            frontier.append([newnoted, ny, nx])
+
+
 def solve(d):
     d = list(map(list, d))
 
@@ -201,6 +222,8 @@ def solve(d):
 
     cliques = [get_clique(d, height, width, sy - 1, sx - 1), get_clique(d, height, width, sy - 1, sx + 1), get_clique(d, height, width, sy + 1, sx + 1), get_clique(d, height, width, sy + 1, sx - 1)]
     clique_distances = []
+    passing_by = []
+
     # clique_keys = []
 
     # for clique in cliques:
@@ -213,7 +236,7 @@ def solve(d):
     for ci in range(4):
         distances = []
         for pi, coords in enumerate(cliques[ci]):
-            distances.append(measure_distances(d, height, width, cliques[ci], coords[0], coords[1]))
+            distances.append(measure_distances(d, height, width, cliques[ci], coords[0], coords[1]))			
         clique_distances.append(distances)
 
     # print(cliques)
@@ -221,6 +244,18 @@ def solve(d):
     # print(clique_distances)
 
     score = heuristic(d, cliques, clique_distances, set(), sy - 1, sx - 1, sy - 1, sx + 1, sy + 1, sx + 1, sy + 1, sx - 1)
+
+    for ci, clique in enumerate(cliques):
+        cl = len(clique)
+        passing = [[[] for _ in range(cl)] for _ in range(cl)]
+        for i in range(cl - 1):
+            ciy, cix = clique[i]
+            for j in range(i + 1, cl):
+                cjy, cjx = clique[j]
+                between = get_between(d, height, width, ciy, cix, cjy, cjx)
+                passing[i][j] = between
+                passing[j][i] = between
+        passing_by.append(passing)
 
     frontier = [[score, 0, compressed, set()]]
 
@@ -258,6 +293,16 @@ def solve(d):
                 cell = d[cjy][cjx]
 
                 if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                    passing = passing_by[0][ci][cj]
+                    passing_keys = [let for let in passing if let.islower()]
+                    passing_lowered_doors = [let.lower() for let in passing if let.isupper()]
+
+                    if set(passing_keys) - keys:
+                        continue
+
+                    if set(passing_lowered_doors) - keys:
+                        continue
+                    
                     dkeys = set(keys)
                     
                     if cell.islower():
@@ -287,6 +332,16 @@ def solve(d):
                 cell = d[cjy][cjx]
 
                 if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                    passing = passing_by[1][ci][cj]
+                    passing_keys = [let for let in passing if let.islower()]
+                    passing_lowered_doors = [let.lower() for let in passing if let.isupper()]
+
+                    if set(passing_keys) - keys:
+                        continue
+
+                    if set(passing_lowered_doors) - keys:
+                        continue
+                    
                     dkeys = set(keys)
                     
                     if cell.islower():
@@ -316,6 +371,16 @@ def solve(d):
                 cell = d[cjy][cjx]
 
                 if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                    passing = passing_by[2][ci][cj]
+                    passing_keys = [let for let in passing if let.islower()]
+                    passing_lowered_doors = [let.lower() for let in passing if let.isupper()]
+
+                    if set(passing_keys) - keys:
+                        continue
+
+                    if set(passing_lowered_doors) - keys:
+                        continue
+                    
                     dkeys = set(keys)
                     
                     if cell.islower():
@@ -345,6 +410,16 @@ def solve(d):
                 cell = d[cjy][cjx]
 
                 if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                    passing = passing_by[3][ci][cj]
+                    passing_keys = [let for let in passing if let.islower()]
+                    passing_lowered_doors = [let.lower() for let in passing if let.isupper()]
+
+                    if set(passing_keys) - keys:
+                        continue
+
+                    if set(passing_lowered_doors) - keys:
+                        continue
+                    
                     dkeys = set(keys)
                     
                     if cell.islower():
