@@ -173,6 +173,8 @@ class Comp:
         if self.state == "waiting":
             self.state = "ready"
     def out(self):
+        if self.outEmpty():
+            self.trap("Attempt to read empty output queue")
         ret = self.output[0]
         del self.output[0]
         return ret
