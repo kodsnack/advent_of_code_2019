@@ -17,151 +17,112 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 def loadMap(s):
     x, y = 0, 0
-    d = dict()
-    keys = dict()
-    locks = dict()
+    mp = dict()
+    ps = dict()
     for line in s:
         for c in line[0]:
-            if c == '.':
-                d[x,y] = c
-            elif 'a' <= c <= 'z':
-                keys[x,y] = c
-                d[x,y] = '.'
-            elif 'A' <= c <= 'Z':
-                locks[c.lower()] = (x, y)
+            mp[x, y] = c
+            if 'a' <= c <= 'z':
+                ps[c] = (x, y)
             elif c == '@':
-                d[x,y] = '.'
-                start = (x, y)
+                ps['0'] = (x, y)
             x += 1
         y += 1
         x = 0
-    return d, keys, locks, start
+    return mp, ps
 
 def loadMap4(s):
-    x, y = 0, 0
-    d = dict()
-    keys = dict()
-    locks = dict()
-    for line in s:
-        for c in line[0]:
-            if c == '.':
-                d[x,y] = c
-            elif 'a' <= c <= 'z':
-                keys[x,y] = c
-                d[x,y] = '.'
-            elif 'A' <= c <= 'Z':
-                locks[c.lower()] = (x, y)
-            elif c == '@':
-                d[x,y] = '.'
-                start = (x, y)
-            x += 1
-        y += 1
-        x = 0
-    x, y = start
-    del d[x-1, y]
-    del d[x+1, y]
-    del d[x, y-1]
-    del d[x, y+1]
-    del d[x,y]
-    return d, keys, locks, ((x-1, y-1),(x+1, y-1),(x-1, y+1),(x+1, y+1),)
+    mp, ps = loadMap(s)
+    x, y = ps['0']
+    mp[x+1, y] = '#'
+    mp[x-1, y] = '#'
+    mp[x, y+1] = '#'
+    mp[x, y-1] = '#'
+    mp[x, y] = '#'
+    ps['0'] = (x-1, y-1)
+    ps['1'] = (x+1, y-1)
+    ps['2'] = (x-1, y+1)
+    ps['3'] = (x+1, y+1)
+    return mp, ps
 
-def colorMap(mp, ke, start):
-    pos = collections.deque()
-    col = dict()
-    col[start] = 0
-    pos.append(start)
-    res = list()
-    while len(pos) > 0:
-        p = pos.popleft()
-        x, y = p
+def colorMap(mp, start):
+    positions = collections.deque()
+    col = {start: (0, set())}
+    links = {mp[start]: (0, set())}
+    positions.append((start, steps, set()))
+    while len(positions) > 0:
+        curPos, curSteps, curLocks = pos.popleft()
+        x, y = curPos
         for dx, dy in [(1, 0),(-1, 0),(0, 1),(0, -1)]:
             nx, ny = x+dx, y+dy
-            if (nx, ny) in col:
-                continue 
-            if mp.get((nx, ny), '') == '.':
-                if (nx, ny) in ke:
-                    res.append((col[x,y]+1, ke[nx, ny], (nx, ny)))
+            if (nx, ny) in col: continue
+            nc = mp.get((nx, ny), '#') 
+            if nc == '#': continue
+            if nc.islower():
+                links[nc] = ((nx, ny), curSteps, curLocks)
+                
+                if 'A' <= nc <= 'Z' and nc.lower() in lock: continue
+                if 'A' <= nc <= 'Z':
+                    v, l1 = col[x, y]
+                    col[nx, ny] = (v+1, list(set(l1).union(set(nc.lower()))))
                 else:
-                    col[nx,ny] = col[x,y] + 1
-                    pos.append((nx, ny))
-    return sorted(res)
+                    v, l1 = col[x, y]
+                    col[nx, ny] = (v+1, l1)
+                if (nx, ny) == goal:
+                    break
+                pos.append(((nx, ny), col[nx, ny][1]))
+        if goal in col:
+            v, l = col[goal]
+            res.append((set(l), v))
+            for c in l:
+                locks.append(c+lock)
+        return res
 
-cache = dict()
-mnSteps = 10 ** 10
-def solvePussle(mp, ke, lo, st, stepsSoFar=0):
-    global mnSteps
-    ks = frozenset(sorted(ke.values()))
-    if (ks, st) in cache and cache[ks, st] < stepsSoFar:
-        return mnSteps
-    else:
-        cache[ks, st] = stepsSoFar
-    if len(ke) == 0:
-        return stepsSoFar
-    if stepsSoFar > mnSteps:
-        return mnSteps
-    if len(ks) > (20):
-        print(len(ks), ''.join(ks), stepsSoFar, mnSteps)
-    for keyLn, keyC, keyPos in colorMap(mp, ke, st):
-        if keyC in lo:
-            lockPos = lo[keyC]
-        else:
-            lockPos = None
-        if lockPos != None: mp[lockPos] = '.'
-        del ke[keyPos]
-        if lockPos != None: del lo[keyC]
-        mnSteps = min(solvePussle(mp, ke, lo, keyPos, stepsSoFar+keyLn), mnSteps)
-        if lockPos != None: lo[keyC] = lockPos
-        ke[keyPos] = keyC
-        if lockPos != None: mp[lockPos] = ''
-    return mnSteps
-
-cache4 = dict()
-mnSteps4 = 10 ** 10
-def solvePussle4(mp, ke, lo, st, stepsSoFar=0):
-    global mnSteps4
-    ks = frozenset(sorted(ke.values()))
-    if (ks, st) in cache4 and cache4[ks, st] < stepsSoFar:
-        return mnSteps4
-    else:
-        cache4[ks, st] = stepsSoFar
-    if len(ke) == 0:
-        return stepsSoFar
-    if stepsSoFar > mnSteps4:
-        return mnSteps4
-    if len(ks) > 16:
-        print(len(ks), ''.join(ks), stepsSoFar, mnSteps4)
-    it = list()
-    for i in range(4):
-        for keyLn, keyC, keyPos in colorMap(mp, ke, st[i]):
-            it.append((keyLn, i, keyC, keyPos))
-    it.sort()
-    for keyLn, i, keyC, keyPos in it:
-        if keyC in lo:
-            lockPos = lo[keyC]
-        else:
-            lockPos = None
-        if lockPos != None: mp[lockPos] = '.'
-        del ke[keyPos]
-        if lockPos != None: del lo[keyC]
-        newSp = st[:i] + (keyPos,) + st[i+1:]
-        mnSteps4 = min(solvePussle4(mp, ke, lo, newSp, stepsSoFar+keyLn), mnSteps4)
-        if lockPos != None: lo[keyC] = lockPos
-        ke[keyPos] = keyC
-        if lockPos != None: mp[lockPos] = ''
-    return mnSteps4
+# cache = dict()
+minv = 10**10
+def solvePussle4(d, visited):
+    global minv
+    
+    maxLen = len(set([a[1] for a in d.keys()]))
+    keySort = sorted([(d[x,y][0][1], x, y) for x,y in d.keys()])
+    print(keySort)
+    q = collections.deque()
+    q.append((set(), startState, startSteps))
+    while len(q) > 0:
+        lockSet, pos, steps = q.pop()
+        for _, start, goal in keySort:
+            if start not in pos: continue
+            if goal in lockSet: continue
+            if not d[start, goal][0][0] <= lockSet: continue
+            newLock = lockSet | set(goal)
+            newPos = pos.replace(start, goal)
+            newSteps = steps+d[start, goal][0][1]
+            if newSteps > minv: continue
+            key = ''.join(newLock) + newPos
+            # if key in cache and cache[key] <= newSteps: continue
+            # cache[key] = newSteps
+            q.append((newLock, newPos, newSteps))
+            if len(newLock) == maxLen and newSteps < minv:
+                minv = newSteps
+                print(">>>",minv)
+            # states.append((key[:-4], key[-4:], newSteps))
+    return minv
 
 def part1(pinp):
     mp, ke, lo, st = loadMap(pinp)
     # return solvePussle(mp, ke, lo, st)
 
 def part2(pinp):
-    mp, ke, lo, st = loadMap4(pinp)
-    print(len(mp), len(ke), len(lo), st)
-    print(colorMap(mp, ke, st[0]))
-    print(colorMap(mp, ke, st[1]))
-    print(colorMap(mp, ke, st[2]))
-    print(colorMap(mp, ke, st[3]))
-    return solvePussle4(mp, ke, lo, st)
+    mp, ps = loadMap4(pinp)
+    d = dict()
+    for start in "0123abcdefghijklmnopqrstuvwxyz":
+        if start not in ps: continue
+        for goal in "abcdefghijklmnopqrstuvwxyz":
+            if goal == start or goal not in ps: continue
+            cm = colorMap(mp, ps[start], ps[goal])
+            if len(cm)>0:
+                d[start, goal] = cm
+    return solvePussle4(d, "0123", 0)
 
 ## Start of footer boilerplate #################################################
 
@@ -180,7 +141,7 @@ if __name__ == "__main__":
 
     print("Input is '" + str(parseInp[:10])[:100] + 
           ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
-    print("Solution to part 1: {}".format(part1(parseInp)))
+    #print("Solution to part 1: {}".format(part1(parseInp)))
     print("Solution to part 2: {}".format(part2(parseInp)))
 
 ## End of footer boilerplate ###################################################
