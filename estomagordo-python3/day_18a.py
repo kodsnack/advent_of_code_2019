@@ -5,178 +5,250 @@ from heapq import heappop, heappush
 from collections import Counter, defaultdict
 
 
-def heuristic(grid, keys, allkeys, y, x):
-    dist = 0
+def get_moves(d, height, width, keys, y, x):
+    moves = []
 
-    for key in allkeys.keys() - keys:
-        dist = max(dist, helpers.manhattan((y, x), allkeys[key]))
+    oy, ox = y, x
+    y -= 1
+    while d[y][x] in '@.' and (y == oy or x == 0 or d[y][x - 1] == '#') and (y == oy or x == width - 1 or d[y][x + 1] == '#') and y > 0 and d[y - 1][x] != '#':
+        y -= 1
+    if y > 0 and d[y][x] != '#':
+        steps = abs(y - oy) + abs(x - ox)
+        c = d[y][x]
+        if c in '.@':
+            newkeys = set(keys)
+            moves.append([steps, y, x, newkeys])
+        elif c.islower():
+            newkeys = set(keys)
+            newkeys.add(c)
+            moves.append([steps, y, x, newkeys])
+        elif c.isupper() and c.lower() in keys:
+            newkeys = set(keys)            
+            moves.append([steps, y, x, newkeys])
+    y, x = oy, ox
+    y += 1
+    while d[y][x] in '@.' and (y == oy or x == 0 or d[y][x - 1] == '#') and (y == oy or x == width - 1 or d[y][x + 1] == '#') and y > 0 and d[y + 1][x] != '#':
+        y += 1
+    if y < height - 1 and d[y][x] != '#':
+        steps = abs(y - oy) + abs(x - ox)
+        c = d[y][x]
+        if c in '.@':
+            newkeys = set(keys)
+            moves.append([steps, y, x, newkeys])
+        elif c.islower():
+            newkeys = set(keys)
+            newkeys.add(c)
+            moves.append([steps, y, x, newkeys])
+        elif c.isupper() and c.lower() in keys:
+            newkeys = set(keys)            
+            moves.append([steps, y, x, newkeys])
+    y, x = oy, ox
+    x -= 1
+    while d[y][x] in '@.' and (x == ox or y == 0 or d[y - 1][x] == '#') and (x == ox or y == height - 1 or d[y + 1][x] == '#') and y > 0 and d[y][x - 1] != '#':
+        x -= 1
+    if x > 0 and d[y][x] != '#':
+        steps = abs(y - oy) + abs(x - ox)
+        c = d[y][x]
+        if c in '.@':
+            newkeys = set(keys)
+            moves.append([steps, y, x, newkeys])
+        elif c.islower():
+            newkeys = set(keys)
+            newkeys.add(c)
+            moves.append([steps, y, x, newkeys])
+        elif c.isupper() and c.lower() in keys:
+            newkeys = set(keys)            
+            moves.append([steps, y, x, newkeys])
+    y, x = oy, ox
+    x += 1
+    while d[y][x] in '@.' and (x == ox or y == 0 or d[y - 1][x] == '#') and (x == ox or y == height - 1 or d[y + 1][x] == '#') and y > 0 and d[y][x + 1] != '#':
+        x += 1
+    if x > 0 and d[y][x] != '#':
+        steps = abs(y - oy) + abs(x - ox)
+        c = d[y][x]
+        if c in '.@':
+            newkeys = set(keys)
+            moves.append([steps, y, x, newkeys])
+        elif c.islower():
+            newkeys = set(keys)
+            newkeys.add(c)
+            moves.append([steps, y, x, newkeys])
+        elif c.isupper() and c.lower() in keys:
+            newkeys = set(keys)            
+            moves.append([steps, y, x, newkeys])
 
-    return dist
+    return moves
+
+
+def heuristic(grid, clique, distances, keys, y, x):
+    distance = 0
+
+    ci = 0
+    while clique[ci] != (y, x):
+        ci += 1
+
+    for cj, pair in enumerate(clique):
+        if cj == ci:
+            continue
+
+        cy, cx = pair
+        cell = grid[cy][cx]
+        if cell.islower() and cell not in keys:
+            distance = max(distance, distances[ci][cj])
+
+    return distance
+
+
+def get_clique(grid, height, width, oy, ox):
+    clique = [(oy, ox)]
+    seen = { (oy, ox) }
+    frontier = [[oy, ox]]
+
+    for y, x in frontier:
+        for my, mx in helpers.get_moves(height, width, y, x):
+            if (my, mx) not in seen and grid[my][mx] != '#':
+                if grid[my][mx].isalpha():
+                    clique.append((my, mx))
+                seen.add((my, mx))
+                frontier.append([my, mx])
+
+    return clique
+
+
+def measure_distances(grid, height, width, clique, oy, ox):    
+    distances = [0 for _ in range(len(clique))]
+    seen = { (oy, ox) }
+
+    frontier = [[0, oy, ox]]
+
+    for distance, y, x in frontier:
+        for my, mx in helpers.get_moves(height, width, y, x):            
+            cell = grid[my][mx]
+            if cell == '#':
+                continue
+            if (my, mx) in seen:
+                continue
+            seen.add((my, mx))
+            frontier.append([distance + 1, my, mx])
+            if (my, mx) in clique:
+                cp = 0
+                for ci, coords in enumerate(clique):
+                    cp = ci
+                    if (my, mx) == coords:
+                        break
+                distances[cp] = distance + 1
+
+    return distances
+
+
+def get_between(grid, height, width, y1, x1, y2, x2):
+    seen = { (y1, x1) }
+    frontier = [[set(), y1, x1]]
+
+    for noted, y, x in frontier:
+        if y == y2 and x == x2:
+            return noted
+
+        for ny, nx in helpers.get_moves(height, width, y, x):
+            if grid[ny][nx] == '#' or (ny, nx) in seen:
+                continue
+
+            seen.add((ny, nx))
+            newnoted = set(noted)
+
+            if grid[ny][nx].isalpha() and (ny != y2 or nx != x2):
+                newnoted.add(grid[ny][nx])
+
+            frontier.append([newnoted, ny, nx])
 
 
 def solve(d):
+    d = list(map(list, d))
+
     height = len(d)
     width = len(d[0])
 
-    py, px = -1, -1
+    sy, sx = -1, -1
+    
     allkeys = {}
 
     for y in range(height):
         for x in range(width):
             c = d[y][x]
 
-            if c == '@':
-                py, px = y, x
             if c.isalpha() and c.islower():
                 allkeys[c] = (y, x)
 
-    # h = heuristic(d, set(), allkeys, py, px)
-    # frontier = [[h, 0, py, px, set()]]
-    frontier = [[0, py, px, set()]]
-    seen = { (py, px, str(set())) }
-    largest = 0
+            if c == '@':
+                sy, sx = y, x
+
+    seen = { (sy, sx, '') }
+
+    clique = get_clique(d, height, width, sy, sx)
+    clique_distances = []    
+
+    for y, x in clique:
+        clique_distances.append(measure_distances(d, height, width, clique, y, x))
+
+    score = heuristic(d, clique, clique_distances, set(), sy, sx)
+
+    cl = len(clique)
+    passing_by = [[[] for _ in range(cl)] for _ in range(cl)]
+
+    for i in range(cl - 1):
+        ciy, cix = clique[i]
+        for j in range(i + 1, cl):
+            cjy, cjx = clique[j]
+            between = get_between(d, height, width, ciy, cix, cjy, cjx)
+            passing_by[i][j] = between
+            passing_by[j][i] = between
+
+    frontier = [[score, 0, sy, sx, set()]]
 
     while True:
-        # score, steps, y, x, keys = heappop(frontier)
-        steps, y, x, keys = heappop(frontier)
+        score, steps, y, x, keys = heappop(frontier)
 
-        if len(keys) == len(allkeys):
+        if score == steps:
             return steps
 
-        if steps > largest:
-            largest = steps
-            print(largest, len(keys), len(allkeys))
+        ci = 0
+        
+        while clique[ci] != (y, x):
+            ci += 1
+        
+        for cj in range(cl):
+            if ci == cj:
+                continue
 
-        osteps = steps
-        oy, ox = y, x
-        y -= 1
-        while d[y][x] in '@.' and (y == oy or x == 0 or d[y][x - 1] == '#') and (y == oy or x == width - 1 or d[y][x + 1] == '#') and y > 0 and d[y - 1][x] != '#':
-            y -= 1
-        if y > 0 and d[y][x] != '#':
-            steps = osteps + abs(y - oy) + abs(x - ox) - 1
-            c = d[y][x]
-            if c in '.@':
-                newkeys = set(keys)
-                tup = (y, x, str(newkeys))
+            cjy, cjx = clique[cj]
+            cell = d[cjy][cjx]
+
+            if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+                passing = passing_by[ci][cj]
+                passing_keys = [let for let in passing if let.islower()]
+                passing_lowered_doors = [let.lower() for let in passing if let.isupper()]
+
+                if set(passing_keys) - keys:
+                    continue
+
+                if set(passing_lowered_doors) - keys:
+                    continue
+                
+                dkeys = set(keys)
+                
+                if cell.islower():
+                    dkeys.add(cell)
+
+                dsteps = clique_distances[ci][cj]
+                dy, dx = clique[cj]
+
+                tup = (dy, dx, ''.join(sorted(dkeys)))
+
                 if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
                     seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-            elif c.islower():
-                newkeys = set(keys)
-                newkeys.add(c)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-            elif c.isupper() and c.lower() in keys:
-                newkeys = set(keys)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-        y, x = oy, ox
-        y += 1
-        while d[y][x] in '@.' and (y == oy or x == 0 or d[y][x - 1] == '#') and (y == oy or x == width - 1 or d[y][x + 1] == '#') and y > 0 and d[y + 1][x] != '#':
-            y += 1
-        if y < height - 1 and d[y][x] != '#':
-            steps = osteps + abs(y - oy) + abs(x - ox) - 1
-            c = d[y][x]
-            if c in '.@':
-                newkeys = set(keys)
-                tup = (y + 1, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-            elif c.islower():
-                newkeys = set(keys)
-                newkeys.add(c)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-            elif c.isupper() and c.lower() in keys:
-                newkeys = set(keys)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-        y, x = oy, ox
-        x -= 1
-        while d[y][x] in '@.' and (x == ox or y == 0 or d[y - 1][x] == '#') and (x == ox or y == height - 1 or d[y + 1][x] == '#') and y > 0 and d[y][x - 1] != '#':
-            x -= 1
-        if x > 0 and d[y][x] != '#':
-            steps = osteps + abs(y - oy) + abs(x - ox) - 1
-            c = d[y][x]
-            if c in '.@':
-                newkeys = set(keys)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-            elif c.islower():
-                newkeys = set(keys)
-                newkeys.add(c)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-            elif c.isupper() and c.lower() in keys:
-                newkeys = set(keys)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-        y, x = oy, ox
-        x += 1
-        while d[y][x] in '@.' and (x == ox or y == 0 or d[y - 1][x] == '#') and (x == ox or y == height - 1 or d[y + 1][x] == '#') and y > 0 and d[y][x + 1] != '#':
-            x += 1
-        if x > 0 and d[y][x] != '#':
-            steps = osteps + abs(y - oy) + abs(x - ox) - 1
-            c = d[y][x]
-            if c in '.@':
-                newkeys = set(keys)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-            elif c.islower():
-                newkeys = set(keys)
-                newkeys.add(c)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-            elif c.isupper() and c.lower() in keys:
-                newkeys = set(keys)
-                tup = (y, x, str(newkeys))
-                if tup not in seen:
-                    # score = heuristic(d, newkeys, allkeys, y, x)
-                    seen.add(tup)
-                    # heappush(frontier, (score + steps + 1, steps + 1, y, x, newkeys))
-                    heappush(frontier, (steps + 1, y, x, newkeys))
-    
+                    dscore = heuristic(d, clique, clique_distances, dkeys, dy, dx)
+                    heappush(frontier, (dscore + steps + dsteps, steps + dsteps, dy, dx, dkeys))
+
 
 def read_and_solve():
     with open('input_18.txt') as f:
