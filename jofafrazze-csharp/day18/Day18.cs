@@ -65,12 +65,12 @@ namespace day18
             return m;
         }
         
-        static Dictionary<char, Tuple<int, int>> FindDirectlyReachableKeyDistances(Map m, MapSearchInfo msi)
+        static Dictionary<char, (int, int)> FindDirectlyReachableKeyDistances(Map m, MapSearchInfo msi)
         {
             List<Position> toVisit = new List<Position>(msi.positions);
-            Dictionary<Position, Tuple<int, int>> steps = new Dictionary<Position, Tuple<int, int>>();
+            Dictionary<Position, (int steps, int idx)> steps = new Dictionary<Position, (int, int)>();
             for (int i = 0; i < msi.positions.Length; i++)
-                steps[msi.positions[i]] = Tuple.Create<int, int>(0, i);
+                steps[msi.positions[i]] = (0, i);
             List<Position> keyPos = new List<Position>();
             while (toVisit.Count > 0)
             {
@@ -85,8 +85,8 @@ namespace day18
                         {
                             if (c == '.' || c == '@' || msi.found.Contains(c) || char.IsLower(c))
                             {
-                                var s = Tuple.Create<int, int>(steps[p].Item1 + 1, steps[p].Item2);
-                                if (!steps.ContainsKey(nextPos) || s.Item1 < steps[nextPos].Item1)
+                                (int steps, int idx) s = (steps[p].steps + 1, steps[p].idx);
+                                if (!steps.ContainsKey(nextPos) || s.steps < steps[nextPos].steps)
                                 {
                                     steps[nextPos] = s;
                                     if (c == '.' || c == '@' || msi.found.Contains(c))
@@ -100,7 +100,7 @@ namespace day18
                 }
                 toVisit = toVisitNext;
             }
-            Dictionary<char, Tuple<int, int>> foundChars = new Dictionary<char, Tuple<int, int>>();
+            Dictionary<char, (int, int)> foundChars = new Dictionary<char, (int, int)>();
             foreach (Position p in keyPos)
                 foundChars[m[p]] = steps[p];
             return foundChars;
@@ -155,7 +155,7 @@ namespace day18
                 Dictionary<string, MapSearchInfo> nextInfoSteps = new Dictionary<string, MapSearchInfo>();
                 foreach (var v in infoSteps)
                 {
-                    Dictionary<char, Tuple<int, int>> keyDists = FindDirectlyReachableKeyDistances(m, v.Value);
+                    Dictionary<char, (int steps, int idx)> keyDists = FindDirectlyReachableKeyDistances(m, v.Value);
                     if (keyDists.Count == 0)
                     {
                         if (v.Value.steps < minSteps)
@@ -164,10 +164,8 @@ namespace day18
                     foreach (var kvp in keyDists)
                     {
                         MapSearchInfo nextMsi = new MapSearchInfo(v.Value);
-                        nextMsi.steps += kvp.Value.Item1;
-                        Position nextPos = new Position();
-                        FindInMap(m, kvp.Key, ref nextPos);
-                        nextMsi.positions[kvp.Value.Item2] = nextPos;
+                        nextMsi.steps += kvp.Value.steps;
+                        FindInMap(m, kvp.Key, ref nextMsi.positions[kvp.Value.idx]);
                         nextMsi.found.Add(kvp.Key);
                         Position p = new Position();
                         char c2 = char.ToUpper(kvp.Key);
