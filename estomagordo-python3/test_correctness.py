@@ -229,6 +229,20 @@ def test_16b():
     assert(83253465 == answer)
 
 
+def test_17a():
+    import day_17a
+
+    answer = day_17a.read_and_solve()
+    assert(5972 == answer)
+
+
+def test_17b():
+    import day_17b
+
+    answer = day_17b.read_and_solve()
+    assert(933214 == answer)
+
+
 def test_18a():
     import day_18a
 
