@@ -48,7 +48,7 @@ def loadMap4(s):
 def colorMap(mp, start):
     positions = collections.deque()
     col = {start: (0, set())}
-    links = {mp[start]: (0, set())}
+    links = {}
     positions.append((start, 0, set()))
     while len(positions) > 0:
         curPos, curSteps, curLocks = positions.popleft()
@@ -60,7 +60,7 @@ def colorMap(mp, start):
             if c == '#': continue
             nxtSteps = curSteps + 1
             if c.islower():
-                links[c] = (nxtPos, nxtSteps, curLocks)
+                links[c] = (nxtSteps, curLocks)
             if c.isupper():
                 nxtLocks = curLocks | {c.lower()}
             else:
@@ -69,67 +69,65 @@ def colorMap(mp, start):
             positions.append((nxtPos, nxtSteps, nxtLocks))
     return links
 
-# cache = dict()
-minv = 10**10
-def solvePussle4(d, visited):
-    global minv
-    
-    maxLen = len(set([a[1] for a in d.keys()]))
-    keySort = sorted([(d[x,y][0][1], x, y) for x,y in d.keys()])
-    print(keySort)
-    q = collections.deque()
-    q.append((set(), startState, startSteps))
-    while len(q) > 0:
-        lockSet, pos, steps = q.pop()
-        for _, start, goal in keySort:
-            if start not in pos: continue
-            if goal in lockSet: continue
-            if not d[start, goal][0][0] <= lockSet: continue
-            newLock = lockSet | set(goal)
-            newPos = pos.replace(start, goal)
-            newSteps = steps+d[start, goal][0][1]
-            if newSteps > minv: continue
-            key = ''.join(newLock) + newPos
-            # if key in cache and cache[key] <= newSteps: continue
-            # cache[key] = newSteps
-            q.append((newLock, newPos, newSteps))
-            if len(newLock) == maxLen and newSteps < minv:
-                minv = newSteps
-                print(">>>",minv)
-            # states.append((key[:-4], key[-4:], newSteps))
-    return minv
+cache = dict()
+def solvePussle(mp, source, remaining):
+    if len(remaining) == 0:
+        return 0
+    cacheKey = source + ''.join(sorted(remaining))
+    if cacheKey in cache:
+        return cache[cacheKey]
+    minDist = 10**10
+    for target in remaining:
+        trgSteps, trgLock = mp[source][target]
+        if trgSteps >= minDist: continue
+        if not trgLock.isdisjoint(remaining): continue
+        restSteps = solvePussle(mp, target, remaining - set(target))
+        minDist = min(minDist, restSteps+trgSteps)
+    cache[cacheKey] = minDist
+    return minDist
+
+cache4 = dict()
+def solvePussle4(mp, source, remaining):
+    if len(remaining) == 0:
+        return 0
+    cacheKey = source + ''.join(sorted(remaining))
+    if cacheKey in cache4:
+        return cache4[cacheKey]
+    minDist = 10**10
+    for target in remaining:
+        for sourceC in source:
+            if target in mp[sourceC]:
+                trgSteps, trgLock = mp[sourceC][target]
+                break
+        if trgSteps >= minDist: continue
+        if not trgLock.isdisjoint(remaining): continue
+        nxtSource = source.replace(sourceC, target)
+        restSteps = solvePussle4(mp, nxtSource, remaining - set(target))
+        minDist = min(minDist, restSteps+trgSteps)
+    cache4[cacheKey] = minDist
+    return minDist
 
 def part1(pinp):
     mp, goals = loadMap(pinp)
     d = dict()
     for g in goals.keys():
         d[g] = colorMap(mp, goals[g])
-    print(d)
-    # return solvePussle(mp, ke, lo, st)
+    return solvePussle(d, '0', set(d['0'].keys()))
 
 def part2(pinp):
-    mp, ps = loadMap4(pinp)
+    mp, goals = loadMap4(pinp)
     d = dict()
-    for start in "0123abcdefghijklmnopqrstuvwxyz":
-        if start not in ps: continue
-        for goal in "abcdefghijklmnopqrstuvwxyz":
-            if goal == start or goal not in ps: continue
-            cm = colorMap(mp, ps[start], ps[goal])
-            if len(cm)>0:
-                d[start, goal] = cm
-    return solvePussle4(d, "0123", 0)
+    for g in goals.keys():
+        d[g] = colorMap(mp, goals[g])
+    return solvePussle4(d, '0123', (set(d['0'].keys()) 
+                                  | set(d['1'].keys())
+                                  | set(d['2'].keys())
+                                  | set(d['3'].keys())))
 
 ## Start of footer boilerplate #################################################
 
 if __name__ == "__main__":
     inp = readInput()
-    inp = """#############
-#DcBa.#.GhKl#
-#.###...#I###
-#e#d#.@.#j#k#
-###C#...###J#
-#fEbA.#.FgHi#
-#############"""
     
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp)
