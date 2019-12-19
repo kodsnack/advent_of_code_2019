@@ -4,6 +4,7 @@ module Queue
     , pop
     , null
     , empty
+    , size
     )
 where
 
@@ -21,5 +22,7 @@ pop (Queue inb []        ) = pop (Queue [] (reverse inb))
 
 null (Queue [] []) = True
 null _             = False
+
+size (Queue a b) = length a + length b
 
 empty = Queue [] []
