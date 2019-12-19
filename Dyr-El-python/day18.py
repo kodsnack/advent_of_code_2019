@@ -49,34 +49,25 @@ def colorMap(mp, start):
     positions = collections.deque()
     col = {start: (0, set())}
     links = {mp[start]: (0, set())}
-    positions.append((start, steps, set()))
+    positions.append((start, 0, set()))
     while len(positions) > 0:
-        curPos, curSteps, curLocks = pos.popleft()
+        curPos, curSteps, curLocks = positions.popleft()
         x, y = curPos
         for dx, dy in [(1, 0),(-1, 0),(0, 1),(0, -1)]:
-            nx, ny = x+dx, y+dy
-            if (nx, ny) in col: continue
-            nc = mp.get((nx, ny), '#') 
-            if nc == '#': continue
-            if nc.islower():
-                links[nc] = ((nx, ny), curSteps, curLocks)
-                
-                if 'A' <= nc <= 'Z' and nc.lower() in lock: continue
-                if 'A' <= nc <= 'Z':
-                    v, l1 = col[x, y]
-                    col[nx, ny] = (v+1, list(set(l1).union(set(nc.lower()))))
-                else:
-                    v, l1 = col[x, y]
-                    col[nx, ny] = (v+1, l1)
-                if (nx, ny) == goal:
-                    break
-                pos.append(((nx, ny), col[nx, ny][1]))
-        if goal in col:
-            v, l = col[goal]
-            res.append((set(l), v))
-            for c in l:
-                locks.append(c+lock)
-        return res
+            nxtPos = (x+dx, y+dy)
+            if nxtPos in col: continue
+            c = mp.get(nxtPos, '#') 
+            if c == '#': continue
+            nxtSteps = curSteps + 1
+            if c.islower():
+                links[c] = (nxtPos, nxtSteps, curLocks)
+            if c.isupper():
+                nxtLocks = curLocks | {c.lower()}
+            else:
+                nxtLocks = curLocks
+            col[nxtPos] = (nxtSteps, nxtLocks)
+            positions.append((nxtPos, nxtSteps, nxtLocks))
+    return links
 
 # cache = dict()
 minv = 10**10
@@ -109,7 +100,11 @@ def solvePussle4(d, visited):
     return minv
 
 def part1(pinp):
-    mp, ke, lo, st = loadMap(pinp)
+    mp, goals = loadMap(pinp)
+    d = dict()
+    for g in goals.keys():
+        d[g] = colorMap(mp, goals[g])
+    print(d)
     # return solvePussle(mp, ke, lo, st)
 
 def part2(pinp):
@@ -128,20 +123,20 @@ def part2(pinp):
 
 if __name__ == "__main__":
     inp = readInput()
-#     inp = """#############
-# #DcBa.#.GhKl#
-# #.###...#I###
-# #e#d#.@.#j#k#
-# ###C#...###J#
-# #fEbA.#.FgHi#
-# #############"""
+    inp = """#############
+#DcBa.#.GhKl#
+#.###...#I###
+#e#d#.@.#j#k#
+###C#...###J#
+#fEbA.#.FgHi#
+#############"""
     
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp)
 
     print("Input is '" + str(parseInp[:10])[:100] + 
           ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
-    #print("Solution to part 1: {}".format(part1(parseInp)))
+    print("Solution to part 1: {}".format(part1(parseInp)))
     print("Solution to part 2: {}".format(part2(parseInp)))
 
 ## End of footer boilerplate ###################################################
