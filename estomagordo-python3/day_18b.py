@@ -212,36 +212,20 @@ def solve(d):
 
             if c.isalpha() and c.islower():
                 allkeys[c] = (y, x)
-
-    # h = heuristic(d, set(), allkeys, py, px)
-    # frontier = [[h, 0, py, px, set()]]
+                
     compressed = (compress(sy - 1, sx - 1, sy - 1, sx + 1, sy + 1, sx + 1, sy + 1, sx - 1))
 
     seen = { (compressed, '') }
-    largest = 0
 
     cliques = [get_clique(d, height, width, sy - 1, sx - 1), get_clique(d, height, width, sy - 1, sx + 1), get_clique(d, height, width, sy + 1, sx + 1), get_clique(d, height, width, sy + 1, sx - 1)]
     clique_distances = []
     passing_by = []
-
-    # clique_keys = []
-
-    # for clique in cliques:
-    #     keys = []
-    #     for cy, cx in clique:
-    #         if d[cy][cx].islower():
-    #             keys.append((cy, cx))
-    #     clique_keys.append(keys)
 
     for ci in range(4):
         distances = []
         for pi, coords in enumerate(cliques[ci]):
             distances.append(measure_distances(d, height, width, cliques[ci], coords[0], coords[1]))			
         clique_distances.append(distances)
-
-    # print(cliques)
-    # print('')
-    # print(clique_distances)
 
     score = heuristic(d, cliques, clique_distances, set(), sy - 1, sx - 1, sy - 1, sx + 1, sy + 1, sx + 1, sy + 1, sx - 1)
 
@@ -260,7 +244,6 @@ def solve(d):
     frontier = [[score, 0, compressed, set()]]
 
     while True:
-        # score, steps, y, x, keys = heappop(frontier)
         score, steps, compressed, keys = heappop(frontier)
         y1, x1, y2, x2, y3, x3, y4, x4 = decompress(compressed)
 
@@ -274,11 +257,6 @@ def solve(d):
                 if cell.islower() and cell not in keys:
                     keysleft[ci] += 1
 
-        if steps > largest:
-            largest = steps            
-            print(largest, len(keys), len(allkeys), keysleft[0], keysleft[1], keysleft[2], keysleft[3], len(frontier))
-
-        # if not (d[y1][x1].isupper() and d[y1][x1].lower() not in keys):
         if keysleft[0] > 0:
             ci = 0
             
@@ -435,93 +413,6 @@ def solve(d):
                         seen.add(tup)
                         dscore = heuristic(d, cliques, clique_distances, dkeys, y1, x1, y2, x2, y3, x3, dy, dx)
                         heappush(frontier, (dscore + steps + dsteps, steps + dsteps, dcompressed, dkeys))
-
-
-        #     for destination, dsteps in moves.items():
-        #         dy, dx = destination
-        #         dkeys = set(keys)
-
-        #         if d[dy][dx].islower():
-        #             dkeys.add(d[dy][dx])
-
-        #         tup = (dy, dx, y2, x2, y3, x3, y4, x4, str(dkeys))
-        #         seen.add(tup)
-        #         heappush(frontier, (steps + dsteps, dy, dx, y2, x2, y3, x3, y4, x4, dkeys))
-
-        # if not (d[y2][x2].isupper() and d[y2][x2].lower() not in keys):
-        #     moves = get_places_of_interest(d, height, width, keys, y2, x2)
-
-        #     for destination, dsteps in moves.items():
-        #         dy, dx = destination
-        #         dkeys = set(keys)
-
-        #         if d[dy][dx].islower():
-        #             dkeys.add(d[dy][dx])
-
-        #         tup = (y1, x1, dy, dx, y3, x3, y4, x4, str(dkeys))
-        #         seen.add(tup)
-        #         heappush(frontier, (steps + dsteps, y1, x1, dy, dx, y3, x3, y4, x4, dkeys))
-
-        # if not (d[y3][x3].isupper() and d[y3][x3].lower() not in keys):
-        #     moves = get_places_of_interest(d, height, width, keys, y3, x3)
-
-        #     for destination, dsteps in moves.items():
-        #         dy, dx = destination
-        #         dkeys = set(keys)
-
-        #         if d[dy][dx].islower():
-        #             dkeys.add(d[dy][dx])
-
-        #         tup = (y1, x1, y2, x2, dy, dx, y4, x4, str(dkeys))
-        #         seen.add(tup)
-        #         heappush(frontier, (steps + dsteps, y1, x1, y2, x2, dy, dx, y4, x4, dkeys))
-
-        # if not (d[y4][x4].isupper() and d[y4][x4].lower() not in keys):
-        #     moves = get_places_of_interest(d, height, width, keys, y4, x4)
-
-        #     for destination, dsteps in moves.items():
-        #         dy, dx = destination
-        #         dkeys = set(keys)
-
-        #         if d[dy][dx].islower():
-        #             dkeys.add(d[dy][dx])
-
-        #         tup = (y1, x1, y2, x2, y3, x3, dy, dx, str(dkeys))
-        #         seen.add(tup)
-        #         heappush(frontier, (steps + dsteps, y1, x1, y2, x2, y3, x3, dy, dx, dkeys))
-                
-        
-        # moves = get_moves(d, height, width, keys, y1, x1)
-
-        # for dsteps, dy, dx, dkeys in moves:
-        #     tup = (dy, dx, y2, x2, y3, x3, y4, x4, str(dkeys))
-        #     if tup not in seen:
-        #         seen.add(tup)
-        #         heappush(frontier, (steps + dsteps, dy, dx, y2, x2, y3, x3, y4, x4, dkeys))
-
-        # moves = get_moves(d, height, width, keys, y2, x2)
-
-        # for dsteps, dy, dx, dkeys in moves:
-        #     tup = (y1, x1, dy, dx, y3, x3, y4, x4, str(dkeys))
-        #     if tup not in seen:
-        #         seen.add(tup)
-        #         heappush(frontier, (steps + dsteps, y1, x1, dy, dx, y3, x3, y4, x4, dkeys))
-
-        # moves = get_moves(d, height, width, keys, y3, x3)
-
-        # for dsteps, dy, dx, dkeys in moves:
-        #     tup = (y1, x1, y2, x2, dy, dx, y4, x4, str(dkeys))
-        #     if tup not in seen:
-        #         seen.add(tup)
-        #         heappush(frontier, (steps + dsteps, y1, x1, y2, x2, dy, dx, y4, x4, dkeys))
-
-        # moves = get_moves(d, height, width, keys, y4, x4)
-
-        # for dsteps, dy, dx, dkeys in moves:
-        #     tup = (y1, x1, y2, x2, y3, x3, dy, dx, str(dkeys))
-        #     if tup not in seen:
-        #         seen.add(tup)
-        #         heappush(frontier, (steps + dsteps, y1, x1, y2, x2, y3, x3, dy, dx, dkeys))        
     
 
 def read_and_solve():
