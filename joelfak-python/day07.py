@@ -18,9 +18,19 @@ def parseOpcode(opcodeIn):
 
     return OpCode(opcode, parameterModes)
 
+def printIfVerbose(str, verbose):
+    if verbose:
+        print(str)
+
 class IncodeComputer:
-    def __init__(self, program):
+    def __init__(self, program, name="", verbose=False):
         self.program = program.copy()
+        self.name = name
+        self.verbose = verbose
+        self.p = 0
+
+    def printIfVerbose(self, str):
+        printIfVerbose(str, self.verbose)
 
     def getParameter(self, p, parameterModes):
         if len(parameterModes) > 0 and parameterModes.popleft():
@@ -29,89 +39,119 @@ class IncodeComputer:
             return self.program[self.program[p]]
 
     def runUntilHalt(self, input=None):
-        p = 0
-        oc = parseOpcode(self.program[p])
+        oc = parseOpcode(self.program[self.p])
 
         exitStatus = False
         output = []
 
+        # print("{} program: {}".format(self.name, self.program))
+
         while oc.opcode != 99:
             if oc.opcode == 1: # Addition
-                self.program[self.program[p+3]] = self.getParameter(p+1, oc.parameterModes) + self.getParameter(p+2, oc.parameterModes)
-                p = p + 4
+                self.program[self.program[self.p+3]] = self.getParameter(self.p+1, oc.parameterModes) + self.getParameter(self.p+2, oc.parameterModes)
+                self.p = self.p + 4
             elif oc.opcode == 2: # Multiplication
-                self.program[self.program[p+3]] = self.getParameter(p+1, oc.parameterModes) * self.getParameter(p+2, oc.parameterModes)
-                p = p + 4
+                self.program[self.program[self.p+3]] = self.getParameter(self.p+1, oc.parameterModes) * self.getParameter(self.p+2, oc.parameterModes)
+                self.p = self.p + 4
             elif oc.opcode == 3: # Read input
                 if len(input) == 0:
                     exitStatus = False
+                    self.printIfVerbose("{} waiting for input".format(self.name))
                     break
-                self.program[self.program[p+1]] = input.pop(0)
-                p = p + 2
+                self.printIfVerbose("{} reading input {}".format(self.name, input[0]))
+                self.program[self.program[self.p+1]] = input.pop(0)
+                self.p = self.p + 2
             elif oc.opcode == 4: # Write output
-                output.append(self.getParameter(p+1, oc.parameterModes))
-                p = p + 2
+                output.append(self.getParameter(self.p+1, oc.parameterModes))
+                self.printIfVerbose("{} writing output {}".format(self.name, output[len(output)-1]))
+                self.p = self.p + 2
             elif oc.opcode == 5: # Jump if true
-                if self.getParameter(p+1, oc.parameterModes) != 0:
-                    p = self.getParameter(p+2, oc.parameterModes)
+                if self.getParameter(self.p+1, oc.parameterModes) != 0:
+                    self.p = self.getParameter(self.p+2, oc.parameterModes)
                 else:
-                    p = p + 3
+                    self.p = self.p + 3
             elif oc.opcode == 6: # Jump if false
-                if self.getParameter(p+1, oc.parameterModes) == 0:
-                    p = self.getParameter(p+2, oc.parameterModes)
+                if self.getParameter(self.p+1, oc.parameterModes) == 0:
+                    self.p = self.getParameter(self.p+2, oc.parameterModes)
                 else:
-                    p = p + 3
+                    self.p = self.p + 3
             elif oc.opcode == 7: # Less than
-                if self.getParameter(p+1, oc.parameterModes) < self.getParameter(p+2, oc.parameterModes):
-                    self.program[self.program[p+3]] = 1
+                if self.getParameter(self.p+1, oc.parameterModes) < self.getParameter(self.p+2, oc.parameterModes):
+                    self.program[self.program[self.p+3]] = 1
                 else:
-                    self.program[self.program[p+3]] = 0
-                p = p + 4
+                    self.program[self.program[self.p+3]] = 0
+                self.p = self.p + 4
             elif oc.opcode == 8: # Equals
-                if self.getParameter(p+1, oc.parameterModes) == self.getParameter(p+2, oc.parameterModes):
-                    self.program[self.program[p+3]] = 1
+                if self.getParameter(self.p+1, oc.parameterModes) == self.getParameter(self.p+2, oc.parameterModes):
+                    self.program[self.program[self.p+3]] = 1
                 else:
-                    self.program[self.program[p+3]] = 0
-                p = p + 4
+                    self.program[self.program[self.p+3]] = 0
+                self.p = self.p + 4
             else:
                 raise Exception('Invalid operator', oc.opcode)
-            oc = parseOpcode(self.program[p])
+            oc = parseOpcode(self.program[self.p])
             if oc.opcode == 99:
                 exitStatus = True
 
         return IntcodeResult(exitStatus, output)
 
-def runAmplifiers(program, phaseSettings):
-    ampA = IncodeComputer(program)
-    ampB = IncodeComputer(program)
-    ampC = IncodeComputer(program)
-    ampD = IncodeComputer(program)
-    ampE = IncodeComputer(program)
+def runAmplifiers(program, phaseSettings, verbose=False):
+    printIfVerbose("runAmplifiers with phase settings: {}".format(phaseSettings), verbose)
+    ampA = IncodeComputer(program, "ampA", verbose)
+    ampB = IncodeComputer(program, "ampB", verbose)
+    ampC = IncodeComputer(program, "ampC", verbose)
+    ampD = IncodeComputer(program, "ampD", verbose)
+    ampE = IncodeComputer(program, "ampE", verbose)
 
     exitStatus = 0
     signal = 0
 
-    while exitStatus == 0:
-        signal = ampA.runUntilHalt([phaseSettings[0], signal]).output[0]
-        signal = ampB.runUntilHalt([phaseSettings[1], signal]).output[0]
-        signal = ampC.runUntilHalt([phaseSettings[2], signal]).output[0]
-        signal = ampD.runUntilHalt([phaseSettings[3], signal]).output[0]
-        res = ampE.runUntilHalt([phaseSettings[4], signal])
-        exitStatus = res.programdone
-        signal = res.output[0]
+    inputA = [phaseSettings[0]]
+    inputB = [phaseSettings[1]]
+    inputC = [phaseSettings[2]]
+    inputD = [phaseSettings[3]]
+    inputE = [phaseSettings[4]]
+    inputA.append(0)
 
-    return signal
+    while exitStatus == False:
+        printIfVerbose("inputA: {}".format(inputA), verbose)
+        res = ampA.runUntilHalt(inputA)
+        if len(res.output) > 0:
+            inputB.append(res.output[0])
+
+        printIfVerbose("inputB: {}".format(inputB), verbose)
+        res = ampB.runUntilHalt(inputB)
+        if len(res.output) > 0:
+            inputC.append(res.output[0])
+
+        printIfVerbose("inputC: {}".format(inputC), verbose)
+        res = ampC.runUntilHalt(inputC)
+        if len(res.output) > 0:
+            inputD.append(res.output[0])
+
+        printIfVerbose("inputD: {}".format(inputD), verbose)
+        res = ampD.runUntilHalt(inputD)
+        if len(res.output) > 0:
+            inputE.append(res.output[0])
+
+        printIfVerbose("inputE: {}".format(inputE), verbose)
+        res = ampE.runUntilHalt(inputE)
+        if len(res.output) > 0:
+            inputA.append(res.output[0])
+
+        exitStatus = res.programdone
+
+    return res.output[0]
 
 def findBestAmplifierPhaseSettings(program, startingParameters):
     bestParams = max(itertools.permutations(startingParameters), key=lambda x: runAmplifiers(program, x))
     return (list(bestParams), runAmplifiers(program, bestParams))
 
 def part1(program):
-    findBestAmplifierPhaseSettings(program, [0,1,2,3,4])
-    return findBestAmplifierPhaseSettings(program, [0,1,2,3,4])[1]
+    return findBestAmplifierPhaseSettings(program, range(0,5))[1]
 
 def part2(program):
-    return IncodeComputer(program).run([5]).output
+    return findBestAmplifierPhaseSettings(program, range(5,10))[1]
 
 ## Unit tests ########################################################
 
@@ -254,10 +294,23 @@ class TestDay07_part2(unittest.TestCase):
                                         [9,7,8,5,6]),
                                         18216)
 
+    def test_part2_findBestAmplifierPhaseSettings_example_program_1(self):
+        self.assertEqual(findBestAmplifierPhaseSettings([3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,
+                                                        27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5],
+                                                        [5,6,7,8,9]),
+                                                        ([9,8,7,6,5], 139629729))
+
+    def test_part2_findBestAmplifierPhaseSettings_example_program_1(self):
+        self.assertEqual(findBestAmplifierPhaseSettings([3,52,1001,52,-5,52,3,53,1,52,56,54,1007,54,5,55,1005,55,26,1001,54,
+                                                        -5,54,1105,1,12,1,53,54,53,1008,54,0,55,1001,55,1,55,2,53,55,53,4,
+                                                        53,1001,56,-1,56,1005,56,6,99,0,0,0,0,10],
+                                                        [5,6,7,8,9]),
+                                                        ([9,8,7,6,5], 18216))
+
 ## Main ########################################################
 
 if __name__ == '__main__':
 
     print("Advent of code day 7")
     print("Part1 result: {}".format(part1(getCommaSeparatedIntsFromFile(sys.argv[1]))))
-    # print("Part2 result: {}".format(part2(getCommaSeparatedIntsFromFile(sys.argv[1]))))
+    print("Part2 result: {}".format(part2(getCommaSeparatedIntsFromFile(sys.argv[1]))))
