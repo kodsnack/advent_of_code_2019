@@ -98,9 +98,6 @@ def get_moves(grid, height, width):
         left_good = 0 <= ly < height and 0 <= lx < width and (ly, lx) in scaffolds and (ly, lx) not in seen
 
         if right_good:
-            if left_good:
-                print('PANIC')
-                return moves
             moves.append('R')
             direction = (direction + 1) % 4
             currdir = directions[direction]
@@ -110,14 +107,10 @@ def get_moves(grid, height, width):
             direction = (direction - 1) % 4
             currdir = directions[direction]
             continue
-        print('TOTAL PANIC')
-        print(len(scaffolds), len(seen))
         for y in range(height):
             for x in range(width):
                 if (y, x) in seen:
                     grid[y][x] = 88
-        for row in grid:
-            print(''.join(map(chr, row)))
         return moves
 
     return moves
@@ -185,6 +178,7 @@ def solve(d):
     moveputer = Computer(d, inputs[0], 2)
     inppos = 1
     retcode, retval = 0, 0
+    dust = 0
 
     while retcode != -1:
         retcode, retval = moveputer.step()
@@ -195,11 +189,9 @@ def solve(d):
             inppos += 1
 
         if retcode == 1:
-            print(retval)
+            dust = retval
 
-    # return retval
-
-    return ''.join(infuse_numbers(moves))
+    return dust
     
 
 def read_and_solve():
