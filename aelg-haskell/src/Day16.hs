@@ -35,8 +35,7 @@ ffft xs pos =
         . replicate 10000
         $ xs
 
-solve1 xs =
-    concat . map show . take 8 . (!! 100) . iterate fft $ xs
+solve1 xs = concat . map show . take 8 . (!! 100) . iterate fft $ xs
 
 solve2 xs = concat . map show $ ffft xs pos
     where pos = read . concat . map show . take 7 $ xs
