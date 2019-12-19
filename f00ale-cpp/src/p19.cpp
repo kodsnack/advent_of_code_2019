@@ -1,23 +1,18 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 #include <tuple>
 #include <map>
-#include <stack>
-#include <queue>
 
 #include "intcode.h"
-#include <fstream>
-#include <set>
 
-void p17(std::istream & is) {
+void p19(std::istream & is) {
     int ans1 = 0;
     int ans2 = 0;
     const auto program = readIntcode(is);
 
     std::string inputstring;
 
-    auto getbeam=[&program] (int x, int y) {
+    auto calcbeam=[&program] (int x, int y) {
         intcodemachine mach(program);
         mach.addInput(x);
         mach.addInput(y);
@@ -46,52 +41,49 @@ void p17(std::istream & is) {
         return o;
     };
 
+    std::map<std::tuple<int,int>, int> memory;
+    auto getbeam = [&memory, &calcbeam](int x, int y) {
+        auto t = std::tuple(x,y);
+        auto it = memory.find(t);
+        if(it != memory.end()) return it->second;
+        auto r = calcbeam(x,y);
+        memory[t] = r;
+        return r;
+    };
+
     std::vector<std::string> v;
-    for(auto problem : {1}){
-        std::string output;
-
-        for(int x = 0; x < 50; x++) {
-            for (int y = 0; y < 50; y++) {
-                ans1 += getbeam(x,y);
-            }
-        }
-        constexpr int N = 2000;
-        for(int x = 0; x < N; x++) {
-            v.push_back("");
-            int l = 0;
-            for(int y = 0; y < N; y++) {
-                auto t = getbeam(x,y);
-                if(t)l++;
-                v.back().push_back(t?'#':' ');
-            }
-            //std::cout << l << std::endl;
-        }
-
-        std::vector<std::vector<int>> vx(N);
-        for(int x = 0; x < N; x++) {
-            int acc = 0;
-            vx[x].resize(N);
-            for (int y = 0; y < N; y++) {
-                acc += v[x][y] == '#';
-                vx[x][y] = acc;
-            }
-        }
-
-        for(int x = 10; x < N-100; x++) {
-            for(int y = 10; y < N-100; y++) {
-                if(v[x][y] == '#' && v[x+99][y] == '#' && v[x][y+99] == '#') {
-                    ans2 = (x * 10000 + y);
-                    break;
-                }
-            }
-
-            if(ans2) break;
+    for(int x = 0; x < 50; x++) {
+        for (int y = 0; y < 50; y++) {
+            ans1 += getbeam(x,y);
         }
     }
+
+    constexpr int N = 2000;
+    constexpr int S = 100;
+    int firsty = 10;
+    for(int x = 10; x < N-100; x++) {
+        bool seen = false;
+        for(int y = firsty; y < N-100; y++) {
+            auto ul = getbeam(x,y);
+            if(ul && !seen) {
+                seen = true;
+                firsty = y;
+            }
+            auto ll = getbeam(x,y+S-1);
+            if(seen && !ll) break;
+            if(ul && ll && getbeam(x+S-1,y)) {
+                ans2 = (x * 10000 + y);
+                break;
+            }
+        }
+
+        if(ans2) break;
+    }
+
     std::cout << ans1 << std::endl;
     std::cout << ans2 << std::endl;
 }
 
 int main() {
-    p17(std::cin);
+    p19(std::cin);
 }
