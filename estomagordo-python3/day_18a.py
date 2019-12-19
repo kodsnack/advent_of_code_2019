@@ -182,7 +182,7 @@ def solve(d):
             if c == '@':
                 sy, sx = y, x
 
-    seen = { (sy, sx, '') }
+    seen = { (sy, sx, ''): 0 }
 
     clique = get_clique(d, height, width, sy, sx)
     clique_distances = []    
@@ -203,12 +203,12 @@ def solve(d):
             passing_by[i][j] = between
             passing_by[j][i] = between
 
-    frontier = [[score, 0, sy, sx, set()]]
+    frontier = [[0, sy, sx, set()]]
 
     while True:
-        score, steps, y, x, keys = heappop(frontier)
+        steps, y, x, keys = heappop(frontier)
 
-        if score == steps:
+        if len(keys) == len(allkeys):
             return steps
 
         ci = 0
@@ -223,7 +223,7 @@ def solve(d):
             cjy, cjx = clique[cj]
             cell = d[cjy][cjx]
 
-            if (cell.islower() and cell not in keys) or (cell.isupper() and cell.lower() in keys):
+            if (cell.islower() and cell not in keys):
                 passing = passing_by[ci][cj]
                 passing_keys = [let for let in passing if let.islower()]
                 passing_lowered_doors = [let.lower() for let in passing if let.isupper()]
@@ -244,10 +244,10 @@ def solve(d):
 
                 tup = (dy, dx, ''.join(sorted(dkeys)))
 
-                if tup not in seen:
-                    seen.add(tup)
+                if tup not in seen or seen[tup] > steps + dsteps:
+                    seen[tup] = steps + dsteps
                     dscore = heuristic(d, clique, clique_distances, dkeys, dy, dx)
-                    heappush(frontier, (dscore + steps + dsteps, steps + dsteps, dy, dx, dkeys))
+                    heappush(frontier, (steps + dsteps, dy, dx, dkeys))
 
 
 def read_and_solve():
