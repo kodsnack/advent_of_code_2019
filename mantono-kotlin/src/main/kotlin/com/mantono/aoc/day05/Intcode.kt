@@ -56,8 +56,8 @@ enum class OpCode(
     }),
     LESS_THAN(7, { mem, addr, _, _ ->
         val modes: List<Mode> = Mode.parse(mem[addr])
-        val first: kotlin.Int = mem.read(modes[0], addr+1)
-        val second: kotlin.Int = mem.read(modes[1], addr+2)
+        val first: Int = mem.read(modes[0], addr+1)
+        val second: Int = mem.read(modes[1], addr+2)
         mem[addr+3] = if(first < second) 1 else 0
         addr+4
     }),
@@ -105,15 +105,15 @@ fun Memory.read(mode: Mode, address: Int): Int {
 
 @AoC(5, Part.A)
 fun intCode(input: String): Int {
-    return parseMemory(input, 1)
+    return runProgram(input, 1)
 }
 
 @AoC(5, Part.B)
 fun intCodeExtended(input: String): Int {
-    return parseMemory(input, 5)
+    return runProgram(input, 5)
 }
 
-fun parseMemory(program: String, input: Int): Int {
+fun runProgram(program: String, input: Int): Int {
     val memory: MutableList<Int> = program.split(",")
         .map { it.trim().toInt() }
         .toMutableList()
@@ -136,7 +136,7 @@ tailrec fun parseData(
     }
     if(opCode == OpCode.HALT) {
         println(output.joinToString { it.toString() })
-        return memory[pointerMoved]
+        return output.pop()
     }
     return parseData(memory, pointerMoved, input, output)
 }
