@@ -6,8 +6,10 @@ using System.Reflection;
 
 namespace day14
 {
-    class Day14
+    public class Day14
     {
+        readonly static string nsname = typeof(Day14).Namespace;
+
         public struct Material
         {
             public string name;
@@ -24,7 +26,7 @@ namespace day14
 
         static Dictionary<string, Reaction> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             Dictionary<string, Reaction> reactions = new Dictionary<string, Reaction>();
             Material GetMaterial(string s)
@@ -97,14 +99,16 @@ namespace day14
             while (!chemicals.ContainsKey("ORE") || nChemicals > 1);
             return chemicals;
         }
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             Dictionary<string, Reaction> input = ReadInput();
             Dictionary<string, long> chemicals = BreakDownChemicals(input, "FUEL", 1);
-            Console.WriteLine("Part A: Result is {0}", chemicals["ORE"]);
+            long res = chemicals["ORE"];
+            Console.WriteLine("Part A: Result is {0}", res);
+            return correctAnswer == null || res == (long)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             Dictionary<string, Reaction> input = ReadInput();
             Dictionary<string, long> chemicals = BreakDownChemicals(input, "FUEL", 1);
@@ -130,13 +134,21 @@ namespace day14
                     maxFuel = start2 + i;
             }
             Console.WriteLine("Part B: Result is {0}", maxFuel);
+            return correctAnswer == null || maxFuel == (long)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day14).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            long a = 1967319;
+            long b = 1122036;
+            return PartA(a) && PartB(b);
         }
     }
 }

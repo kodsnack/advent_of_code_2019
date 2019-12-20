@@ -9,8 +9,10 @@ using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day19
 {
-    class Day19
+    public class Day19
     {
+        readonly static string nsname = typeof(Day19).Namespace;
+
         static readonly Position goUp = new Position(0, -1);
         static readonly Position goRight = new Position(1, 0);
         static readonly Position goDown = new Position(0, 1);
@@ -139,7 +141,7 @@ namespace day19
 
         static List<long> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<long> list = new List<long>();
             string line;
@@ -222,7 +224,7 @@ namespace day19
             return pos;
         }
 
-        static void PartAB()
+        static bool PartA(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
@@ -230,17 +232,34 @@ namespace day19
             m.PrintMap();
             int a = m.mapPos.Sum(x => x.Value);
             Console.WriteLine("Part A: Result is {0}", a);
+            return correctAnswer == null || a == (int)correctAnswer;
+        }
+
+        static bool PartB(Object correctAnswer = null)
+        {
+            List<long> input = ReadInput();
+            IntComputer c0 = new IntComputer(input, 0);
+            OurMap m = BuildMap(c0, 50);
             int dy = 49;
             int dx = m.mapPos.Where(g => g.Key.y == dy && g.Value == 1).Min(g => g.Key.x);
             Position p = CalculatePosition(c0, dx - 1, dy);
             int b = p.y + p.x * 10000;
             Console.WriteLine("Part B: Result is {0}", b);
+            return correctAnswer == null || b == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day19).Namespace + ":");
-            PartAB();
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
+            PartA();
+            PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 181;
+            int b = 4240964;
+            return PartA(a) && PartB(b);
         }
     }
 }

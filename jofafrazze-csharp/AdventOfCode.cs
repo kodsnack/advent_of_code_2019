@@ -282,8 +282,9 @@ namespace AdventOfCode
             data = m.data;
         }
 
-        public void Print()
+        public string PrintToString()
         {
+            string s = "";
             for (int y = 0; y < height; y++)
             {
                 StringBuilder sb = new StringBuilder();
@@ -291,8 +292,14 @@ namespace AdventOfCode
                 {
                     sb.Append(data[x, y]);
                 }
-                Console.WriteLine(sb.ToString());
+                s += sb.ToString() + "\r\n";
             }
+            return s;
+        }
+
+        public void Print()
+        {
+            Console.WriteLine(PrintToString());
         }
     }
 

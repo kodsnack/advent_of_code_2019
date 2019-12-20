@@ -9,11 +9,13 @@ using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day08
 {
-    class Day08
+    public class Day08
     {
+        readonly static string nsname = typeof(Day08).Namespace;
+
         static List<int> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             string line = reader.ReadLine();
             return line.ToCharArray().Select(i => int.Parse(i.ToString())).ToList();
@@ -23,7 +25,7 @@ namespace day08
         static readonly int h = 6;
         static readonly int size = w * h;
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
             int nZeros = int.MaxValue;
@@ -41,6 +43,7 @@ namespace day08
             List<int> l = input.GetRange(resOffs, size);
             int sum = l.Where(i => i == 1).Count() * l.Where(i => i == 2).Count();
             Console.WriteLine("Part A: Result is {0}", sum);
+            return correctAnswer == null || sum == (int)correctAnswer;
         }
 
         static readonly Dictionary<int, char> dict = new Dictionary<int, char>()
@@ -50,7 +53,7 @@ namespace day08
             { 2, 't' },
         };
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
             Map map = new Map(w, h, new Position(0, 0), dict[2]);
@@ -69,14 +72,29 @@ namespace day08
                 //Console.WriteLine();
             }
             Console.WriteLine("Part B: Result is:");
-            map.Print();
+            string s = map.PrintToString();
+            Console.WriteLine(s);
+            return correctAnswer == null || s == (string)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day08).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 1965;
+            //string b = "GZKJY";
+            string b = " **  **** *  *   ** *   *\r\n"
+                     + "*  *    * * *     * *   *\r\n"
+                     + "*      *  **      *  * * \r\n"
+                     + "* **  *   * *     *   *  \r\n"
+                     + "*  * *    * *  *  *   *  \r\n"
+                     + " *** **** *  *  **    *  \r\n";
+            return PartA(a) && PartB(b);
         }
     }
 }

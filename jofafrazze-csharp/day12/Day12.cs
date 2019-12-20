@@ -8,11 +8,13 @@ using Position = AdventOfCode.GenericPosition3D<int>;
 
 namespace day12
 {
-    class Day12
+    public class Day12
     {
+        readonly static string nsname = typeof(Day12).Namespace;
+
         static List<Position> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<Position> list = new List<Position>();
             string line;
@@ -63,7 +65,7 @@ namespace day12
             }
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<Position> input = ReadInput();
             List<Position> pos = new List<Position>(input);
@@ -78,6 +80,7 @@ namespace day12
                 sum += pos[a].ManhattanDistance() * vel[a].ManhattanDistance();
             }
             Console.WriteLine("Part A: Result is {0}", sum);
+            return correctAnswer == null || sum == (int)correctAnswer;
         }
 
         static string GetId(List<Position> pos, List<Position> vel, Position dir)
@@ -118,7 +121,7 @@ namespace day12
             return (a / GCF(a, b)) * b;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<Position> input = ReadInput();
             HashSet<string>[] visited = Enumerable.Repeat(new HashSet<string>(), 3).ToArray();
@@ -147,13 +150,21 @@ namespace day12
             }
             long res = LCM(cycles[0], LCM(cycles[1], cycles[2]));
             Console.WriteLine("Part B: Result is {0}", res);
+            return correctAnswer == null || res == (long)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day12).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 7636;
+            long b = 281691380235984;
+            return PartA(a) && PartB(b);
         }
     }
 }

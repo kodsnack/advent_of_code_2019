@@ -9,8 +9,10 @@ using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day13
 {
-    class Day13
+    public class Day13
     {
+        readonly static string nsname = typeof(Day13).Namespace;
+
         public class IntComputer
         {
             struct OpCode
@@ -160,7 +162,7 @@ namespace day13
 
         static List<long> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<long> list = new List<long>();
             string line;
@@ -171,16 +173,17 @@ namespace day13
             return list;
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 0);
             a.Execute();
             int res = a.paintedPos.Where(x => x.Value == 2).Count();
             Console.WriteLine("Part A: Result is {0}", res);
+            return correctAnswer == null || res == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 0);
@@ -188,13 +191,21 @@ namespace day13
             a.Execute();
             Console.SetCursorPosition(0, Console.CursorTop + 1);
             Console.WriteLine("Part B: Result is {0}", a.reg);
+            return correctAnswer == null || a.reg == (long)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day13).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 398;
+            long b = 19447;
+            return PartA(a) && PartB(b);
         }
     }
 }

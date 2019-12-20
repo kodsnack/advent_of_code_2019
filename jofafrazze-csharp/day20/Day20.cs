@@ -9,8 +9,10 @@ using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day20
 {
-    class Day20
+    public class Day20
     {
+        readonly static string nsname = typeof(Day20).Namespace;
+
         static readonly Position goUp = new Position(0, -1);
         static readonly Position goRight = new Position(1, 0);
         static readonly Position goDown = new Position(0, 1);
@@ -55,7 +57,7 @@ namespace day20
 
         static List<string> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<string> list = new List<string>();
             string line;
@@ -157,27 +159,36 @@ namespace day20
             return steps[(endPos, 0)];
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<string> input = ReadInput();
             OurMap m = BuildMap(input);
             int a = FindShortestPath(m, 0);
             Console.WriteLine("Part A: Result is {0}", a);
+            return correctAnswer == null || a == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<string> input = ReadInput();
             OurMap m = BuildMap(input);
             int b = FindShortestPath(m, 1);
             Console.WriteLine("Part B: Result is {0}", b);
+            return correctAnswer == null || b == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day20).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 548;
+            int b = 6452;
+            return PartA(a) && PartB(b);
         }
     }
 }

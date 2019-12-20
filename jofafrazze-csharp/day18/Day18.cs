@@ -9,8 +9,10 @@ using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day18
 {
-    class Day18
+    public class Day18
     {
+        readonly static string nsname = typeof(Day18).Namespace;
+
         static readonly Position goUp = new Position(0, -1);
         static readonly Position goRight = new Position(1, 0);
         static readonly Position goDown = new Position(0, 1);
@@ -43,7 +45,7 @@ namespace day18
 
         static List<string> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<string> list = new List<string>();
             string line;
@@ -182,7 +184,7 @@ namespace day18
             return minSteps;
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<string> input = ReadInput();
             Map m = BuildMap(input);
@@ -191,9 +193,10 @@ namespace day18
             FindInMap(m, '@', ref p);
             int a = CollectAllKeys(m, new List<Position>() { p });
             Console.WriteLine("Part A: Result is {0}", a);
+            return correctAnswer == null || a == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<string> input = ReadInput();
             Map m = BuildMap(input);
@@ -220,13 +223,21 @@ namespace day18
             posList.Add(new Position(p.x + 2, p.y + 2));
             int b = CollectAllKeys(m, posList);
             Console.WriteLine("Part B: Result is {0}", b);
+            return correctAnswer == null || b == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day18).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 4192;
+            int b = 1790;
+            return PartA(a) && PartB(b);
         }
     }
 }

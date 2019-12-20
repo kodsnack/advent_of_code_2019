@@ -6,11 +6,13 @@ using System.Reflection;
 
 namespace day16
 {
-    class Day16
+    public class Day16
     {
+        readonly static string nsname = typeof(Day16).Namespace;
+
         static List<int> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<int> list = new List<int>();
             string line = reader.ReadLine();
@@ -70,7 +72,7 @@ namespace day16
             return fftNums.Take(8).ToArray();
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
             int[] numbers = input.ToArray();
@@ -82,9 +84,10 @@ namespace day16
             for (int i = 0; i < 8; i++)
                 ans += numbers[i].ToString();
             Console.WriteLine("Part A: Result is {0}", ans);
+            return correctAnswer == null || ans == (string)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
             int[] numbers = input.ToArray();
@@ -94,13 +97,21 @@ namespace day16
             for (int i = 0; i < 8; i++)
                 ans += res[i].ToString();
             Console.WriteLine("Part B: Result is {0}", ans);
+            return correctAnswer == null || ans == (string)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day16).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            string a = "52611030";
+            string b = "52541026";
+            return PartA(a) && PartB(b);
         }
     }
 }

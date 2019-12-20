@@ -9,8 +9,10 @@ using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day15
 {
-    class Day15
+    public class Day15
     {
+        readonly static string nsname = typeof(Day15).Namespace;
+
         static readonly Position goUp = new Position(0, -1);
         static readonly Position goRight = new Position(1, 0);
         static readonly Position goDown = new Position(0, 1);
@@ -165,7 +167,7 @@ namespace day15
 
         static List<long> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<long> list = new List<long>();
             string line;
@@ -182,7 +184,7 @@ namespace day15
             c.nextPos = c.curPos + directions[dirIndex];
         }
 
-        static OurMap BuildMap(PosComputer c1)
+        static OurMap BuildMap(PosComputer c1, bool print)
         {
             OurMap m = new OurMap();
             List<PosComputer> computers = new List<PosComputer>();
@@ -214,8 +216,11 @@ namespace day15
                     }
                 }
                 computers = newComputers;
-                Console.SetCursorPosition(0, 1);
-                m.PrintMap();
+                if (print)
+                {
+                    Console.SetCursorPosition(0, 1);
+                    m.PrintMap();
+                }
             }
             while (computers.Count > 0);
             return m;
@@ -291,24 +296,42 @@ namespace day15
             return steps.Max(x => x.Value);
         }
 
-        static void PartAB()
+        static bool PartA(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer c1 = new IntComputer(input, 0);
             PosComputer p1 = new PosComputer(c1);
-            OurMap m = BuildMap(p1);
+            OurMap m = BuildMap(p1, true);
             Console.SetCursorPosition(0, 1);
             m.PrintMap();
             int ans = CalculateStepsToTreasure(m);
             Console.WriteLine("Part A: Result is {0}", ans);
+            return correctAnswer == null || ans == (int)correctAnswer;
+        }
+
+        static bool PartB(Object correctAnswer = null)
+        {
+            List<long> input = ReadInput();
+            IntComputer c1 = new IntComputer(input, 0);
+            PosComputer p1 = new PosComputer(c1);
+            OurMap m = BuildMap(p1, false);
             int b = CalculateOxygenFillMinutes(m);
             Console.WriteLine("Part B: Result is {0}", b);
+            return correctAnswer == null || b == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day15).Namespace + ":");
-            PartAB();
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
+            PartA();
+            PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 308;
+            int b = 328;
+            return PartA(a) && PartB(b);
         }
     }
 }

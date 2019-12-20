@@ -9,8 +9,10 @@ using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day11
 {
-    class Day11
+    public class Day11
     {
+        readonly static string nsname = typeof(Day11).Namespace;
+
         public class IntComputer
         {
             static readonly Position goUp = new Position(0, -1);
@@ -116,7 +118,7 @@ namespace day11
                 return;
             }
 
-            public void PrintPanel()
+            public string PrintPanel()
             {
                 int x0 = int.MaxValue;
                 int x1 = int.MinValue;
@@ -138,13 +140,13 @@ namespace day11
                     Position p = kvp.Key;
                     map.data[p.x - x0, p.y - y0] = (kvp.Value == 0 ? ' ' : '#');
                 }
-                map.Print();
+                return map.PrintToString();
             }
         }
 
         static List<long> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<long> list = new List<long>();
             string line;
@@ -155,29 +157,45 @@ namespace day11
             return list;
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 0);
             a.Execute();
             Console.WriteLine("Part A: Result is {0}", a.paintedPos.Count);
+            return correctAnswer == null || a.paintedPos.Count == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 0);
             a.paintedPos[new Position(0, 0)] = 1;
             a.Execute();
             Console.WriteLine("Part B: Result is:");
-            a.PrintPanel();
+            string s = a.PrintPanel();
+            Console.WriteLine(s);
+            return correctAnswer == null || s == (string)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day11).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 2293;
+            //string b = "AHLCPRAL";
+            string b = "  ##  #  # #     ##  ###  ###   ##  #      \r\n"
+                     + " #  # #  # #    #  # #  # #  # #  # #      \r\n"
+                     + " #  # #### #    #    #  # #  # #  # #      \r\n"
+                     + " #### #  # #    #    ###  ###  #### #      \r\n"
+                     + " #  # #  # #    #  # #    # #  #  # #      \r\n"
+                     + " #  # #  # ####  ##  #    #  # #  # ####   \r\n";
+            return PartA(a) && PartB(b);
         }
     }
 }

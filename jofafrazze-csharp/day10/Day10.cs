@@ -8,12 +8,14 @@ using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day10
 {
-    class Day10
+    public class Day10
     {
+        readonly static string nsname = typeof(Day10).Namespace;
+
         static List<Position> ReadInput()
         {
             List<Position> list = new List<Position>();
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             string line;
             int y = 0;
@@ -38,7 +40,7 @@ namespace day10
 
         static Position bestPos = new Position();
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<Position> input = ReadInput();
             int maxAsteroids = int.MinValue;
@@ -63,9 +65,10 @@ namespace day10
                 }
             }
             Console.WriteLine("Part A: Result is {0} (at Position {1},{2}).", maxAsteroids, bestPos.x, bestPos.y);
+            return correctAnswer == null || maxAsteroids == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<Position> input = ReadInput();
             Position c = bestPos;
@@ -101,13 +104,21 @@ namespace day10
             Position resPos = c + resDelta;
             int res = resPos.x * 100 + resPos.y;
             Console.WriteLine("Part B: Result is {0}", res);
+            return correctAnswer == null || res == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day10).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 280;
+            int b = 706;
+            return PartA(a) && PartB(b);
         }
     }
 }

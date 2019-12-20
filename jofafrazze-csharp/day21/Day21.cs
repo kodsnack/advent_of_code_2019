@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace day01 
+//using AdventOfCode;
+//using Position = AdventOfCode.GenericPosition2D<int>;
+
+namespace day21
 {
-    public class Day01
+    public class Day21
     {
-        readonly static string nsname = typeof(Day01).Namespace;
+        readonly static string nsname = typeof(Day21).Namespace;
 
         static List<int> ReadInput()
         {
@@ -17,7 +24,7 @@ namespace day01
             string line;
             while ((line = reader.ReadLine()) != null)
             {
-                list.Add(int.Parse(line));
+                list.AddRange(line.Split(',').Select(int.Parse).ToList());
             }
             return list;
         }
@@ -25,36 +32,16 @@ namespace day01
         static bool PartA(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
-            int i = 0;
-            int sum = 0;
-            while (i >= 0 && i < input.Count)
-            {
-                int add = input[i];
-                sum += (add / 3) - 2;
-                i++;
-            }
-            Console.WriteLine("Part A: Result is {0}", sum);
-            return correctAnswer == null || sum == (int)correctAnswer;
+            int ans = 0;
+            Console.WriteLine("Part A: Result is {0}", ans);
+            return correctAnswer == null || ans == (int)correctAnswer;
         }
 
         static bool PartB(Object correctAnswer = null)
         {
-            List<int> input = ReadInput();
-            int i = 0;
-            int sum = 0;
-            while (i >= 0 && i < input.Count)
-            {
-                int w = input[i];
-                do
-                {
-                    w = (w / 3) - 2;
-                    sum += Math.Max(0, w);
-                }
-                while (w > 0);
-                i++;
-            }
-            Console.WriteLine("Part B: Result is {0}", sum);
-            return correctAnswer == null || sum == (int)correctAnswer;
+            int ans = 0;
+            Console.WriteLine("Part B: Result is {0}", ans);
+            return correctAnswer == null || ans == (int)correctAnswer;
         }
 
         static void Main(string[] args)

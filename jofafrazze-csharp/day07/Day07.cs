@@ -8,8 +8,10 @@ using AdventOfCode;
 
 namespace day07
 {
-    class Day07
+    public class Day07
     {
+        readonly static string nsname = typeof(Day07).Namespace;
+
         public class Amplifier
         {
             public List<int> mem;
@@ -29,7 +31,7 @@ namespace day07
 
         static List<int> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<int> list = new List<int>();
             string line;
@@ -148,7 +150,7 @@ namespace day07
             return false;
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
             List<int> phases = Enumerable.Range(0, 5).ToList();
@@ -167,9 +169,10 @@ namespace day07
                     maxSignal = signal;
             }
             Console.WriteLine("Part A: Result is {0}", maxSignal);
+            return correctAnswer == null || maxSignal == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
             List<int> phases = Enumerable.Range(5, 5).ToList();
@@ -193,13 +196,21 @@ namespace day07
                 }
             }
             Console.WriteLine("Part B: Result is {0}", lastOutput);
+            return correctAnswer == null || lastOutput == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day07).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 914828;
+            int b = 17956613;
+            return PartA(a) && PartB(b);
         }
     }
 }
