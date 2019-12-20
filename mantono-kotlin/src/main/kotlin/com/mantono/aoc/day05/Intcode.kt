@@ -39,17 +39,17 @@ enum class OpCode(
         addr+2
     }),
     JUMP_IF_TRUE(5, { mem, addr, _, _ ->
-        if(mem[addr+1] != 0) {
-            val modes: List<Mode> = Mode.parse(mem[addr])
-            mem.read(modes[0], addr+2)
+        val modes: List<Mode> = Mode.parse(mem[addr])
+        if(mem.read(modes[0], addr+1) != 0) {
+            mem.read(modes[1], addr+2)
         } else {
             addr+3
         }
     }),
     JUMP_IF_FALSE(6, { mem, addr, _, _ ->
-        if(mem[addr+1] == 0) {
-            val modes: List<Mode> = Mode.parse(mem[addr])
-            mem.read(modes[0], addr+2)
+        val modes: List<Mode> = Mode.parse(mem[addr])
+        if(mem.read(modes[0], addr+1) == 0) {
+            mem.read(modes[1], addr+2)
         } else {
             addr+3
         }
