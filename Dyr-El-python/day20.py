@@ -10,15 +10,14 @@ def lineParse(s, f, fp):
         raise s
     return tuple(map(f, m.groups()))
 
-def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
-    return tuple(map(lambda x:f(x, ff, fp), inp.splitlines()))
-
+def fileParse(inp):
+    return list(inp.splitlines())
 ## End of header boilerplate ###################################################
 
 def mapMaze(s):
     mz = dict()
     for y,line in enumerate(s):
-        for x, c in enumerate(line[0]):
+        for x, c in enumerate(line):
             if c != ' ':
                 mz[x,y] = c
     return mz
@@ -39,8 +38,12 @@ def findTeleporters(mz):
                         loc[nm].append((x, y, x-dx, y-dy))
                     else:
                         loc[nm] = [(x, y, x-dx, y-dy)]
+    for l in loc.values():
+        if len(l) != 2: continue
+        mz[l[0][0],l[0][1]] = (l[1][2], l[1][3])
+        mz[l[1][0],l[1][1]] = (l[0][2], l[0][3])
     print(loc)
-    return loc['AA'], loc['ZZ']
+    return loc['AA'][0][:2], loc['ZZ'][0][:2]
 
 def colorMap(mz, start, stop):
     d = collections.deque()
@@ -53,7 +56,7 @@ def colorMap(mz, start, stop):
         for dx, dy in ((0,1),(1,0),(-1,0),(0,-1)):
             nx, ny = x+dx, y+dy
             if (nx, ny) == stop:
-                return v[x,y] + 1
+                return v[x,y] -1
             if (nx, ny) not in mz:
                 continue
             if isinstance(mz[nx, ny], tuple):
@@ -64,6 +67,20 @@ def colorMap(mz, start, stop):
                 continue
             v[nx, ny] = v[x, y]+1
             d.append((nx, ny))
+    for y in range(100):
+        for x in range(100):
+            if (x, y) in v:
+                c = '+'
+            elif (x, y) in mz:
+                c = mz[x,y]
+                if isinstance(c, tuple):
+                    c = '*'
+                if len(c) != 1:
+                    c = '?'
+            else:
+                c = ' '
+            print(c, end='')
+        print()
 
 def part1(pinp):
     mz = mapMaze(pinp)
@@ -78,27 +95,46 @@ def part2(pinp):
 
 if __name__ == "__main__":
     inp = readInput()
-    inp = """         A           
-         A           
-  #######.#########  
-  #######.........#  
-  #######.#######.#  
-  #######.#######.#  
-  #######.#######.#  
-  #####  B    ###.#  
-BC...##  C    ###.#  
-  ##.##       ###.#  
-  ##...DE  F  ###.#  
-  #####    G  ###.#  
-  #########.#####.#  
-DE..#######...###.#  
-  #.#########.###.#  
-FG..#########.....#  
-  ###########.#####  
-             Z       
-             Z       """
+#     inp = """                   A               
+#                    A               
+#   #################.#############  
+#   #.#...#...................#.#.#  
+#   #.#.#.###.###.###.#########.#.#  
+#   #.#.#.......#...#.....#.#.#...#  
+#   #.#########.###.#####.#.#.###.#  
+#   #.............#.#.....#.......#  
+#   ###.###########.###.#####.#.#.#  
+#   #.....#        A   C    #.#.#.#  
+#   #######        S   P    #####.#  
+#   #.#...#                 #......VT
+#   #.#.#.#                 #.#####  
+#   #...#.#               YN....#.#  
+#   #.###.#                 #####.#  
+# DI....#.#                 #.....#  
+#   #####.#                 #.###.#  
+# ZZ......#               QG....#..AS
+#   ###.###                 #######  
+# JO..#.#.#                 #.....#  
+#   #.#.#.#                 ###.#.#  
+#   #...#..DI             BU....#..LF
+#   #####.#                 #.#####  
+# YN......#               VT..#....QG
+#   #.###.#                 #.###.#  
+#   #.#...#                 #.....#  
+#   ###.###    J L     J    #.#.###  
+#   #.....#    O F     P    #.#...#  
+#   #.###.#####.#.#####.#####.###.#  
+#   #...#.#.#...#.....#.....#.#...#  
+#   #.#####.###.###.#.#.#########.#  
+#   #...#.#.....#...#.#.#.#.....#.#  
+#   #.###.#####.###.###.#.#.#######  
+#   #.#.........#...#.............#  
+#   #########.###.###.#############  
+#            B   J   C               
+#            U   P   P               """
     
     ## Update for input specifics ##############################################
+    print(inp)
     parseInp = fileParse(inp)
 
     print("Input is '" + str(parseInp[:10])[:100] + 
