@@ -8,6 +8,7 @@ module Utils
     , angleSort
     , paintGrid
     , binarySearch
+    , dirs
     )
 where
 
@@ -22,6 +23,8 @@ import qualified Queue                       as Q
 
 genGrid f (minX, minY, maxX, maxY) = map (map f) (line <$> [minY .. maxY])
     where line y = map (, y) [minX .. maxX]
+
+dirs (x, y) = [(x + 1, y), (x - 1, y), (x, y - 1), (x, y + 1)]
 
 
 bfs :: Ord k => (k -> [k]) -> [k] -> M.Map k Int
