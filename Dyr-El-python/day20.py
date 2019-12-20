@@ -24,26 +24,34 @@ def mapMaze(s):
 
 def findTeleporters(mz):
     loc = dict()
-    for x,y in mz.keys():
-        if isinstance(mz[x, y], str) and mz[x,y].isupper():
-            print(mz[x,y])
+    for (x, y), value in mz.items():
+        if isinstance(value, str) and value.isupper():
             for dx, dy in ((0,1),(1,0),(-1,0),(0,-1)):
-                cc = mz.get((x+dx, y+dy), '')
-                if isinstance(cc, tuple): continue 
-                if (cc.isupper() and 
-                    mz.get((x-dx, y-dy), '') == '.'):
-                    nm = (mz[min(x, x+dx),min(y, y+dy)] + 
-                          mz[max(x+dx, x), max(y+dy, y)])
-                    if nm in loc:
-                        loc[nm].append((x, y, x-dx, y-dy))
-                    else:
-                        loc[nm] = [(x, y, x-dx, y-dy)]
+                nxtChar = mz.get((x+dx, y+dy), '')
+                if isinstance(nxtChar, tuple): continue 
+                prevChar = mz.get((x-dx, y-dy), '')
+                if (nxtChar.isupper() and prevChar == '.'):
+                    name = (mz[min(x, x+dx),min(y, y+dy)] + 
+                            mz[max(x+dx, x), max(y+dy, y)])
+                    if name not in loc:
+                        loc[name] = list()
+                    loc[name].append(((x, y), (x-dx, y-dy)))
     for l in loc.values():
         if len(l) != 2: continue
-        mz[l[0][0],l[0][1]] = (l[1][2], l[1][3])
-        mz[l[1][0],l[1][1]] = (l[0][2], l[0][3])
-    print(loc)
-    return loc['AA'][0][:2], loc['ZZ'][0][:2]
+        mz[l[0][0]] = l[1][1]
+        mz[l[1][0]] = l[0][1]
+    return loc['AA'][0][0], loc['ZZ'][0][0]
+
+def findTeleportersD(mz):
+    start, stop = findTeleporters(mz)
+    minx = min((c[0] for c in mz.keys()))
+    maxx = max((c[0] for c in mz.keys()))
+    miny = min((c[1] for c in mz.keys()))
+    maxy = max((c[1] for c in mz.keys()))
+    portalLocations = [key for key in mz.keys() if isinstance(mz[key], tuple)]
+    for x, y in portalLocations:
+        mz[x, y] = mz[x, y] + (abs(x - minx) < 2 or abs(x - maxx) < 2 or abs(y - miny) < 2 or abs(y - maxy) < 2,)
+    return start, stop
 
 def colorMap(mz, start, stop):
     d = collections.deque()
@@ -67,74 +75,55 @@ def colorMap(mz, start, stop):
                 continue
             v[nx, ny] = v[x, y]+1
             d.append((nx, ny))
-    for y in range(100):
-        for x in range(100):
-            if (x, y) in v:
-                c = '+'
-            elif (x, y) in mz:
-                c = mz[x,y]
-                if isinstance(c, tuple):
-                    c = '*'
-                if len(c) != 1:
-                    c = '?'
-            else:
-                c = ' '
-            print(c, end='')
-        print()
+
+def colorMapD(mz, start, stop):
+    maxLevel = len([t for t in mz.values() if isinstance(t, tuple)])//2
+    d = collections.deque()
+    d.append(start+(0, ))
+    v = dict()
+    v[start+(0, )] = 0
+    while len(d)>0:
+        cur = d.popleft()
+        x, y, lvl = cur
+        for dx, dy in ((0,1),(1,0),(-1,0),(0,-1)):
+            nx, ny, nlvl = x+dx, y+dy, lvl
+            if (nx, ny) == stop and lvl == 0:
+                return v[x,y,lvl] - 1
+            if (nx, ny) not in mz:
+                continue
+            if isinstance(mz[nx, ny], tuple):
+                nx, ny, outer =  mz[nx, ny]
+                if outer:
+                    if lvl == 0:
+                        continue
+                    nlvl -= 1
+                else:
+                    if lvl == maxLevel:
+                        continue
+                    nlvl += 1
+            if mz[nx, ny] != '.':
+                continue
+            if (nx, ny, nlvl) in v and v[x, y, lvl] + 1 >= v[nx, ny, nlvl]:
+                continue
+            v[nx, ny, nlvl] = v[x, y, lvl]+1
+            d.append((nx, ny, nlvl))
 
 def part1(pinp):
     mz = mapMaze(pinp)
     start, stop = findTeleporters(mz)
-    print(start, stop)
     return colorMap(mz, start, stop)
 
 def part2(pinp):
-    return "<solution2>"
+    mz = mapMaze(pinp)
+    start, stop = findTeleportersD(mz)
+    return colorMapD(mz, start, stop)
 
 ## Start of footer boilerplate #################################################
 
 if __name__ == "__main__":
     inp = readInput()
-#     inp = """                   A               
-#                    A               
-#   #################.#############  
-#   #.#...#...................#.#.#  
-#   #.#.#.###.###.###.#########.#.#  
-#   #.#.#.......#...#.....#.#.#...#  
-#   #.#########.###.#####.#.#.###.#  
-#   #.............#.#.....#.......#  
-#   ###.###########.###.#####.#.#.#  
-#   #.....#        A   C    #.#.#.#  
-#   #######        S   P    #####.#  
-#   #.#...#                 #......VT
-#   #.#.#.#                 #.#####  
-#   #...#.#               YN....#.#  
-#   #.###.#                 #####.#  
-# DI....#.#                 #.....#  
-#   #####.#                 #.###.#  
-# ZZ......#               QG....#..AS
-#   ###.###                 #######  
-# JO..#.#.#                 #.....#  
-#   #.#.#.#                 ###.#.#  
-#   #...#..DI             BU....#..LF
-#   #####.#                 #.#####  
-# YN......#               VT..#....QG
-#   #.###.#                 #.###.#  
-#   #.#...#                 #.....#  
-#   ###.###    J L     J    #.#.###  
-#   #.....#    O F     P    #.#...#  
-#   #.###.#####.#.#####.#####.###.#  
-#   #...#.#.#...#.....#.....#.#...#  
-#   #.#####.###.###.#.#.#########.#  
-#   #...#.#.....#...#.#.#.#.....#.#  
-#   #.###.#####.###.###.#.#.#######  
-#   #.#.........#...#.............#  
-#   #########.###.###.#############  
-#            B   J   C               
-#            U   P   P               """
     
     ## Update for input specifics ##############################################
-    print(inp)
     parseInp = fileParse(inp)
 
     print("Input is '" + str(parseInp[:10])[:100] + 
