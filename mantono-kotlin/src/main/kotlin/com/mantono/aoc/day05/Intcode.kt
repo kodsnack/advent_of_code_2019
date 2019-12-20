@@ -55,10 +55,18 @@ enum class OpCode(
         }
     }),
     LESS_THAN(7, { mem, addr, _, _ ->
-        TODO("Opcode 7 not done yet")
+        val modes: List<Mode> = Mode.parse(mem[addr])
+        val first: kotlin.Int = mem.read(modes[0], addr+1)
+        val second: kotlin.Int = mem.read(modes[1], addr+2)
+        mem[addr+3] = if(first < second) 1 else 0
+        addr+4
     }),
     EQUALS(8, { mem, addr, _, _ ->
-        TODO("Opcode 8 not done yet")
+        val modes: List<Mode> = Mode.parse(mem[addr])
+        val first: Int = mem.read(modes[0], addr+1)
+        val second: Int = mem.read(modes[1], addr+2)
+        mem[addr+3] = if(first == second) 1 else 0
+        addr+4
     }),
     HALT(99, { mem, _, _, _ ->
         mem[0]
@@ -119,7 +127,7 @@ tailrec fun parseData(
     input: Deque<Int>,
     output: Deque<Int> = LinkedList()
 ): Int {
-    Thread.sleep(200L)
+    Thread.sleep(2L)
     dumpMemory(memory, pointer)
     val opCode = OpCode.parse(memory[pointer])
     val pointerMoved: Int = opCode.execute(memory, pointer, input, output)
