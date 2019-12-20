@@ -107,12 +107,7 @@ def get_moves(grid, height, width):
             direction = (direction - 1) % 4
             currdir = directions[direction]
             continue
-        for y in range(height):
-            for x in range(width):
-                if (y, x) in seen:
-                    grid[y][x] = 88
-        return moves
-
+    moves += 'F' #Fugly hack.
     return moves
 
 
@@ -162,7 +157,7 @@ def programify(infused):
             infprime = infprime[:-1]
 
         bstart = 0
-        while infprime[bstart] in 'A,':
+        while infprime[bstart] not in 'FLR':
             bstart += 1
 
         for blen in range(5, 21):
@@ -182,12 +177,25 @@ def programify(infused):
                 infbis = infbis[:-1]
 
             cstart = 0
-            while infbis[cstart] in 'AB,':
+            while infbis[cstart] not in 'FLR':
                 cstart += 1
 
             clen = 5
 
-            while infbis[cstart + clen]
+            while cstart + clen < len(infbis) - 1 and infbis[cstart + clen + 1] not in 'AB':
+                clen += 1
+
+            c = infbis[cstart:cstart + clen]
+
+            inftris = str(infbis)
+
+            while c in inftris:
+                inftris = inftris.replace(c, 'C,')
+
+            if all(char in  'ABC,' for char in inftris):
+                if inftris[-1] == ',':
+                    inftris = inftris[:-1]
+                return inftris.replace(',,', ','), a, b, c
 
 
 def solve(d):
@@ -196,10 +204,7 @@ def solve(d):
     grid, height, width = get_grid(exploreputer)
     moves = get_moves(grid, height, width)
 
-    funca = 'R,8,L,12,R,8'
-    funcb = 'L,10,L,10,R,8'
-    funcc = 'L,12,L,12,L,10,R,10'
-    movement = 'A,A,B,C,B,C,B,A,C,A'
+    movement, funca, funcb, funcc = programify(infuse_numbers(moves))
 
     inputs = []
 
