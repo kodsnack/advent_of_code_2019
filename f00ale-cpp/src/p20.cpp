@@ -108,7 +108,6 @@ void p20(std::istream & is) {
         auto [p, step, teleported, level] = q.front();
         q.pop();
         if(level < 0) continue;
-        if(level > 20) continue; //debug!
         auto [x,y] = p;
         if(p == goal && level == 0) {
             ans1 = step;
@@ -130,7 +129,7 @@ void p20(std::istream & is) {
                 //std::cout << "portal endpoint not found" << std::endl;
             } else {
                 int ld = 0;
-                if(x == 2 || x == map[y].size()-2 || y == 2 || y == map.size()-2) ld = -1;
+                if(x == 2 || x == map[y].size()-3 || y == 2 || y == map.size()-3) ld = -1;
                 else ld = 1;
                 q.emplace(it->second, step+1, true, level+ld);
                 auto [nx,ny] = it->second;
