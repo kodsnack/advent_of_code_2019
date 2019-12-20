@@ -99,37 +99,45 @@ void p20(std::istream & is) {
         auto [x,y] = t1;
         map[y][x] = 'P';
     }
-    //map[sy][sx] = '.';
     for(auto & s : map) std::cout << s << std::endl;
 
-    std::queue<std::tuple<std::tuple<int,int>, int, bool>> q;
-    q.emplace(std::tuple(start, 0, true));
-    std::set<std::tuple<int,int>> visited;
+    std::queue<std::tuple<std::tuple<int,int>, int, bool, int>> q;
+    q.emplace(std::tuple(start, 0, true, 0));
+    std::set<std::tuple<int,int,int>> visited;
     while(!q.empty()) {
-        auto [p, step, teleported] = q.front();
+        auto [p, step, teleported, level] = q.front();
         q.pop();
+        if(level < 0) continue;
+        if(level > 20) continue; //debug!
         auto [x,y] = p;
-        if(p == goal) {
+        if(p == goal && level == 0) {
             ans1 = step;
             break;
         }
-        if(visited.count(p)) continue;
-        visited.emplace(p);
+        auto pp = std::tuple(x,y,level);
+        if(visited.count(pp)) continue;
+        visited.emplace(pp);
 
         if(map[y][x] == '.' || teleported) {
-            q.emplace(std::tuple(x+1,y), step+1, false);
-            q.emplace(std::tuple(x-1,y), step+1, false);
-            q.emplace(std::tuple(x,y+1), step+1, false);
-            q.emplace(std::tuple(x,y-1), step+1, false);
+            q.emplace(std::tuple(x+1,y), step+1, false, level);
+            q.emplace(std::tuple(x-1,y), step+1, false, level);
+            q.emplace(std::tuple(x,y+1), step+1, false, level);
+            q.emplace(std::tuple(x,y-1), step+1, false, level);
         } else if(map[y][x]=='P') {
             // portal
             auto it = portals.find(p);
             if(it == portals.end()) {
-                std::cout << "portal endpoint not found" << std::endl;
+                //std::cout << "portal endpoint not found" << std::endl;
             } else {
-                q.emplace(it->second, step+1, true);
+                int ld = 0;
+                if(x == 2 || x == map[y].size()-2 || y == 2 || y == map.size()-2) ld = -1;
+                else ld = 1;
+                q.emplace(it->second, step+1, true, level+ld);
                 auto [nx,ny] = it->second;
-                std::cout << " teleport " << x << ',' << y << " -> " << nx << ',' << ny << std::endl;
+
+                auto fn = portalnames[p];
+
+                std::cout << " teleport " << x << ',' << y << " -> " << nx << ',' << ny << " " << " " <<  fn[0] << fn[1] << " " << level+ld << std::endl;
             }
         }
     }
