@@ -126,8 +126,10 @@ def infuse_numbers(moves):
                 lens = str(currlen)
                 for cc in list(lens):
                     new.append(cc)
+                new.append(',')
                 currlen = 0
             new.append(c)
+            new.append(',')
         else:
             currlen += 1
 
@@ -136,7 +138,56 @@ def infuse_numbers(moves):
         for cc in list(lens):
             new.append(cc)
 
-    return new
+    if new[-1] == ',':
+        new = new[:-1]
+   
+    return ''.join(new)
+
+
+def programify(infused):
+    for alen in range(5, 21):
+        a = infused[:alen]
+
+        atimes = infused.count(a)
+
+        if atimes < 2:
+            continue
+
+        infprime = str(infused)
+
+        while a in infprime:
+            infprime = infprime.replace(a, 'A,')
+
+        if infprime[-1] == ',':
+            infprime = infprime[:-1]
+
+        bstart = 0
+        while infprime[bstart] in 'A,':
+            bstart += 1
+
+        for blen in range(5, 21):
+            b = infprime[bstart:bstart + blen]
+
+            btimes = infprime.count(b)
+
+            if btimes < 2:
+                continue
+
+            infbis = str(infprime)
+
+            while b in infbis:
+                infbis = infbis.replace(b, 'B,')
+
+            if infbis[-1] == ',':
+                infbis = infbis[:-1]
+
+            cstart = 0
+            while infbis[cstart] in 'AB,':
+                cstart += 1
+
+            clen = 5
+
+            while infbis[cstart + clen]
 
 
 def solve(d):
