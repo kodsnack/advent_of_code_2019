@@ -5,37 +5,18 @@ from collections import Counter, defaultdict
 from intcode import Computer
 
 
-def solve(d):
-    # instructions =
-    # [
-    #     'AND A T', 
-    #     'AND B T', 
-    #     'AND C T', 
-    #     'AND D T', 
-    #     'AND T T', 
-    #     'AND J T', 
-    # ]
-    
-    inp = """NOT A T
-NOT B J
-OR J T
-NOT C J
-OR J T
-OR T J
+def solve(d):    
+    inp = """OR E J
+OR H J
 AND D J
-AND H J
-OR J T
-AND J T
-AND E T
-AND F T
-AND G T
-AND J T
+OR A T
+AND B T
+AND C T
 NOT T T
 AND T J
 RUN
 """
     p = 0
-    out = []
     steps = 0
 
     computer = Computer(d, ord(inp[p]))
@@ -53,11 +34,11 @@ RUN
                 computer.set_input(ord(inp[p]))
 
         if retcode == 1:
+            if retval > 255:
+                return retval
             print(chr(retval), end='')
-            # out.append(retval)
 
     return steps
-    # return ''.join(map(chr, out))
     
 
 def read_and_solve():

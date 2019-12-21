@@ -5,17 +5,7 @@ from collections import Counter, defaultdict
 from intcode import Computer
 
 
-def solve(d):
-    # instructions =
-    # [
-    #     'AND A T', 
-    #     'AND B T', 
-    #     'AND C T', 
-    #     'AND D T', 
-    #     'AND T T', 
-    #     'AND J T', 
-    # ]
-    
+def solve(d):    
     inp = """OR D J
 OR A T
 AND B T
