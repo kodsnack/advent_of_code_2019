@@ -3,23 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-using AdventOfCode;
-using Position = AdventOfCode.GenericPosition2D<int>;
-
-namespace day19
+namespace day21
 {
-    public class Day19
+    public class Day21
     {
-        readonly static string nsname = typeof(Day19).Namespace;
-
-        static readonly Position goUp = new Position(0, -1);
-        static readonly Position goRight = new Position(1, 0);
-        static readonly Position goDown = new Position(0, 1);
-        static readonly Position goLeft = new Position(-1, 0);
-        static readonly List<Position> directions = new List<Position>()
-        {
-            goUp, goRight, goDown, goLeft,
-        };
+        readonly static string nsname = typeof(Day21).Namespace;
 
         public class IntComputer
         {
@@ -108,36 +96,6 @@ namespace day19
             }
         }
 
-        public class OurMap
-        {
-            public Dictionary<Position, int> mapPos;
-            public OurMap()
-            {
-                mapPos = new Dictionary<Position, int>();
-            }
-
-            public void PrintMap()
-            {
-                if (mapPos.Count == 0)
-                    return;
-                int x0 = mapPos.Min(a => a.Key.x);
-                int x1 = mapPos.Max(a => a.Key.x);
-                int y0 = mapPos.Min(a => a.Key.y);
-                int y1 = mapPos.Max(a => a.Key.y);
-                int w = x1 - x0 + 1;
-                int h = y1 - y0 + 1;
-                Map map = new Map(w, h, new Position(0, 0), '?');
-                foreach (var kvp in mapPos)
-                {
-                    Position p = kvp.Key;
-                    char c = kvp.Value == 1 ? '#' : '.';
-                    
-                    map.data[p.x - x0, p.y - y0] = c;
-                }
-                map.Print();
-            }
-        }
-
         static List<long> ReadInput()
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
@@ -151,100 +109,77 @@ namespace day19
             return list;
         }
 
-        static OurMap BuildMap(IntComputer ic, int size)
-        {
-            OurMap m = new OurMap();
-            Position curPos = new Position(0, 0);
-            for (int y = 0; y < size; y++)
-            {
-                for (int x = 0; x < size; x++)
-                {
-                    IntComputer compu = new IntComputer(ic);
-                    compu.reg = x;
-                    compu.Execute();
-                    compu.reg = y;
-                    compu.Execute();
-                    compu.Execute();
-                    int a = (int)compu.reg;
-                    m.mapPos[new Position(x, y)] = a;
-                }
-            }
-            return m;
-        }
+        // (!A + !B + !C) * D
+        static readonly string springScriptA =
+            "NOT A T\n" +
+            "OR T J\n" +
+            "NOT B T\n" +
+            "OR T J\n" +
+            "NOT C T\n" +
+            "OR T J\n" +
+            "AND D J\n" +
+            "WALK\n";
 
-        static int ReadPosition(IntComputer ic, Position pos)
-        {
-            IntComputer compu = new IntComputer(ic);
-            compu.reg = pos.x;
-            compu.Execute();
-            compu.reg = pos.y;
-            compu.Execute();
-            compu.Execute();
-            return (int)compu.reg;
-        }
+        // (!A + !B + !C) * D * (H + (E * I) + (E * F))
+        // ...rewritten as...
+        // !(A * B * C) * D * (E + H) * (F + H + I)
+        static readonly string springScriptB =
+            "NOT A J\n" +
+            "NOT J J\n" +
+            "AND B J\n" +
+            "AND C J\n" +
+            "NOT J J\n" +
+            "AND D J\n" +
+            "OR E T\n" +
+            "OR H T\n" +
+            "AND T J\n" +
+            "NOT F T\n" +
+            "NOT T T\n" +
+            "OR H T\n" +
+            "OR I T\n" +
+            "AND T J\n" +
+            "RUN\n";
 
-        static bool SquareFits(IntComputer ic, int xStart, int yMax, ref Position pos)
+        static long RunDroid(IntComputer ic, string s)
         {
-            Position dw = new Position(99, 0);
-            Position dh = new Position(0, 99);
-            Position blPos = new Position(xStart, yMax);
-            while (ReadPosition(ic, blPos) != 1)
-                blPos += goRight;
-            Position brPos = blPos + dw;
-            Position tlPos = blPos - dh;
-            Position trPos = tlPos + dw;
-            List<Position> positions = new List<Position>() { brPos, tlPos, trPos };
-            bool allFit = true;
-            foreach (Position p in positions)
-                if (ReadPosition(ic, p) != 1)
-                    allFit = false;
-            if (allFit)
-                pos = tlPos;
-            return allFit;
-        }
-
-        static Position CalculatePosition(IntComputer ic, int dx, int dy)
-        {
-            Position pos = new Position(0, 0);
-            int x = dx;
-            int y = dy;
-            while (!SquareFits(ic, x, y, ref pos))
-            {
-                x += dx;
-                y += dy;
-            }
-            x = pos.x - 1;
+            int i = 0;
+            int ret = 0;
+            long lastOut = 0;
             do
             {
-                x--;
-                y--;
+                lastOut = ic.reg;
+                ic.reg = s[Math.Min(i, s.Length - 1)];
+                ret = ic.Execute();
+                if (ret == 2)
+                {
+                    i++;
+                }
+                else if (ret == 3)
+                {
+                    if (ic.reg < 255)
+                        Console.Write((char)ic.reg);
+                }
             }
-            while (SquareFits(ic, x, y, ref pos));
-            return pos;
+            while (ret > 0);
+            return lastOut;
         }
 
         static bool PartA(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
-            OurMap m = BuildMap(c0, 50);
-            m.PrintMap();
-            int a = m.mapPos.Sum(x => x.Value);
+            long a = RunDroid(c0, springScriptA);
             Console.WriteLine("Part A: Result is {0}", a);
-            return correctAnswer == null || a == (int)correctAnswer;
+            return correctAnswer == null || a == (long)correctAnswer;
         }
 
         static bool PartB(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
-            OurMap m = BuildMap(c0, 50);
-            int dy = 49;
-            int dx = m.mapPos.Where(g => g.Key.y == dy && g.Value == 1).Min(g => g.Key.x);
-            Position p = CalculatePosition(c0, dx - 1, dy);
-            int b = p.y + p.x * 10000;
+            long b = RunDroid(c0, springScriptB);
             Console.WriteLine("Part B: Result is {0}", b);
-            return correctAnswer == null || b == (int)correctAnswer;
+            return correctAnswer == null || b == (long)correctAnswer;
         }
 
         static void Main(string[] args)
@@ -256,8 +191,8 @@ namespace day19
 
         public static bool MainTest()
         {
-            int a = 181;
-            int b = 4240964;
+            long a = 19358870;
+            long b = 1143356492;
             return PartA(a) && PartB(b);
         }
     }

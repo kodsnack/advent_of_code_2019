@@ -2,8 +2,10 @@
 
 namespace day04
 {
-    class Day04
+    public class Day04
     {
+        readonly static string nsname = typeof(Day04).Namespace;
+
         static bool TwoAdjSame(string s)
         {
             bool same = false;
@@ -58,7 +60,7 @@ namespace day04
         static readonly int inputMin = 137683;
         static readonly int inputMax = 596253;
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             int valid = 0;
             int i = inputMin;
@@ -71,9 +73,10 @@ namespace day04
             }
             while (i <= inputMax);
             Console.WriteLine("Part A: Result is {0}", valid);
+            return correctAnswer == null || valid == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             int valid = 0;
             int i = inputMin;
@@ -86,13 +89,21 @@ namespace day04
             }
             while (i <= inputMax);
             Console.WriteLine("Part B: Result is {0}", valid);
+            return correctAnswer == null || valid == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day04).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 1864;
+            int b = 1258;
+            return PartA(a) && PartB(b);
         }
     }
 }

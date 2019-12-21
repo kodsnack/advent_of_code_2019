@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 using Node = AdventOfCode.Tree.Node<string>;
 
 namespace day06
 {
-    class Day06
+    public class Day06
     {
+        readonly static string nsname = typeof(Day06).Namespace;
+
         static Dictionary<string, Node> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             Dictionary<string, Node> nodes = new Dictionary<string, Node>();
             Node GetNode(string s)
@@ -45,7 +46,7 @@ namespace day06
             return sum;
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             Dictionary<string, Node> nodes = ReadInput();
             Node top = nodes.First().Value;
@@ -53,9 +54,10 @@ namespace day06
                 top = top.parent;
             int sum = CountOrbits(top, 0);
             Console.WriteLine("Part A: Result is {0}", sum);
+            return correctAnswer == null || sum == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             Dictionary<string, Node> nodes = ReadInput();
             Dictionary<Node, int> steps = new Dictionary<Node, int>();
@@ -79,13 +81,21 @@ namespace day06
             }
             int sum = steps[n] + a;
             Console.WriteLine("Part B: Result is {0}", sum);
+            return correctAnswer == null || sum == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day06).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 251208;
+            int b = 397;
+            return PartA(a) && PartB(b);
         }
     }
 }

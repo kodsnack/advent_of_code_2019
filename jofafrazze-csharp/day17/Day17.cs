@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 using AdventOfCode;
 using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day17
 {
-    class Day17
+    public class Day17
     {
+        readonly static string nsname = typeof(Day17).Namespace;
+
         static readonly Position goUp = new Position(0, -1);
         static readonly Position goRight = new Position(1, 0);
         static readonly Position goDown = new Position(0, 1);
@@ -138,7 +139,7 @@ namespace day17
 
         static List<long> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<long> list = new List<long>();
             string line;
@@ -299,7 +300,7 @@ namespace day17
             return lastReg;
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer c1 = new IntComputer(input, 0);
@@ -309,22 +310,31 @@ namespace day17
             int ans = CalculateAlignmentParametersSum(m);
             Console.WriteLine("Part A: Result is {0}", ans);
             //BuildMovementSequence(m);
+            return correctAnswer == null || ans == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<long> input = ReadInput();
             IntComputer c2 = new IntComputer(input, 0);
             c2.mem[0] = 2;
-            int ans2 = SteerRobot(c2);
-            Console.WriteLine("Part B: Result is {0}", ans2);
+            int ans = SteerRobot(c2);
+            Console.WriteLine("Part B: Result is {0}", ans);
+            return correctAnswer == null || ans == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day17).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 2080;
+            int b = 742673;
+            return PartA(a) && PartB(b);
         }
     }
 }

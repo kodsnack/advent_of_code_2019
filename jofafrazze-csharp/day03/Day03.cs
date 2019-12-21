@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 using Position = AdventOfCode.GenericPosition2D<int>;
 
 namespace day03
 {
-    class Day03
+    public class Day03
     {
+        readonly static string nsname = typeof(Day03).Namespace;
+
         static (List<string>, List<string>) ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<string> list1 = reader.ReadLine().Split(',').ToList();
             List<string> list2 = reader.ReadLine().Split(',').ToList();
@@ -27,7 +28,7 @@ namespace day03
             { 'L', new Position(-1, 0) },
         };
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             (List<string> path1, List<string> path2) = ReadInput();
             HashSet<Position> p1visited = new HashSet<Position>();
@@ -61,9 +62,10 @@ namespace day03
                 }
             }
             Console.WriteLine("Part A: Result is {0}", minDist);
+            return correctAnswer == null || minDist == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             (List<string> path1, List<string> path2) = ReadInput();
             Dictionary<Position, int> p1steps = new Dictionary<Position, int>();
@@ -102,13 +104,21 @@ namespace day03
                 }
             }
             Console.WriteLine("Part B: Result is {0}", minSum);
+            return correctAnswer == null || minSum == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day03).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 399;
+            int b = 15678;
+            return PartA(a) && PartB(b);
         }
     }
 }

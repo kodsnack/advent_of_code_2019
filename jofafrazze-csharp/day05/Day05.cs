@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 
 namespace day05
 {
-    class Day05
+    public class Day05
     {
+        readonly static string nsname = typeof(Day05).Namespace;
+
         static List<int> ReadInput()
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"..\..\..\input.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\input.txt");
             StreamReader reader = File.OpenText(path);
             List<int> list = new List<int>();
             string line;
@@ -127,27 +128,36 @@ namespace day05
             }
         }
 
-        static void PartA()
+        static bool PartA(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
             int reg = 1;
             RunProgram(ref input, ref reg);
             Console.WriteLine("Part A: Result is {0}", reg);
+            return correctAnswer == null || reg == (int)correctAnswer;
         }
 
-        static void PartB()
+        static bool PartB(Object correctAnswer = null)
         {
             List<int> input = ReadInput();
             int reg = 5;
             RunProgram(ref input, ref reg);
             Console.WriteLine("Part B: Result is {0}", reg);
+            return correctAnswer == null || reg == (int)correctAnswer;
         }
 
         static void Main(string[] args)
         {
-            Console.WriteLine("AoC 2019 - " + typeof(Day05).Namespace + ":");
+            Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
             PartB();
+        }
+
+        public static bool MainTest()
+        {
+            int a = 7692125;
+            int b = 14340395;
+            return PartA(a) && PartB(b);
         }
     }
 }
