@@ -16,13 +16,12 @@ def solve(d):
     #     'AND J T', 
     # ]
     
-    inp = """NOT A T
-NOT B J
-OR J T
-NOT C J
-OR J T
-OR T J
-AND D J
+    inp = """OR D J
+OR A T
+AND B T
+AND C T
+NOT T T
+AND T J
 WALK
 """
     p = 0
