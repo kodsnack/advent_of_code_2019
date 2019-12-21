@@ -33,10 +33,8 @@ RUN
             if p < len(inp):
                 computer.set_input(ord(inp[p]))
 
-        if retcode == 1:
-            if retval > 255:
-                return retval
-            print(chr(retval), end='')
+        if retcode == 1 and retval > 255:
+            return retval
 
     return steps
     
