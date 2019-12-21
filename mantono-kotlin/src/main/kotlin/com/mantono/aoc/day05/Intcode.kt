@@ -58,14 +58,14 @@ enum class OpCode(
         val modes: List<Mode> = Mode.parse(mem[addr])
         val first: Int = mem.read(modes[0], addr+1)
         val second: Int = mem.read(modes[1], addr+2)
-        mem[addr+3] = if(first < second) 1 else 0
+        mem[mem[addr+3]] = if(first < second) 1 else 0
         addr+4
     }),
     EQUALS(8, { mem, addr, _, _ ->
         val modes: List<Mode> = Mode.parse(mem[addr])
         val first: Int = mem.read(modes[0], addr+1)
         val second: Int = mem.read(modes[1], addr+2)
-        mem[addr+3] = if(first == second) 1 else 0
+        mem[mem[addr+3]] = if(first == second) 1 else 0
         addr+4
     }),
     HALT(99, { mem, _, _, _ ->
