@@ -1,4 +1,4 @@
-package com.mantono.aoc.day05
+package com.mantono.aoc
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
