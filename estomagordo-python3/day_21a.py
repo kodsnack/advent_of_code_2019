@@ -26,7 +26,6 @@ AND D J
 WALK
 """
     p = 0
-    out = []
     steps = 0
 
     computer = Computer(d, ord(inp[p]))
@@ -43,12 +42,10 @@ WALK
             if p < len(inp):
                 computer.set_input(ord(inp[p]))
 
-        if retcode == 1:
-            print(chr(retval), end='')
-            # out.append(retval)
+        if retcode == 1 and retval > 255:
+            return retval
 
     return steps
-    # return ''.join(map(chr, out))
     
 
 def read_and_solve():
