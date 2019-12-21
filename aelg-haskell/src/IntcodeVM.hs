@@ -14,6 +14,7 @@ module IntcodeVM
     , VMState(..)
     , vmState
     , isHalted
+    , numStep
     )
 where
 
@@ -42,6 +43,7 @@ data VM = VM { _memory             :: S.Seq Int
              , _vmState            :: VMState
              , _vmName             :: String
              , _relBase            :: Int
+             , _numStep            :: Int
              }
 data Op = Op {runOp :: Instr -> VM -> VM, instructionLength :: Int}
 
@@ -66,7 +68,8 @@ parseInstruction i = OpCode opCode modes
 
 stepVM :: VM -> VM
 stepVM vm@VM { _memory = m, _instructionPointer = i, _instructionSet = is } =
-    runOp op instruction
+    (numStep %~ (+ 1))
+        .  runOp op instruction
         $! (vm { _instructionPointer = i + instructionLength op })
   where
     OpCode opCode mode = parseInstruction (fromJust $ S.lookup i m)
@@ -129,6 +132,7 @@ initNamedVM name inputs mem = VM
     , _vmState            = VMExecuting
     , _vmName             = name
     , _relBase            = 0
+    , _numStep            = 0
     }
 
 initVM = initNamedVM "vm"
