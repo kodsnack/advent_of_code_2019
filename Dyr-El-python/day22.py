@@ -14,81 +14,64 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
 
 ## End of header boilerplate ###################################################
 
-def dealWithInc(stack, inc):
-    newStack = stack[:]
-    for i,card in enumerate(stack):
-        newStack[(i*inc)%len(stack)] = card
-    return newStack
+def unity():
+    return ((1, 0), (0, 1))
 
-def dealWithIncC(card, inc, deckSize, offset, factor):
-    return (card * inc)%deckSize, (offset * inc)%deckSize, (factor * inc)%deckSize
+def mult(a, b, ds):
+    return (((a[0][0]*b[0][0]+a[0][1]*b[1][0])%ds,
+             (a[0][0]*b[0][1]+a[0][1]*b[1][1])%ds),
+            ((a[1][0]*b[0][0]+a[1][1]*b[1][0])%ds,
+             (a[1][0]*b[0][1]+a[1][0]*b[1][1])%ds))
 
-def dealIntoNewStack(stack):
-    return list(reversed(stack))
+def dealWithInc(inc, ds, t):
+    return ((t[0][0]*inc%ds,t[0][1]*inc%ds), (0, 1))
 
-def dealIntoNewStackC(card, deckSize, offset, factor):
-    return (-card - 1)%deckSize, (-offset - 1)%deckSize, (-factor)%deckSize
+def dealIntoNewStack(ds, t):
+    return (((-t[0][0])%ds, -t[0][1]-1), (0, 1))
 
-def cut(stack, place):
-    if place < 0:
-        return stack[place:] + stack[:place]
-    else:
-        return stack[place:] + stack[:place] 
+def cut(place, ds, t):
+    return ((t[0][0], (t[0][1]-place)%ds), (0, 1))
 
-def cutC(card, place, deckSize, offset, factor):
-    return (card - place)%deckSize, (offset - place)%deckSize, factor%deckSize
-
-def part1(pinp):
-    deck = list(range(10007))
+def createTranform(pinp, ds):
+    t = unity()
+    ds = 10007
     for i, s in enumerate(pinp):
         if s[0].startswith("deal with increment"):
-            deck = dealWithInc(deck, int(s[0].split(' ')[3]))
+            t = dealWithInc(int(s[0].split(' ')[3]), ds, t)
         elif s[0].startswith("cut"):
-            deck = cut(deck, int(s[0].split(' ')[1]))
+            t = cut(int(s[0].split(' ')[1]), ds, t)
         elif s[0].startswith("deal into new stack"):
-            deck = dealIntoNewStack(deck)
+            t = dealIntoNewStack(ds, t)
         else:
             print("Huh")
-    return deck.index(2019)
+    return t
 
-def powmod(a, b, c):
-    if b == 0:
-        return 1
-    if b == 1:
-        return a%c
-    return powmod((a*a) % c, b//2, c) * powmod(a, b%2, c)
+def transformCard(c, ds, t):
+    return (t[0][0]*c+t[0][1]*1)%ds
+
+def part1(pinp):
+    card = 2019
+    deckSize = 10007
+    t = createTranform(pinp, deckSize)
+    return transformCard(card, deckSize, t)
+
+def powerTransform(t, n, ds):
+    ret = unity()
+    pm = t
+    while n > 0:
+        if n % 2 == 1:
+            ret = mult(pm, ret, ds)
+        pm = mult(pm, pm, ds)
+        n = n // 2
+    return ret
 
 def part2(pinp):
     card = 2020
-    card = 2019
-    origCard = card
     deckSize = 119315717514047
-    deckSize = 10007
     times = 101741582076661
-    times = 1
-    offset, factor = 0, 1
-    for j in range(5):
-        offset, factor = 0, 1
-        for i, s in enumerate(pinp):
-            if s[0].startswith("deal with increment"):
-                card, offset, factor = dealWithIncC(card, int(s[0].split(' ')[3]), deckSize, offset, factor)
-                # print(i, "dwi", card, offset, factor, 2019*factor+offset)
-            elif s[0].startswith("cut"):
-                card, offset, factor = cutC(card, int(s[0].split(' ')[1]), deckSize, offset, factor)
-                # print(i, "cut", card, offset, factor, 2019*factor+offset)
-            elif s[0].startswith("deal into new stack"):
-                card, offset, factor = dealIntoNewStackC(card, deckSize, offset, factor)
-                # print(i, "dins", card, offset, factor, 2019*factor+offset)
-            else:
-                print("Huh")
-            # print(card%deckSize, (2019*factor+offset)%deckSize)
-        print(j, card, offset, factor)
-        factor2 = powmod(factor, j+1, deckSize)
-        offset2 = offset * (j+1)
-        print((origCard * factor2 + offset2)%deckSize)
-        print(j, card%deckSize, offset2%deckSize, factor2%deckSize)
-    factor = powmod(factor, times, deckSize)
-    offset = offset * times
+    t = createTranform(pinp, deckSize)
+    t = powerTransform(t, times, deckSize)
+    print(t)    
     return (2020 * factor + offset)%deckSize
 
 ## Start of footer boilerplate #################################################
