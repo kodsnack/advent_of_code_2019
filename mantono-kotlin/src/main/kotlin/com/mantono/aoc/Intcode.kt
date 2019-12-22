@@ -1,9 +1,71 @@
 package com.mantono.aoc
 
+import com.mantono.aoc.day07.dequeOf
 import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.pow
 
 typealias Execution = (memory: Memory, addr: Int, input: Deque<Int>, output: Deque<Int>) -> Int
+
+class IntCodeComputer(
+    private var memory: Memory,
+    private var pointer: Int = 0
+) {
+    private val initialMemoryState: ReadOnlyMemory = ArrayList(memory)
+
+    fun reboot(): IntCodeComputer {
+        this.memory = ArrayList(initialMemoryState)
+        this.pointer = 0
+        return this
+    }
+
+    fun run(input: Deque<Int>): Deque<Int> {
+        return executeProgram(input)
+    }
+
+    fun run(input: Int): Deque<Int> {
+        return executeProgram(dequeOf(input))
+    }
+
+    private tailrec fun executeProgram(
+        input: Deque<Int>,
+        output: Deque<Int> = LinkedList()
+    ): Deque<Int> {
+        dumpMemory(memory, pointer)
+        val opCode = OpCode.parse(memory[pointer])
+        pointer = opCode.execute(memory, pointer, input, output)
+        check(pointer in memory.indices) {
+            "Address is outside memory: $pointer"
+        }
+        if(opCode == OpCode.HALT) {
+            println(output.joinToString { it.toString() })
+            return output
+        }
+        return executeProgram(input, output)
+    }
+
+    private fun dumpMemory(memory: Memory, pointer: Int) {
+        val line: String = memory.mapIndexed { i, n ->
+            when(i) {
+                pointer -> "[$n]"
+                else -> n.toString()
+            }
+        }.joinToString(separator = ", ") { it }
+        println(line)
+    }
+
+    operator fun get(address: Int): Int = memory[address]
+
+    companion object {
+        fun loadProgram(program: String): IntCodeComputer {
+            val memory: MutableList<Int> = program.split(",")
+                .map { it.trim().toInt() }
+                .toMutableList()
+
+            return IntCodeComputer(memory)
+        }
+    }
+}
 
 enum class OpCode(
     val code: Int,
@@ -104,43 +166,4 @@ enum class Mode {
                 .toList()
         }
     }
-}
-
-fun runProgram(program: String, input: Deque<Int>): Int {
-    val memory: MutableList<Int> = program.split(",")
-        .map { it.trim().toInt() }
-        .toMutableList()
-
-    return parseData(memory, input = input)
-}
-
-fun runProgram(program: String, input: Int): Int = runProgram(program, input = LinkedList(listOf(input)))
-
-tailrec fun parseData(
-    memory: MutableList<Int>,
-    pointer: Int = 0,
-    input: Deque<Int>,
-    output: Deque<Int> = LinkedList()
-): Int {
-    dumpMemory(memory, pointer)
-    val opCode = OpCode.parse(memory[pointer])
-    val pointerMoved: Int = opCode.execute(memory, pointer, input, output)
-    check(pointerMoved in memory.indices) {
-        "Address is outside memory: $pointerMoved"
-    }
-    if(opCode == OpCode.HALT) {
-        println(output.joinToString { it.toString() })
-        return output.pop()
-    }
-    return parseData(memory, pointerMoved, input, output)
-}
-
-fun dumpMemory(memory: Memory, pointer: Int) {
-    val line: String = memory.mapIndexed { i, n ->
-        when(i) {
-            pointer -> "[$n]"
-            else -> n.toString()
-        }
-    }.joinToString(separator = ", ") { it }
-    println(line)
 }

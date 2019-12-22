@@ -1,16 +1,19 @@
 package com.mantono.aoc.day07
 
 import com.mantono.aoc.AoC
+import com.mantono.aoc.IntCodeComputer
 import com.mantono.aoc.Part
-import com.mantono.aoc.runProgram
 import java.util.*
 
 @AoC(7, Part.A)
 fun amplificationCircuit(input: String): Int {
-    return phaseSettingsGenerator()
+    return phaseSettingsGenerator(listOf(0, 1, 2, 3, 4))
         .map { setting ->
-            setting.asSequence().drop(1).fold(runProgram(input, dequeOf(setting.first, 0))) { acc: Int, i: Int ->
-                runProgram(input, dequeOf<Int>(i, acc))
+            val computer = IntCodeComputer.loadProgram(input)
+            setting.asSequence().drop(1).fold(computer.run(dequeOf(setting.first, 0)).pop()) { output: Int, phaseSetting: Int ->
+                computer.reboot()
+                val result: Deque<Int> = computer.run(dequeOf<Int>(phaseSetting, output))
+                result.pop()
             }
         }
         .sortedDescending()
@@ -18,10 +21,18 @@ fun amplificationCircuit(input: String): Int {
         .first()
 }
 
-//@AoC(5, Part.B)
-fun intCodeExtended(input: String): Int {
-    return runProgram(input, 5)
-}
+//@AoC(7, Part.B)
+//fun amplificationCircuitWithFeedBackLoop(input: String): Int {
+//    return phaseSettingsGenerator(listOf(5, 6, 7, 8, 9))
+//        .map { setting ->
+//            setting.asSequence().drop(1).fold(runProgram(input, dequeOf(setting.first, 0))) { acc: Int, i: Int ->
+//                runProgram(input, dequeOf<Int>(i, acc))
+//            }
+//        }
+//        .sortedDescending()
+//        .onEach(::println)
+//        .first()
+//}
 
 fun <T> dequeOf(vararg i: T): Deque<T> {
     val list = LinkedList<T>()
@@ -29,20 +40,20 @@ fun <T> dequeOf(vararg i: T): Deque<T> {
     return list
 }
 
-fun phaseSettingsGenerator(): Sequence<Deque<Int>> {
-    val range = IntProgression.fromClosedRange(1234, 43210, 9)
+fun phaseSettingsGenerator(configuration: List<Int>): Sequence<Deque<Int>> {
+    val from: Int = configuration.sorted().joinToString(separator = "") { it.toString() }.toInt()
+    val to: Int = configuration.sortedDescending().joinToString(separator = "") { it.toString() }.toInt()
+    val range = IntProgression.fromClosedRange(from, to, 9)
     return range.asSequence()
-        .filter(::onTarget)
+        .filter { onTarget(it, configuration) }
         .map { it.toString().padStart(5, '0') }
         .map { number -> number.map { digit -> digit.toString().toInt() } }
         .map { LinkedList(it) }
 }
 
-private fun onTarget(i: Int): Boolean {
-    val string = i.toString().padStart(5, '0')
-    return string.run {
-        contains("0") && contains("1") && contains("2") && contains("3") && contains("4")
-    }
+private fun onTarget(i: Int, configuration: List<Int>): Boolean {
+    val digits: List<Int> = i.toString().padStart(5, '0').map { it.toString().toInt() }.sorted()
+    return digits == configuration.sorted()
 }
 
 //fun factorial(i: Int): Int = if(i == 1) i * 1 else i * factorial(i - 1)

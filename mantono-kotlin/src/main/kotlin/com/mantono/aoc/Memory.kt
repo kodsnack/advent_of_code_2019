@@ -1,6 +1,7 @@
 package com.mantono.aoc
 
 typealias Memory = MutableList<Int>
+typealias ReadOnlyMemory = List<Int>
 
 fun Memory.read(mode: Mode, address: Int): Int {
     return when(mode) {
