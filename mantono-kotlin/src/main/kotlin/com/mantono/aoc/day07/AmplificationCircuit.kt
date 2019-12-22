@@ -3,6 +3,7 @@ package com.mantono.aoc.day07
 import com.mantono.aoc.AoC
 import com.mantono.aoc.IntCodeComputer
 import com.mantono.aoc.Part
+import com.mantono.aoc.State
 import java.util.*
 
 @AoC(7, Part.A)
@@ -17,22 +18,30 @@ fun amplificationCircuit(input: String): Int {
             }
         }
         .sortedDescending()
-        .onEach(::println)
         .first()
 }
 
-//@AoC(7, Part.B)
-//fun amplificationCircuitWithFeedBackLoop(input: String): Int {
-//    return phaseSettingsGenerator(listOf(5, 6, 7, 8, 9))
-//        .map { setting ->
-//            setting.asSequence().drop(1).fold(runProgram(input, dequeOf(setting.first, 0))) { acc: Int, i: Int ->
-//                runProgram(input, dequeOf<Int>(i, acc))
-//            }
-//        }
-//        .sortedDescending()
-//        .onEach(::println)
-//        .first()
-//}
+@AoC(7, Part.B)
+fun amplificationCircuitWithFeedBackLoop(input: String): Int {
+    return phaseSettingsGenerator(listOf(5, 6, 7, 8, 9))
+        .map { runWithFeedbackLoop(it, input) }
+        .sortedDescending()
+        .first()
+}
+
+fun runWithFeedbackLoop(settings: Deque<Int>, program: String): Int {
+    val computers: Array<IntCodeComputer> = Array(5) { IntCodeComputer.loadProgram(program) }
+    var signal: Int = 0
+    var i: Int = 0
+    while(computers.last().state() != State.Halted) {
+        signal = if(settings.isNotEmpty()) {
+            computers[i++ % 5].run(dequeOf(settings.pop(), signal)).pop()
+        } else {
+            computers[i++ % 5].run(signal).pop()
+        }
+    }
+    return signal
+}
 
 fun <T> dequeOf(vararg i: T): Deque<T> {
     val list = LinkedList<T>()
@@ -55,22 +64,3 @@ private fun onTarget(i: Int, configuration: List<Int>): Boolean {
     val digits: List<Int> = i.toString().padStart(5, '0').map { it.toString().toInt() }.sorted()
     return digits == configuration.sorted()
 }
-
-//fun factorial(i: Int): Int = if(i == 1) i * 1 else i * factorial(i - 1)
-//
-//private fun List<Int>.next(): List<Int>? {
-//    if(this == listOf(4, 3, 2, 1, 0)) {
-//        return null
-//    }
-//    val nextList: MutableList<Int> = ArrayList(this)
-//    val (i0, i1) = this.indices.reversed()
-//        .asSequence()
-//        .zipWithNext { i0, i1 -> Pair(i0, i1) }
-//        .first { (i0, i1) -> this[i0] > this[i1] }
-//
-//    val value0 = this[i0]
-//    val value1 = this[i1]
-//    nextList[i0] = value1
-//    nextList[i1] = value0
-//    return nextList
-//}

@@ -22,32 +22,32 @@ class IntCodeComputerTest {
     fun testJumpProgramWithPositionModeAndZeroInput() {
         val program = "3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9"
         val input = 0
-        val output = runProgram(program, input)
-        assertEquals(0, output)
+        val output = IntCodeComputer.loadProgram(program).run(input)
+        assertEquals(0, output.pop())
     }
 
     @Test
     fun testJumpProgramWithPositionModeAndNonZeroInput() {
         val program = "3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9"
         val input = 5
-        val output = runProgram(program, input)
-        assertEquals(1, output)
+        val output = IntCodeComputer.loadProgram(program).run(input)
+        assertEquals(1, output.pop())
     }
 
     @Test
     fun testJumpProgramWithImmediateModeAndZeroInput() {
         val program = "3,3,1105,-1,9,1101,0,0,12,4,12,99,1"
         val input = 0
-        val output = runProgram(program, input)
-        assertEquals(0, output)
+        val output = IntCodeComputer.loadProgram(program).run(input)
+        assertEquals(0, output.pop())
     }
 
     @Test
     fun testJumpProgramWithImmediateModeAndNonZeroInput() {
         val program = "3,3,1105,-1,9,1101,0,0,12,4,12,99,1"
         val input = 5
-        val output = runProgram(program, input)
-        assertEquals(1, output)
+        val output = IntCodeComputer.loadProgram(program).run(input)
+        assertEquals(1, output.pop())
     }
 
     @Test
@@ -58,8 +58,8 @@ class IntCodeComputerTest {
             999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99
         """.trimIndent()
         val input = 8
-        val output = runProgram(program, input)
-        assertEquals(1000, output)
+        val output = IntCodeComputer.loadProgram(program).run(input)
+        assertEquals(1000, output.pop())
     }
 
     @Test
@@ -70,8 +70,8 @@ class IntCodeComputerTest {
             999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99
         """.trimIndent()
         val input = 7
-        val output = runProgram(program, input)
-        assertEquals(999, output)
+        val output = IntCodeComputer.loadProgram(program).run(input)
+        assertEquals(999, output.pop())
     }
 
     @Test
@@ -82,7 +82,7 @@ class IntCodeComputerTest {
             999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99
         """.trimIndent()
         val input = 9
-        val output = runProgram(program, input)
-        assertEquals(1001, output)
+        val output = IntCodeComputer.loadProgram(program).run(input)
+        assertEquals(1001, output.pop())
     }
 }

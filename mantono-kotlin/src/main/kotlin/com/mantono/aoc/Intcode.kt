@@ -13,6 +13,14 @@ class IntCodeComputer(
 ) {
     private val initialMemoryState: ReadOnlyMemory = ArrayList(memory)
 
+    fun state(): State {
+        return when(OpCode.parse(memory[pointer])) {
+            OpCode.HALT -> State.Halted
+            OpCode.INPUT -> State.WaitingForInput
+            else -> State.Running
+        }
+    }
+
     fun reboot(): IntCodeComputer {
         this.memory = ArrayList(initialMemoryState)
         this.pointer = 0
@@ -33,13 +41,16 @@ class IntCodeComputer(
     ): Deque<Int> {
         dumpMemory(memory, pointer)
         val opCode = OpCode.parse(memory[pointer])
+        if(opCode == OpCode.INPUT && input.isEmpty()) {
+            println("Suspending execution while waiting for input")
+            return output
+        }
         pointer = opCode.execute(memory, pointer, input, output)
+        if(opCode == OpCode.HALT) {
+            return output
+        }
         check(pointer in memory.indices) {
             "Address is outside memory: $pointer"
-        }
-        if(opCode == OpCode.HALT) {
-            println(output.joinToString { it.toString() })
-            return output
         }
         return executeProgram(input, output)
     }
@@ -65,6 +76,12 @@ class IntCodeComputer(
             return IntCodeComputer(memory)
         }
     }
+}
+
+enum class State {
+    Running,
+    Halted,
+    WaitingForInput
 }
 
 enum class OpCode(
@@ -96,7 +113,6 @@ enum class OpCode(
         val modes: List<Mode> =
             Mode.parse(mem[addr])
         val i0: Int = mem.read(modes[0], addr+1)
-        println(i0)
         output.push(i0)
         addr+2
     }),
@@ -134,8 +150,8 @@ enum class OpCode(
         mem.write(addr+3, if(first == second) 1 else 0)
         addr+4
     }),
-    HALT(99, { mem, _, _, _ ->
-        mem[0]
+    HALT(99, { _, addr, _, _ ->
+        addr
     });
 
     companion object {
