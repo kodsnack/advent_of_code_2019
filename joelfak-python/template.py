@@ -3,6 +3,9 @@
 from helpfunctions import *
 import unittest, sys
 
+def test_calculate_something(data):
+    return 2
+
 def part1(data):
     return 0
 
