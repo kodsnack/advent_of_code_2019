@@ -106,13 +106,15 @@ enum class Mode {
     }
 }
 
-fun runProgram(program: String, input: Int): Int {
+fun runProgram(program: String, input: Deque<Int>): Int {
     val memory: MutableList<Int> = program.split(",")
         .map { it.trim().toInt() }
         .toMutableList()
 
-    return parseData(memory, input = LinkedList(listOf(input)))
+    return parseData(memory, input = input)
 }
+
+fun runProgram(program: String, input: Int): Int = runProgram(program, input = LinkedList(listOf(input)))
 
 tailrec fun parseData(
     memory: MutableList<Int>,
