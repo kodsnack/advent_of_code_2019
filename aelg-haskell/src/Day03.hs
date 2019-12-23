@@ -5,15 +5,15 @@ where
 
 import           Control.Arrow
 import           Control.Monad
-import           Data.List
-import           Data.Monoid
-import qualified Data.Map.Strict               as M
-import qualified Data.Set                      as S
-import           Data.Maybe
 import           Data.Char
+import           Data.List
+import qualified Data.Map.Strict              as M
+import           Data.Maybe
+import           Data.Monoid
+import qualified Data.Set                     as S
+import qualified Parsing                      as P
 import           Text.ParserCombinators.ReadP
-import qualified Parsing                       as P
-import qualified Utils                         as U
+import qualified Utils                        as U
 
 data Dir = Dir Char Int deriving Show
 
@@ -82,8 +82,8 @@ findShortest depth (a, b) | depth > 2 * (length a + length b) = -1
             $   (,)
             <$> take depth a
             <*> take depth b
-    len (a,b) = getSteps a + getSteps b
-    isEqual (a,b) = getPos a == getPos b
+    len (a, b) = getSteps a + getSteps b
+    isEqual (a, b) = getPos a == getPos b
 
 solve2 = show . findShortest 1 . toPair . map (tail . genPos (0, (0, 0)))
     where toPair [a, b] = (a, b)

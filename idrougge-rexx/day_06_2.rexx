@@ -1,22 +1,22 @@
-file = day6.txt
+/* Advent of code 2019, day 6, part 2 in ANSI REXX */
+parse arg file
+if file = '' then file = day6.txt
+
 do while lines(file)
 	parse value linein(file) with centre ')' satellite
 	map.satellite = centre
-	push satellite
 end
 
-total = 0
-do while queued() > 0
-	pull satellite
-	say map.satellite ')' satellite track(satellite)
-	total = total + track(satellite)
-end
-
-say total
+you = track(you)
+san = track(san)
+start = compare(you, san)
+you = substr(you, start)
+san = substr(san, start)
+say words(you) - 1 + words(san) - 1
 exit
 
 track: procedure expose map.
 arg body
 mother = map.body
-if mother = 'COM' then return 1
-else return track(mother) + 1
+if mother = 'COM' then return ''
+else return track(mother) body

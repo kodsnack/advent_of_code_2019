@@ -29,3 +29,6 @@
 [submodule "cryon-python"]
 	path = cryon-python
 	url = https://github.com/cryon/advent-of-code-2019
+[submodule "johan1a_scala"]
+	path = johan1a_scala
+	url = https://github.com/johan1a/adventofcode2019.git

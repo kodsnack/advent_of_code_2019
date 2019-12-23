@@ -20,8 +20,9 @@ def part2(memory):
 
 
 program = _read_input()
-print(part1(list(program)))
-print(part2(list(program)))
+if __name__ == '__main__':
+    print(part1(list(program)))
+    print(part2(list(program)))
 
 
 ############

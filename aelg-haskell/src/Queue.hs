@@ -4,10 +4,11 @@ module Queue
     , pop
     , null
     , empty
+    , size
     )
 where
 
-import           Prelude                 hiding ( null )
+import           Prelude hiding (null)
 
 data Queue a = Queue { inbox :: [a], outbox :: [a] } deriving Show
 
@@ -21,5 +22,7 @@ pop (Queue inb []        ) = pop (Queue [] (reverse inb))
 
 null (Queue [] []) = True
 null _             = False
+
+size (Queue a b) = length a + length b
 
 empty = Queue [] []

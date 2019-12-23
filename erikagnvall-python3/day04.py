@@ -52,8 +52,9 @@ def part2(start, end):
 
 
 start, end = _read_input()
-print(part1(start, end))
-print(part2(start, end))
+if __name__ == '__main__':
+    print(part1(start, end))
+    print(part2(start, end))
 
 
 ############
