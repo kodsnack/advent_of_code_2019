@@ -24,7 +24,7 @@ def solve(d):
                 if len(outbound[i]) == 3:
                     destination, x, y = outbound[i]
 
-                    if destination == 255:                  
+                    if destination == 255:                
                         nat = [x, y]                     
                     else:
                         if len(inbound[destination]) == 0 and computers[destination].input == -1:
@@ -42,7 +42,8 @@ def solve(d):
                 else:
                     computers[i].set_input(-1)
 
-        if not first and all(len(inb) == 0 for inb in inbound) and all(c.input == -1 for c in computers) and all(len(o) == 0 for o in outbound):
+        if not first and all(len(inb) == 0 for inb in inbound) and all(c.input == -1 for c in computers) and all(len(o) == 0 for o in outbound) and nat:
+            print(nat)
             if prevnat and prevnat[1] == nat[1]:
                 return nat[1]
             if computers[0].input == -1:
@@ -50,6 +51,8 @@ def solve(d):
             else:
                 inbound[0].append(nat[0])
             inbound[0].append(nat[1])
+            prevnat = nat
+            nat = []
         
         steps += 1
 
