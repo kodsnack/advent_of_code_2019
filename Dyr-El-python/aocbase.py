@@ -8,6 +8,6 @@ def readInput(theTextFile=None):
 		thisFileBase = thisFileBase.split("_")[0]
 		theTextFile = thisFileBase+'.txt'
 	f = open(theTextFile)
-	s = f.read().strip()
+	s = f.read()
 	f.close()
 	return s
