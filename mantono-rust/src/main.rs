@@ -2,8 +2,11 @@ use std::path::PathBuf;
 
 mod lib;
 
+const WIDTH: u8 = 25;
+const HEIGHT: u8 = 6;
+
 fn main() {
-    let result: u32 = lib::spif::parse_pixels(vector(8));
+    let result: u32 = lib::spif::parse_pixels(vector(8), WIDTH, HEIGHT);
     println!("{}", result);
 }
 
