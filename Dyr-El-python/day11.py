@@ -206,14 +206,16 @@ def part2(pinp):
     miny = min((a[1] for a in d.keys()))
     maxx = max((a[0] for a in d.keys()))
     maxy = max((a[1] for a in d.keys()))
+    lines = ['\n']
     for y in range(maxy, miny-1, -1):
+        line = []
         for x in range(minx, maxx+1):
             if (x,y) in d and d[x, y] == 1:
-                print('*', end='')
+                line.append('*')
             else:
-                print(' ', end='')
-        print()
-    return "<solution2>"
+                line.append(' ')
+        lines.append(''.join(line))
+    return '\n'.join(lines)
 
 ## Start of footer boilerplate #################################################
 

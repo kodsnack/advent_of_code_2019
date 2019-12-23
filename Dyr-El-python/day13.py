@@ -2,7 +2,6 @@
 
 from aocbase import readInput
 import re
-import curses
 import time
 
 def lineParse(s, f, fp):
@@ -290,6 +289,7 @@ def main(stdscreen, ):
 import sys
 if __name__ == "__main__":
     if "gui" in sys.argv:
+        import curses
         curses.wrapper(main)
     else:
         main(None)

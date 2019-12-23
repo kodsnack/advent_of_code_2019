@@ -389,6 +389,7 @@ def part3(pinp):
 
 ## Start of footer boilerplate #################################################
 
+import sys
 if __name__ == "__main__":
     inp = readInput()
     # inp = """"""
@@ -398,8 +399,9 @@ if __name__ == "__main__":
 
     print("Input is '" + str(parseInp[:10])[:100] + 
           ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
-    # print("Solution to part 1: {}".format(part1(parseInp)))
-    # print("Solution to part 2: {}".format(part2(parseInp)))
-    print("Test".format(part3(parseInp)))
+    print("Solution to part 1: {}".format(part1(parseInp)))
+    print("Solution to part 2: {}".format(part2(parseInp)))
+    if "genetic" in sys.argv:
+        print("Test".format(part3(parseInp)))
 
 ## End of footer boilerplate ###################################################
