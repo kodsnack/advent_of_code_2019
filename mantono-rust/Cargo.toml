@@ -1,5 +1,5 @@
 [package]
-name = "mantono-rust"
+name = "aoc"
 version = "0.1.0"
 authors = ["Anton Österberg <anton.osterberg@gmail.com>"]
 edition = "2018"

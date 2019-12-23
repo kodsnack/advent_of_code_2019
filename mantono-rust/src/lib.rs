@@ -1,16 +1,13 @@
 pub mod spif {
-    use std::collections::{VecDeque, HashMap};
-    use std::borrow::BorrowMut;
+    use std::collections::{HashMap};
     use itertools::Itertools;
     use std::cmp::Ordering;
 
     pub fn parse_pixels(pixels: Vec<u32>, width: u8, height: u8) -> u32 {
         let size: usize = (width * height) as usize;
-        //let mut layers: [VecDeque<u8>; SIZE] = [VecDeque::with_capacity(pixels.len() % SIZE); SIZE];
-        //let image: [u8; pixels.len()] = [0; pixels.len()];
         let layers: HashMap<usize, Vec<u8>> = pixels.iter().enumerate()
             .map(|(index, pixel)| {
-                let i: usize = index % size;
+                let i: usize = index / size;
                 (i, *pixel as u8)
             })
             .into_group_map();
@@ -30,7 +27,6 @@ pub mod spif {
                     Ordering::Equal
                 }
             })
-            //.inspect(|l| println!("{:?}", l))
             .map(|(index, _)| *index)
             .collect();
 
@@ -46,16 +42,21 @@ pub mod spif {
 
 #[cfg(test)]
 mod test {
-    use crate::lib::spif::parse_pixels;
+    use super::spif::parse_pixels;
 
     #[test]
     fn test_small_input() {      //  0  1  2  3  0  1  2  3  0  1  2  3
-        let program: Vec<u32> = vec![1, 1, 2, 0, 2, 0, 2, 1, 1, 2, 0, 2];
-        // 0 = 1, 2, 1 <-- (1, 1) * (2) ==> 2 * 1 = 2
-        // 1 = 1, 0, 2
-        // 2 = 2, 2, 0
-        // 3 = 0, 1, 2
+        let program: Vec<u32> = vec![1, 1, 2, 0, 2, 2, 2, 1, 1, 2, 0, 2];
+        // Layer     0  1  2
+        // ------------------
+        // Pixel 0 = 1, 2, 1
+        // Pixel 1 = 1, 2, 2
+        // Pixel 2 = 2, 2, 0
+        // Pixel 3 = 0, 1, 2
+        // Total ------------
+        //           1  0  1
+        // 1 * 3
         let result: u32 = parse_pixels(program, 2, 2);
-        assert_eq!(2, result)
+        assert_eq!(3, result)
     }
 }
