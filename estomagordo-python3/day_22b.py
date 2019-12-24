@@ -42,15 +42,15 @@ def run(instructions, size, position):
     return front
 
 def solve(instructions, size, times, position):
-    return run(instructions, size, position)
+    next_pos = run(instructions, size, position)
+    dist = next_pos - position
+    end_pos = (dist * 2 + position) % size
+    return end_pos
     
 
 def read_and_solve():
     with open('input_22.txt') as f:
         data = [line.split() for line in f]
-        # for x in range(10):
-        #     print(run(data, 10, x), end=' ')
-        # return solve(data, 10007, 1, 2019)
         return solve(data, 119315717514047 , 101741582076661, 2020)
 
 if __name__ == '__main__':
