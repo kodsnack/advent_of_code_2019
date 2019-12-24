@@ -20,32 +20,21 @@ def deal_with_increment(num, size, increment):
 
 
 def run(instructions, size, position):
-    front, back = position, size - position - 1
-    reversed = False
-
     for instruction in instructions[::-1]:
         if instruction[-1] == 'stack':
-            reversed = not reversed
-            front, back = size - front - 1, size - back - 1
+            position = size - position - 1
         elif instruction[0] == 'deal':
             increment = int(instruction[-1])
-            # if reversed:
-            #     increment *= -1
-            front, back = deal_with_increment(front, size, increment), deal_with_increment(back, size, increment)
+            position = deal_with_increment(position, size, increment)
         else:
             amount = int(instruction[-1])
-            if reversed:
-                front, back = (front + amount) % size, (back + amount) % size
-            else:
-                front, back = (front + amount) % size, (back + amount) % size
+            position = (position + amount) % size
 
-    return front
+    return position
+
 
 def solve(instructions, size, times, position):
-    next_pos = run(instructions, size, position)
-    dist = next_pos - position
-    end_pos = (dist * 2 + position) % size
-    return end_pos
+    return run(instructions, size, position)
     
 
 def read_and_solve():
