@@ -25,83 +25,140 @@ def printIfVerbose(str, verbose):
 class IncodeComputer:
     def __init__(self, program, name="IntcodeComputer", verbose=False):
         self.program = program.copy()
+        self.highestPosition = 0
         self.name = name
         self.verbose = verbose
         self.p = 0
+        self.relativeBase = 0
+
+    def getUsedProgram(self):
+        return self.program[0:self.highestPosition+1]
 
     def printIfVerbose(self, str):
         printIfVerbose(str, self.verbose)
 
+    def readMemory(self, position):
+        if position >= len(self.program):
+            self.program.extend([0] * 100)
+        if position > self.highestPosition:
+            self.highestPosition = position
+        return self.program[position]
+
+    def writeMemory(self, position, parameter):
+        if position >= len(self.program):
+            self.program.extend([0] * 100)
+        if position > self.highestPosition:
+            self.highestPosition = position
+        self.program[position] = parameter
+
     def getParameter(self, pointerOffset, parameterModes):
-        if len(parameterModes) > 0 and parameterModes.popleft():
-            return self.program[self.p+pointerOffset]
-        else:
-            return self.program[self.program[self.p+pointerOffset]]
+        if len(parameterModes) > 0:
+            paramMode = parameterModes.popleft()
+            self.printIfVerbose("paramMode: {}".format(paramMode))
+            if paramMode == 1: # Immediate mode
+                self.printIfVerbose("Immediate mode")
+                return self.readMemory(self.p+pointerOffset)
+            if paramMode == 2: # Relative mode
+                self.printIfVerbose("Relative mode")
+                print("paramMode 2 - relativeBase: {}, offset: {}, pointer: {}, value: {}".format(
+                                    self.relativeBase,
+                                    self.readMemory(self.p+pointerOffset),
+                                    self.relativeBase + self.readMemory(self.p+pointerOffset),
+                                    self.program[self.relativeBase + self.program[self.p+pointerOffset]]))
+                return self.readMemory(self.relativeBase + self.readMemory(self.p+pointerOffset))
+        # Position mode
+        self.printIfVerbose("Position mode")
+        return self.readMemory(self.readMemory(self.p+pointerOffset))
 
     def increaseProgramPointer(self, steps):
         self.p += steps
 
+    def printInstruction(self, descriptionFormat, numParams = 3):
+        params = [self.readMemory(self.p + 1 + x) for x in range(numParams)]
+        self.printIfVerbose(descriptionFormat.format(*params))
+
     def runUntilHalt(self, input=None):
-        oc = parseOpcode(self.program[self.p])
+        oc = parseOpcode(self.readMemory(self.p))
 
         programDone = False
         output = []
 
         # print("{} program: {}".format(self.name, self.program))
 
+        self.printIfVerbose(self.program)
         while oc.opcode != 99:
+            self.printIfVerbose("\nopcode: {} parameterModes: {}".format(oc.opcode, list(oc.parameterModes)))
             if oc.opcode == 1: # Addition
-                self.program[self.program[self.p+3]] = self.getParameter(1, oc.parameterModes) + self.getParameter(2, oc.parameterModes)
+                self.printInstruction("Addition, parameters: {}, {}, {}", 3)
+                param1 = self.getParameter(1, oc.parameterModes)
+                param2 = self.getParameter(2, oc.parameterModes)
+                self.writeMemory(self.readMemory(self.p+3), param1 + param2)
+                self.printIfVerbose("Add: {} + {} = {}".format(param1, param2, param1+param2))
                 self.increaseProgramPointer(4)
 
             elif oc.opcode == 2: # Multiplication
-                self.program[self.program[self.p+3]] = self.getParameter(1, oc.parameterModes) * self.getParameter(2, oc.parameterModes)
+                self.printInstruction("Multiplication, parameters: {}, {}, {}", 3)
+                self.writeMemory(self.readMemory(self.p+3), self.getParameter(1, oc.parameterModes) * self.getParameter(2, oc.parameterModes))
                 self.increaseProgramPointer(4)
 
             elif oc.opcode == 3: # Read input
+                self.printInstruction("Read input", 0)
                 if len(input) == 0:
                     programDone = False
                     self.printIfVerbose("{} waiting for input".format(self.name))
                     break
                 self.printIfVerbose("{} reading input {}".format(self.name, input[0]))
-                self.program[self.program[self.p+1]] = input.pop(0)
+                self.writeMemory(self.readMemory(self.p+1), input.pop(0))
                 self.increaseProgramPointer(2)
 
             elif oc.opcode == 4: # Write output
+                self.printInstruction("Write output, parameters: {}", 1)
                 output.append(self.getParameter(1, oc.parameterModes))
                 self.printIfVerbose("{} writing output {}".format(self.name, output[len(output)-1]))
                 self.increaseProgramPointer(2)
 
             elif oc.opcode == 5: # Jump if true
+                self.printInstruction("Jump if true, parameters: {}, {}", 2)
                 if self.getParameter(1, oc.parameterModes) != 0:
                     self.p = self.getParameter(2, oc.parameterModes)
                 else:
                     self.increaseProgramPointer(3)
 
             elif oc.opcode == 6: # Jump if false
+                self.printInstruction("Jump if false, parameters: {}, {}", 2)
                 if self.getParameter(1, oc.parameterModes) == 0:
                     self.p = self.getParameter(2, oc.parameterModes)
                 else:
                     self.increaseProgramPointer(3)
 
             elif oc.opcode == 7: # Less than
+                self.printInstruction("Less than, parameters: {}, {}, {}", 3)
                 if self.getParameter(1, oc.parameterModes) < self.getParameter(2, oc.parameterModes):
-                    self.program[self.program[self.p+3]] = 1
+                    self.writeMemory(self.readMemory(self.p+3), 1)
                 else:
-                    self.program[self.program[self.p+3]] = 0
+                    self.writeMemory(self.readMemory(self.p+3), 0)
                 self.increaseProgramPointer(4)
 
             elif oc.opcode == 8: # Equals
+                self.printInstruction("Equals, parameters: {}, {}, {}", 3)
                 if self.getParameter(1, oc.parameterModes) == self.getParameter(2, oc.parameterModes):
-                    self.program[self.program[self.p+3]] = 1
+                    self.writeMemory(self.readMemory(self.p+3), 1)
                 else:
-                    self.program[self.program[self.p+3]] = 0
+                    self.writeMemory(self.readMemory(self.p+3), 0)
                 self.increaseProgramPointer(4)
+
+            elif oc.opcode == 9: # Move relative base
+                self.printInstruction("Move relative base, parameters: {}", 1)
+                parameter = self.getParameter(1, oc.parameterModes)
+                print("move base - current: {}, parameter: {}".format(self.relativeBase, parameter))
+                self.relativeBase += parameter
+                print("new base: {}".format(self.relativeBase))
+                self.increaseProgramPointer(2)
 
             else:
                 raise Exception('Invalid operator', oc.opcode)
 
-            oc = parseOpcode(self.program[self.p])
+            oc = parseOpcode(self.readMemory(self.p))
             if oc.opcode == 99:
                 programDone = True
 
@@ -171,27 +228,27 @@ class TestDay02(unittest.TestCase):
     def test_intcode_example_program_1(self):
         ic = IncodeComputer([1,0,0,0,99])
         ic.runUntilHalt()
-        self.assertEqual(ic.program, [2,0,0,0,99])
+        self.assertEqual(ic.getUsedProgram(), [2,0,0,0,99])
 
     def test_intcode_example_program_2(self):
         ic = IncodeComputer([2,3,0,3,99])
         ic.runUntilHalt()
-        self.assertEqual(ic.program, [2,3,0,6,99])
+        self.assertEqual(ic.getUsedProgram(), [2,3,0,6,99])
 
     def test_intcode_example_program_3(self):
         ic = IncodeComputer([2,4,4,5,99,0])
         ic.runUntilHalt()
-        self.assertEqual(ic.program, [2,4,4,5,99,9801])
+        self.assertEqual(ic.getUsedProgram(), [2,4,4,5,99,9801])
 
     def test_intcode_example_program_4(self):
         ic = IncodeComputer([1,1,1,4,99,5,6,0,99])
         ic.runUntilHalt()
-        self.assertEqual(ic.program, [30,1,1,4,2,5,6,0,99])
+        self.assertEqual(ic.getUsedProgram(), [30,1,1,4,2,5,6,0,99])
 
     def test_intcode_example_program(self):
         ic = IncodeComputer([1,9,10,3,2,3,11,0,99,30,40,50])
         ic.runUntilHalt()
-        self.assertEqual(ic.program, [3500,9,10,70,2,3,11,0,99,30,40,50])
+        self.assertEqual(ic.getUsedProgram(), [3500,9,10,70,2,3,11,0,99,30,40,50])
 
 class TestParseOpcode(unittest.TestCase):
     def test_1(self):
@@ -210,12 +267,12 @@ class TestDay05_part1(unittest.TestCase):
     def test_intcode_parameter_mode(self):
         ic = IncodeComputer([1002,4,3,4,33])
         ic.runUntilHalt()
-        self.assertEqual(ic.program, [1002,4,3,4,99])
+        self.assertEqual(ic.getUsedProgram(), [1002,4,3,4,99])
 
     def test_intcode_negative_numbers(self):
         ic = IncodeComputer([1101,100,-1,4,0])
         ic.runUntilHalt()
-        self.assertEqual(ic.program, [1101,100,-1,4,99])
+        self.assertEqual(ic.getUsedProgram(), [1101,100,-1,4,99])
 
 class TestDay05_part2(unittest.TestCase):
     def test_intcode_if_input_is_8_return_1(self):
@@ -324,12 +381,12 @@ class TestDay09_part1(unittest.TestCase):
         print()
         ic = IncodeComputer([109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99], verbose=True)
         ic.runUntilHalt()
-        self.assertEqual(ic.program, [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99])
+        self.assertEqual(ic.getUsedProgram(), [109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99])
 
 ## Main ########################################################
 
 if __name__ == '__main__':
 
-    print("Advent of code day 7")
+    print("Advent of code day 9")
     print("Part1 result: {}".format(part1(getCommaSeparatedIntsFromFile(sys.argv[1]))))
-    print("Part2 result: {}".format(part2(getCommaSeparatedIntsFromFile(sys.argv[1]))))
+    # print("Part2 result: {}".format(part2(getCommaSeparatedIntsFromFile(sys.argv[1]))))
