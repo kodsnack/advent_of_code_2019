@@ -168,7 +168,7 @@ if __name__ == "__main__":
     ## Update for input specifics ##############################################
     parseInp = fileParse(inp, ff=lambda x:tuple(map(int, x.split(','))))
 
-    print(part1(parseInp))
-    print(part2(parseInp))
+    print("Solution to part 1: {}".format(part1(parseInp)))
+    print("Solution to part 2: {}".format(part2(parseInp)))
 
 ## End of footer boilerplate ###################################################

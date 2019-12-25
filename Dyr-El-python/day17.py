@@ -1,7 +1,7 @@
 ## Start of header boilerplate #################################################
 
 from aocbase import readInput
-#import re
+import re
 
 def lineParse(s, f, fp):
     m = fp.match(s)
@@ -253,8 +253,6 @@ def part2(pinp):
             return a
         if a in conversation:
             comp.asciiIn(conversation[a])
-        else:
-            print(a)
 
 ## Start of footer boilerplate #################################################
 

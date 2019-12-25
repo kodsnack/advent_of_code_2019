@@ -34,16 +34,18 @@ def mulI(mem, address):
     mem[target] = arg1 * arg2
     return address+4
 
+inpVal = None
 def inpI(mem, address):
     target = mem[address+1]
-    print(">", end='')
-    val = int(input())
+    val = inpVal
     mem[target] = val
     return address+2
 
+lastOutput = None
 def outI(mem, address):
+    global lastOutput
     arg1 = readVal(address, 1, mem)
-    print(':',arg1)
+    lastOutput = arg1
     return address + 2
 
 def jitI(mem, address):
@@ -88,7 +90,9 @@ def getInstr(mem, address):
 
 ilist = {1:addI, 2:mulI, 3:inpI, 4:outI, 5:jitI, 6:jifI, 7:ltI, 8:eqI}
 
-def run(pinp, noun, verb):
+def run(pinp, inp):
+    global inpVal, lastOutput
+    inpVal = inp
     mem = {address: value for address, value in enumerate(pinp[0][0])}
     address = 0
     while not isHalt(mem, address):
@@ -98,9 +102,13 @@ def run(pinp, noun, verb):
             address = ilist[instr](mem, address)
         else:
             raise RuntimeError("Invalid instruction {} at address {}".format(mem[address], address))
+    return lastOutput
 
 def part1(pinp):
-    return run(pinp, 12, 2)
+    return run(pinp, 1)
+
+def part2(pinp):
+    return run(pinp, 5)
 
 ## Start of footer boilerplate #################################################
 
@@ -113,7 +121,7 @@ if __name__ == "__main__":
 
     print("Input is '" + str(parseInp[:10])[:100] + 
           ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
-    part1(parseInp)
-    #print("Solution to part 2: {}".format(part2(parseInp)))
+    print("Solution to part 1: {}".format(part1(parseInp)))
+    print("Solution to part 2: {}".format(part2(parseInp)))
 
 ## End of footer boilerplate ###################################################

@@ -2,7 +2,8 @@
 
 from aocbase import readInput
 import re
-import time
+import random
+import copy
 
 def lineParse(s, f, fp):
     m = fp.match(s)
@@ -14,6 +15,24 @@ def fileParse(inp, f=lineParse, ff=lambda x:x, fp=re.compile(r"^(.*)$")):
     return tuple(map(lambda x:f(x, ff, fp), inp.splitlines()))
 
 ## End of header boilerplate ###################################################
+
+def drawMap(m, default=' ', separator='', upsideDown=True):
+    keys = [(key[0], key[1]) for key in m.keys() if isinstance(key, tuple)]
+    xmin = min(map(lambda x:x[0], keys))
+    xmax = max(map(lambda x:x[0], keys))
+    ymin = min(map(lambda x:x[1], keys))
+    ymax = max(map(lambda x:x[1], keys))
+    lines = []
+    lines.append(separator*(xmax-xmin+1))
+    if upsideDown:
+        rng = range(ymin, ymax+1)
+    else:
+        rng = range(ymax, ymin - 1, -1)
+    for y in rng:
+        line = ''.join((m.get((x, y), default) for x in range(xmin, xmax+1)))
+        lines.append(line)
+    lines.append(separator*(xmax-xmin+1))
+    return '\n'.join(lines)
 
 class TrapException(RuntimeError):
     pass
@@ -145,6 +164,7 @@ class Comp:
         self.input = []
         self.output = []
         self.error = []
+        self.counter = 0
     def ready(self):
         return self.state == "ready"
     def waiting(self):
@@ -156,6 +176,8 @@ class Comp:
         if self.state == "waiting":
             self.state = "ready"
     def out(self):
+        if self.outEmpty():
+            self.trap("Attempt to read empty output queue")
         ret = self.output[0]
         del self.output[0]
         return ret
@@ -164,9 +186,11 @@ class Comp:
     def step(self):
         if self.halted():
             return
+        # print(self.pc, self.mem[self.pc], self.mem[self.pc+1], self.mem[self.pc+2], self.mem[self.pc+3])
         instr = self.getInstr()
         if instr in self.ilist:
             self.pc = self.ilist[instr](self)
+            self.counter += 1
         else:
             self.trap((self.pc, "Invalid instruction {}".format(self.mem[self.pc])))
     def run(self):
@@ -177,103 +201,44 @@ class Comp:
             if (len(self.error) > 0):
                 for error in self.error:
                     print("{:08D}: {}".format(error[0], error[1]))
+        if (len(self.error) > 0):
+            for error in self.error:
+                print("{:08D}: {}".format(error[0], error[1]))
+    def asciiOut(self):
+        l = list()
+        while not self.outEmpty():
+            c = self.out()
+            if c > 255:
+                return c
+            c = chr(c)
+            if c == '\n':
+                return ''.join(l)
+            else:
+                l.append(c)
+        return ''.join(l)
+    def asciiIn(self, s):
+        for c in s:
+            self.inp(ord(c))
 
 def part1(pinp):
-    c = Comp(pinp[0][0])
-    c.run()
-    tot = 0
-    while not c.outEmpty():
-        x = c.out()
-        y = c.out()
-        t = c.out()
-        if t == 2:
-            tot += 1
-    return tot
-
-def initScr(cs):
-    if cs:
-        cs.nodelay(True)
-        curses.curs_set(0)
-    return dict()
-
-def updatePos(cs, screen, x, y, c):
-    screen[x, y] = c
-    if cs:
-        cs.addstr(y, x, c)
-
-def updateScore(cs, screen, score):
-    screen["score"] = score
-    if cs:
-        cs.addstr(1, 45, "Score: {}".format(score))
-
-lastTime = None
-def updateScreen(cs):
-    global lastTime
-    if cs:
-        c = cs.getch()
-        now = time.time()
-        if lastTime:
-            time.sleep(max(0.1 - (now - lastTime), 0))
-        lastTime = now
-        if 0 < c < 256:
-            return chr(c)
-    return ""
-
-def runPart(c, scr):
-    screen = dict()
-    screen = initScr(scr)
-    xmin,xmax,ymin,ymax = 0, 0, 0, 0
-    nofblocks = 0
-    paddlex = 0
-    ballx = 0
-    while c.state != "halted":
+    c=Comp(pinp[0][0])
+    while True:
         c.run()
-        if updateScreen(scr)=='Q':
-            break
         while not c.outEmpty():
-            x = c.out()
-            y = c.out()
-            t = c.out()
-            if x == -1 and y == 0:
-                updateScore(scr, screen, t)
-                continue
-            elif t == 0:
-                if screen.get((x, y), ' ')  == '#':
-                    nofblocks -= 1
-                updatePos(scr, screen, x, y, ' ')
-            elif t == 1:
-                updatePos(scr, screen, x, y, '|')
-            elif t == 2:
-                updatePos(scr, screen, x, y, '#')
-                nofblocks += 1
-            elif t == 3:
-                paddlex = x
-                updatePos(scr, screen, x, y, '=')
-            elif t == 4:
-                ballx = x
-                updatePos(scr, screen, x, y, 'O')
-            xmin = min(x, xmin)
-            xmax = max(x, xmax)
-            ymin = min(y, ymin)
-            ymax = max(y, ymax)
-        if nofblocks == 0:
-            return screen["score"]
-        if ballx < paddlex:
-            c.inp(-1)
-        elif ballx > paddlex:
-            c.inp(1)
+            print(c.asciiOut())
+        if c.waiting():
+            s = input()
+            c.asciiIn(s+'\n')
         else:
-            c.inp(0)
-    return screen["score"]
+            break
+    return 1
 
-def part2(pinp, sc):
-    c = Comp(pinp[0][0])
-    c.mem[0] = 2
-    return runPart(c, sc)
+def part2(pinp):
+    return 2
 
 ## Start of footer boilerplate #################################################
 
-def main(stdscreen, ):
+if __name__ == "__main__":
     inp = readInput()
     # inp = """"""
     
@@ -282,16 +247,7 @@ def main(stdscreen, ):
 
     print("Input is '" + str(parseInp[:10])[:100] + 
           ('...' if len(parseInp)>10 or len(str(parseInp[:10]))>100 else '') + "'")
-
     print("Solution to part 1: {}".format(part1(parseInp)))
-    print("Solution to part 2: {}".format(part2(parseInp, stdscreen)))
-
-import sys
-if __name__ == "__main__":
-    if "gui" in sys.argv:
-        import curses
-        curses.wrapper(main)
-    else:
-        main(None)
+    print("Solution to part 2: {}".format(part2(parseInp)))
 
 ## End of footer boilerplate ###################################################
