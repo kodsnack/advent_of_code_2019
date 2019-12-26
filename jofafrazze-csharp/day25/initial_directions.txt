@@ -1,0 +1,26 @@
+east 
+east
+take weather machine
+west
+west
+west
+take bowl of rice
+east
+north
+take polygon
+east
+take hypercube
+south
+take dark matter
+north
+west
+north
+take candy cane
+west
+north
+take manifold
+south
+west
+north
+take dehydrated water
+west
