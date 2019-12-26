@@ -5,7 +5,7 @@ pub mod spif {
     use std::fmt::{Display, Formatter, Write, Error};
 
     pub fn parse_pixels(pixels: Vec<u32>, width: u8, height: u8) -> u32 {
-        let layers: HashMap<usize, Vec<u8>> = find_layers(pixels, width, height);
+        let layers: HashMap<usize, Vec<u8>> = build_layers(pixels, width, height);
 
         let sorted_layers: Vec<usize> = layers.iter()
             .inspect(|(i, l)| println!("{}: {:?}", i, l))
@@ -36,6 +36,19 @@ pub mod spif {
 
     pub fn find_layers(pixels: Vec<u32>, width: u8, height: u8) -> HashMap<usize, Vec<u8>> {
         let size: usize = (width * height) as usize;
+        debug_assert_eq!(pixels.len() % size, 0);
+        pixels.iter()
+            .enumerate()
+            .map(|(index, pixel)| {
+                let i: usize = index % size;
+                (i, *pixel as u8)
+            })
+            .into_group_map()
+    }
+
+    pub fn build_layers(pixels: Vec<u32>, width: u8, height: u8) -> HashMap<usize, Vec<u8>> {
+        let size: usize = (width * height) as usize;
+        debug_assert_eq!(pixels.len() % size, 0);
         pixels.iter()
             .enumerate()
             .map(|(index, pixel)| {
@@ -47,6 +60,7 @@ pub mod spif {
 
     pub fn reduce_image(pixels: Vec<u32>, width: u8, height: u8) -> Vec<Color> {
         let layers: HashMap<usize, Vec<u8>> = find_layers(pixels, width, height);
+        debug_assert_eq!(layers.len(), (width * height) as usize);
         layers.iter()
             .sorted_by_key(|(&index, _)| index)
             .map(|(_, pixel)| {
@@ -63,6 +77,8 @@ pub mod spif {
     pub fn render_image(pixels: Vec<u32>, width: u8, height: u8) {
         let pixels: Vec<Color> = reduce_image(pixels, width, height);
         let width: usize = width as usize;
+        let size = width * (height as usize);
+        debug_assert_eq!(pixels.len(), size, "Wrong size, should be {} but was {}", size, pixels.len());
 
         pixels.iter()
             .enumerate()
@@ -86,7 +102,7 @@ pub mod spif {
     impl Display for Color {
         fn fmt<'a>(&self, f: &mut Formatter<'a>) -> Result<(), Error> {
             match self {
-                Color::Black => f.write_char('*'),
+                Color::Black => f.write_char('.'),
                 Color::White => f.write_char('#'),
                 Color::Transparent => f.write_char(' ')
             }
