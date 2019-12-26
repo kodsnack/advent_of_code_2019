@@ -98,16 +98,16 @@ namespace day14
             while (!chemicals.ContainsKey("ORE") || nChemicals > 1);
             return chemicals;
         }
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             Dictionary<string, Reaction> input = ReadInput();
             Dictionary<string, long> chemicals = BreakDownChemicals(input, "FUEL", 1);
             long res = chemicals["ORE"];
             Console.WriteLine("Part A: Result is {0}", res);
-            return correctAnswer == null || res == (long)correctAnswer;
+            return res;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             Dictionary<string, Reaction> input = ReadInput();
             Dictionary<string, long> chemicals = BreakDownChemicals(input, "FUEL", 1);
@@ -133,7 +133,7 @@ namespace day14
                     maxFuel = start2 + i;
             }
             Console.WriteLine("Part B: Result is {0}", maxFuel);
-            return correctAnswer == null || maxFuel == (long)correctAnswer;
+            return maxFuel;
         }
 
         static void Main(string[] args)
@@ -147,7 +147,7 @@ namespace day14
         {
             long a = 1967319;
             long b = 1122036;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

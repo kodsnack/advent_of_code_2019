@@ -64,7 +64,7 @@ namespace day12
             }
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<Position> input = ReadInput();
             List<Position> pos = new List<Position>(input);
@@ -79,7 +79,7 @@ namespace day12
                 sum += pos[a].ManhattanDistance() * vel[a].ManhattanDistance();
             }
             Console.WriteLine("Part A: Result is {0}", sum);
-            return correctAnswer == null || sum == (int)correctAnswer;
+            return sum;
         }
 
         static string GetId(List<Position> pos, List<Position> vel, Position dir)
@@ -120,7 +120,7 @@ namespace day12
             return (a / GCF(a, b)) * b;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<Position> input = ReadInput();
             HashSet<string>[] visited = Enumerable.Repeat(new HashSet<string>(), 3).ToArray();
@@ -149,7 +149,7 @@ namespace day12
             }
             long res = LCM(cycles[0], LCM(cycles[1], cycles[2]));
             Console.WriteLine("Part B: Result is {0}", res);
-            return correctAnswer == null || res == (long)correctAnswer;
+            return res;
         }
 
         static void Main(string[] args)
@@ -163,7 +163,7 @@ namespace day12
         {
             int a = 7636;
             long b = 281691380235984;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

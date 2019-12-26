@@ -164,22 +164,22 @@ namespace day21
             return lastOut;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
             long a = RunDroid(c0, springScriptA);
             Console.WriteLine("Part A: Result is {0}", a);
-            return correctAnswer == null || a == (long)correctAnswer;
+            return a;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
             long b = RunDroid(c0, springScriptB);
             Console.WriteLine("Part B: Result is {0}", b);
-            return correctAnswer == null || b == (long)correctAnswer;
+            return b;
         }
 
         static void Main(string[] args)
@@ -193,7 +193,7 @@ namespace day21
         {
             long a = 19358870;
             long b = 1143356492;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

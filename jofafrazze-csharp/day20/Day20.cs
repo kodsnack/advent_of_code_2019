@@ -159,22 +159,22 @@ namespace day20
             return steps[endPos];
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<string> input = ReadInput();
             OurMap m = BuildMap(input);
             int a = FindShortestPath(m, 0);
             Console.WriteLine("Part A: Result is {0}", a);
-            return correctAnswer == null || a == (int)correctAnswer;
+            return a;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<string> input = ReadInput();
             OurMap m = BuildMap(input);
             int b = FindShortestPath(m, 1);
             Console.WriteLine("Part B: Result is {0}", b);
-            return correctAnswer == null || b == (int)correctAnswer;
+            return b;
         }
 
         static void Main(string[] args)
@@ -188,7 +188,7 @@ namespace day20
         {
             int a = 548;
             int b = 6452;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

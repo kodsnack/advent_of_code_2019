@@ -39,7 +39,7 @@ namespace day10
 
         static Position bestPos = new Position();
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<Position> input = ReadInput();
             int maxAsteroids = int.MinValue;
@@ -64,10 +64,10 @@ namespace day10
                 }
             }
             Console.WriteLine("Part A: Result is {0} (at Position {1},{2}).", maxAsteroids, bestPos.x, bestPos.y);
-            return correctAnswer == null || maxAsteroids == (int)correctAnswer;
+            return maxAsteroids;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<Position> input = ReadInput();
             Position c = bestPos;
@@ -103,7 +103,7 @@ namespace day10
             Position resPos = c + resDelta;
             int res = resPos.x * 100 + resPos.y;
             Console.WriteLine("Part B: Result is {0}", res);
-            return correctAnswer == null || res == (int)correctAnswer;
+            return res;
         }
 
         static void Main(string[] args)
@@ -117,7 +117,7 @@ namespace day10
         {
             int a = 280;
             int b = 706;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

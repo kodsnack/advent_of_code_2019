@@ -295,7 +295,7 @@ namespace day15
             return steps.Max(x => x.Value);
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<long> input = ReadInput();
             IntComputer c1 = new IntComputer(input, 0);
@@ -305,10 +305,10 @@ namespace day15
             m.PrintMap();
             int ans = CalculateStepsToTreasure(m);
             Console.WriteLine("Part A: Result is {0}", ans);
-            return correctAnswer == null || ans == (int)correctAnswer;
+            return ans;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<long> input = ReadInput();
             IntComputer c1 = new IntComputer(input, 0);
@@ -316,7 +316,7 @@ namespace day15
             OurMap m = BuildMap(p1, false);
             int b = CalculateOxygenFillMinutes(m);
             Console.WriteLine("Part B: Result is {0}", b);
-            return correctAnswer == null || b == (int)correctAnswer;
+            return b;
         }
 
         static void Main(string[] args)
@@ -330,7 +330,7 @@ namespace day15
         {
             int a = 308;
             int b = 328;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

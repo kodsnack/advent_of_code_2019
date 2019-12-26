@@ -21,7 +21,7 @@ namespace day01
             return list;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<int> input = ReadInput();
             int i = 0;
@@ -33,10 +33,10 @@ namespace day01
                 i++;
             }
             Console.WriteLine("Part A: Result is {0}", sum);
-            return correctAnswer == null || sum == (int)correctAnswer;
+            return sum;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<int> input = ReadInput();
             int i = 0;
@@ -53,7 +53,7 @@ namespace day01
                 i++;
             }
             Console.WriteLine("Part B: Result is {0}", sum);
-            return correctAnswer == null || sum == (int)correctAnswer;
+            return sum;
         }
 
         static void Main(string[] args)
@@ -67,7 +67,7 @@ namespace day01
         {
             int a = 3384232;
             int b = 5073456;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

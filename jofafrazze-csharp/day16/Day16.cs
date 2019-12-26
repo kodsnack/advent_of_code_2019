@@ -71,7 +71,7 @@ namespace day16
             return fftNums.Take(8).ToArray();
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<int> input = ReadInput();
             int[] numbers = input.ToArray();
@@ -83,10 +83,10 @@ namespace day16
             for (int i = 0; i < 8; i++)
                 ans += numbers[i].ToString();
             Console.WriteLine("Part A: Result is {0}", ans);
-            return correctAnswer == null || ans == (string)correctAnswer;
+            return ans;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<int> input = ReadInput();
             int[] numbers = input.ToArray();
@@ -96,7 +96,7 @@ namespace day16
             for (int i = 0; i < 8; i++)
                 ans += res[i].ToString();
             Console.WriteLine("Part B: Result is {0}", ans);
-            return correctAnswer == null || ans == (string)correctAnswer;
+            return ans;
         }
 
         static void Main(string[] args)
@@ -110,7 +110,7 @@ namespace day16
         {
             string a = "52611030";
             string b = "52541026";
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

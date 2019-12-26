@@ -92,24 +92,24 @@ namespace day09
             return list;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 1);
             a.Execute();
             Console.WriteLine();
             Console.WriteLine("Part A: Result is {0}", a.reg);
-            return correctAnswer == null || a.reg == (long)correctAnswer;
+            return a.reg;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 2);
             a.Execute();
             Console.WriteLine();
             Console.WriteLine("Part B: Result is {0}", a.reg);
-            return correctAnswer == null || a.reg == (long)correctAnswer;
+            return a.reg;
         }
 
         static void Main(string[] args)
@@ -123,7 +123,7 @@ namespace day09
         {
             long a = 3280416268;
             long b = 80210;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

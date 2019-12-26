@@ -24,7 +24,7 @@ namespace day08
         static readonly int h = 6;
         static readonly int size = w * h;
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<int> input = ReadInput();
             int nZeros = int.MaxValue;
@@ -42,7 +42,7 @@ namespace day08
             List<int> l = input.GetRange(resOffs, size);
             int sum = l.Where(i => i == 1).Count() * l.Where(i => i == 2).Count();
             Console.WriteLine("Part A: Result is {0}", sum);
-            return correctAnswer == null || sum == (int)correctAnswer;
+            return sum;
         }
 
         static readonly Dictionary<int, char> dict = new Dictionary<int, char>()
@@ -52,7 +52,7 @@ namespace day08
             { 2, 't' },
         };
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<int> input = ReadInput();
             Map map = new Map(w, h, new Position(0, 0), dict[2]);
@@ -73,7 +73,7 @@ namespace day08
             Console.WriteLine("Part B: Result is:");
             string s = map.PrintToString();
             Console.WriteLine(s);
-            return correctAnswer == null || s == (string)correctAnswer;
+            return s;
         }
 
         static void Main(string[] args)
@@ -93,7 +93,7 @@ namespace day08
                      + "* **  *   * *     *   *  \r\n"
                      + "*  * *    * *  *  *   *  \r\n"
                      + " *** **** *  *  **    *  \r\n";
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

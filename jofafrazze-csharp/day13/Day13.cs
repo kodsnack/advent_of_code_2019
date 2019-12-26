@@ -172,17 +172,17 @@ namespace day13
             return list;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 0);
             a.Execute();
             int res = a.paintedPos.Where(x => x.Value == 2).Count();
             Console.WriteLine("Part A: Result is {0}", res);
-            return correctAnswer == null || res == (int)correctAnswer;
+            return res;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<long> input = ReadInput();
             IntComputer a = new IntComputer(input, 0);
@@ -190,7 +190,7 @@ namespace day13
             a.Execute();
             Console.SetCursorPosition(0, Console.CursorTop + 1);
             Console.WriteLine("Part B: Result is {0}", a.reg);
-            return correctAnswer == null || a.reg == (long)correctAnswer;
+            return a.reg;
         }
 
         static void Main(string[] args)
@@ -204,7 +204,7 @@ namespace day13
         {
             int a = 398;
             long b = 19447;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

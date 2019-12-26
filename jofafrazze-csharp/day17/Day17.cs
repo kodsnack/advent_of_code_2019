@@ -300,7 +300,7 @@ namespace day17
             return lastReg;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<long> input = ReadInput();
             IntComputer c1 = new IntComputer(input, 0);
@@ -310,17 +310,17 @@ namespace day17
             int ans = CalculateAlignmentParametersSum(m);
             Console.WriteLine("Part A: Result is {0}", ans);
             //BuildMovementSequence(m);
-            return correctAnswer == null || ans == (int)correctAnswer;
+            return ans;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<long> input = ReadInput();
             IntComputer c2 = new IntComputer(input, 0);
             c2.mem[0] = 2;
             int ans = SteerRobot(c2);
             Console.WriteLine("Part B: Result is {0}", ans);
-            return correctAnswer == null || ans == (int)correctAnswer;
+            return ans;
         }
 
         static void Main(string[] args)
@@ -334,7 +334,7 @@ namespace day17
         {
             int a = 2080;
             int b = 742673;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }
