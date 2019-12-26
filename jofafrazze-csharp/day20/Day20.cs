@@ -120,15 +120,17 @@ namespace day20
 
         static int FindShortestPath(OurMap m, int depthAdd)
         {
-            Position startPos = m.portalInfo.Where(w => w.Value.name == "AA").First().Key;
-            List<(Position pos, int level)> toVisit = new List<(Position, int)>() { (startPos, 0) };
-            Dictionary<(Position pos, int level), int> steps = new Dictionary<(Position, int), int>() { { toVisit[0], 0 } };
+            (Position, int) startPos = (m.portalInfo.Where(w => w.Value.name == "AA").First().Key, 0);
+            (Position, int) endPos = (m.portalInfo.Where(w => w.Value.name == "ZZ").First().Key, 0);
+            List<(Position pos, int level)> toVisit = new List<(Position, int)>() { startPos };
+            Dictionary<(Position pos, int level), int> steps = new Dictionary<(Position, int), int>() {
+                { startPos, 0 }, { endPos, int.MaxValue } };
             while (toVisit.Count > 0)
             {
                 List<(Position pos, int level)> toVisitNext = new List<(Position, int)>();
                 void TryGoTo((Position pos, int level) nextPos, (Position pos, int level) curPos)
                 {
-                    if (nextPos.level < 50 && nextPos.level >= 0)
+                    if (nextPos.level >= 0 && steps[curPos] < steps[endPos])
                     {
                         if (!steps.ContainsKey(nextPos) || steps[nextPos] > steps[curPos] + 1)
                         {
@@ -154,26 +156,25 @@ namespace day20
                 }
                 toVisit = toVisitNext;
             }
-            Position endPos = m.portalInfo.Where(w => w.Value.name == "ZZ").First().Key;
-            return steps[(endPos, 0)];
+            return steps[endPos];
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<string> input = ReadInput();
             OurMap m = BuildMap(input);
             int a = FindShortestPath(m, 0);
             Console.WriteLine("Part A: Result is {0}", a);
-            return correctAnswer == null || a == (int)correctAnswer;
+            return a;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<string> input = ReadInput();
             OurMap m = BuildMap(input);
             int b = FindShortestPath(m, 1);
             Console.WriteLine("Part B: Result is {0}", b);
-            return correctAnswer == null || b == (int)correctAnswer;
+            return b;
         }
 
         static void Main(string[] args)
@@ -187,7 +188,7 @@ namespace day20
         {
             int a = 548;
             int b = 6452;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

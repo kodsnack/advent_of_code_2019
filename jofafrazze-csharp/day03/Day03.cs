@@ -28,7 +28,7 @@ namespace day03
             { 'L', new Position(-1, 0) },
         };
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             (List<string> path1, List<string> path2) = ReadInput();
             HashSet<Position> p1visited = new HashSet<Position>();
@@ -62,10 +62,10 @@ namespace day03
                 }
             }
             Console.WriteLine("Part A: Result is {0}", minDist);
-            return correctAnswer == null || minDist == (int)correctAnswer;
+            return minDist;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             (List<string> path1, List<string> path2) = ReadInput();
             Dictionary<Position, int> p1steps = new Dictionary<Position, int>();
@@ -104,7 +104,7 @@ namespace day03
                 }
             }
             Console.WriteLine("Part B: Result is {0}", minSum);
-            return correctAnswer == null || minSum == (int)correctAnswer;
+            return minSum;
         }
 
         static void Main(string[] args)
@@ -118,7 +118,7 @@ namespace day03
         {
             int a = 399;
             int b = 15678;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

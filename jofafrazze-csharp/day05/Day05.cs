@@ -128,22 +128,22 @@ namespace day05
             }
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<int> input = ReadInput();
             int reg = 1;
             RunProgram(ref input, ref reg);
             Console.WriteLine("Part A: Result is {0}", reg);
-            return correctAnswer == null || reg == (int)correctAnswer;
+            return reg;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<int> input = ReadInput();
             int reg = 5;
             RunProgram(ref input, ref reg);
             Console.WriteLine("Part B: Result is {0}", reg);
-            return correctAnswer == null || reg == (int)correctAnswer;
+            return reg;
         }
 
         static void Main(string[] args)
@@ -157,7 +157,7 @@ namespace day05
         {
             int a = 7692125;
             int b = 14340395;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

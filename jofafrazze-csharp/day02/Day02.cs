@@ -52,7 +52,7 @@ namespace day02
             }
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<int> input = ReadInput();
             input[1] = 12;
@@ -60,10 +60,10 @@ namespace day02
             RunProgram(ref input);
             int result = input[0];
             Console.WriteLine("Part A: Result is {0}", result);
-            return correctAnswer == null || result == (int)correctAnswer;
+            return result;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<int> input = ReadInput();
             bool done = false;
@@ -84,7 +84,7 @@ namespace day02
                 }
             }
             Console.WriteLine("Part B: Result is {0}", result);
-            return correctAnswer == null || result == (int)correctAnswer;
+            return result;
         }
 
         static void Main(string[] args)
@@ -98,7 +98,7 @@ namespace day02
         {
             int a = 3760627;
             int b = 7195;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

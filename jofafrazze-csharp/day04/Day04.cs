@@ -60,7 +60,7 @@ namespace day04
         static readonly int inputMin = 137683;
         static readonly int inputMax = 596253;
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             int valid = 0;
             int i = inputMin;
@@ -73,10 +73,10 @@ namespace day04
             }
             while (i <= inputMax);
             Console.WriteLine("Part A: Result is {0}", valid);
-            return correctAnswer == null || valid == (int)correctAnswer;
+            return valid;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             int valid = 0;
             int i = inputMin;
@@ -89,7 +89,7 @@ namespace day04
             }
             while (i <= inputMax);
             Console.WriteLine("Part B: Result is {0}", valid);
-            return correctAnswer == null || valid == (int)correctAnswer;
+            return valid;
         }
 
         static void Main(string[] args)
@@ -103,7 +103,7 @@ namespace day04
         {
             int a = 1864;
             int b = 1258;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

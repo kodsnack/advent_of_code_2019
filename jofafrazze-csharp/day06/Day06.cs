@@ -46,7 +46,7 @@ namespace day06
             return sum;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             Dictionary<string, Node> nodes = ReadInput();
             Node top = nodes.First().Value;
@@ -54,10 +54,10 @@ namespace day06
                 top = top.parent;
             int sum = CountOrbits(top, 0);
             Console.WriteLine("Part A: Result is {0}", sum);
-            return correctAnswer == null || sum == (int)correctAnswer;
+            return sum;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             Dictionary<string, Node> nodes = ReadInput();
             Dictionary<Node, int> steps = new Dictionary<Node, int>();
@@ -81,7 +81,7 @@ namespace day06
             }
             int sum = steps[n] + a;
             Console.WriteLine("Part B: Result is {0}", sum);
-            return correctAnswer == null || sum == (int)correctAnswer;
+            return sum;
         }
 
         static void Main(string[] args)
@@ -95,7 +95,7 @@ namespace day06
         {
             int a = 251208;
             int b = 397;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

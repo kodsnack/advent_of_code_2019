@@ -149,7 +149,7 @@ namespace day07
             return false;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<int> input = ReadInput();
             List<int> phases = Enumerable.Range(0, 5).ToList();
@@ -168,10 +168,10 @@ namespace day07
                     maxSignal = signal;
             }
             Console.WriteLine("Part A: Result is {0}", maxSignal);
-            return correctAnswer == null || maxSignal == (int)correctAnswer;
+            return maxSignal;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<int> input = ReadInput();
             List<int> phases = Enumerable.Range(5, 5).ToList();
@@ -195,7 +195,7 @@ namespace day07
                 }
             }
             Console.WriteLine("Part B: Result is {0}", lastOutput);
-            return correctAnswer == null || lastOutput == (int)correctAnswer;
+            return lastOutput;
         }
 
         static void Main(string[] args)
@@ -209,7 +209,7 @@ namespace day07
         {
             int a = 914828;
             int b = 17956613;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

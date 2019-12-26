@@ -223,7 +223,7 @@ namespace day19
             return pos;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
@@ -231,10 +231,10 @@ namespace day19
             m.PrintMap();
             int a = m.mapPos.Sum(x => x.Value);
             Console.WriteLine("Part A: Result is {0}", a);
-            return correctAnswer == null || a == (int)correctAnswer;
+            return a;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
@@ -244,7 +244,7 @@ namespace day19
             Position p = CalculatePosition(c0, dx - 1, dy);
             int b = p.y + p.x * 10000;
             Console.WriteLine("Part B: Result is {0}", b);
-            return correctAnswer == null || b == (int)correctAnswer;
+            return b;
         }
 
         static void Main(string[] args)
@@ -258,7 +258,7 @@ namespace day19
         {
             int a = 181;
             int b = 4240964;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

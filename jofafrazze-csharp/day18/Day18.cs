@@ -183,7 +183,7 @@ namespace day18
             return minSteps;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<string> input = ReadInput();
             Map m = BuildMap(input);
@@ -192,10 +192,10 @@ namespace day18
             FindInMap(m, '@', ref p);
             int a = CollectAllKeys(m, new List<Position>() { p });
             Console.WriteLine("Part A: Result is {0}", a);
-            return correctAnswer == null || a == (int)correctAnswer;
+            return a;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             List<string> input = ReadInput();
             Map m = BuildMap(input);
@@ -222,7 +222,7 @@ namespace day18
             posList.Add(new Position(p.x + 2, p.y + 2));
             int b = CollectAllKeys(m, posList);
             Console.WriteLine("Part B: Result is {0}", b);
-            return correctAnswer == null || b == (int)correctAnswer;
+            return b;
         }
 
         static void Main(string[] args)
@@ -236,7 +236,7 @@ namespace day18
         {
             int a = 4192;
             int b = 1790;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }

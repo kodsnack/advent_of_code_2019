@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
-namespace day21
+using AdventOfCode;
+using Position = AdventOfCode.GenericPosition2D<int>;
+
+namespace day25
 {
-    public class Day21
+    public class Day25
     {
-        readonly static string nsname = typeof(Day21).Namespace;
+        readonly static string nsname = typeof(Day25).Namespace;
 
         public class IntComputer
         {
@@ -109,46 +115,52 @@ namespace day21
             return list;
         }
 
-        // (!A + !B + !C) * D
-        static readonly string springScriptA =
-            "NOT A T\n" +
-            "OR T J\n" +
-            "NOT B T\n" +
-            "OR T J\n" +
-            "NOT C T\n" +
-            "OR T J\n" +
-            "AND D J\n" +
-            "WALK\n";
-
-        // (!A + !B + !C) * D * (H + (E * I) + (E * F))
-        // ...rewritten as...
-        // !(A * B * C) * D * (E + H) * (F + H + I)
-        static readonly string springScriptB =
-            "NOT A J\n" +
-            "NOT J J\n" +
-            "AND B J\n" +
-            "AND C J\n" +
-            "NOT J J\n" +
-            "AND D J\n" +
-            "OR E T\n" +
-            "OR H T\n" +
-            "AND T J\n" +
-            "NOT F T\n" +
-            "NOT T T\n" +
-            "OR H T\n" +
-            "OR I T\n" +
-            "AND T J\n" +
-            "RUN\n";
-
-        static long RunDroid(IntComputer ic, string s)
+        static List<string> ReadInitialDirections()
         {
-            int i = 0;
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\initial_directions.txt");
+            StreamReader reader = File.OpenText(path);
+            List<string> list = new List<string>();
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                list.Add(line);
+            }
+            return list;
+        }
+
+        static void LogInput(string s)
+        {
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\directions.txt");
+            using (StreamWriter writer = new StreamWriter(new FileStream(path, FileMode.Append)))
+            {
+                if (s.Length > 1)
+                    writer.Write(s);
+            }
+        }
+
+        static void LogAll(string s)
+        {
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\full_log.txt");
+            using (StreamWriter writer = new StreamWriter(new FileStream(path, FileMode.Append)))
+            {
+                writer.Write(s);
+            }
+        }
+
+        static int SolveTextAdventure(IntComputer ic, List<string> directions)
+        {
+            string cmd = "Command?";
+            string input = "";
+            string output = "";
+            string lastOutput = "";
             int ret = 0;
-            long lastOut = 0;
+            int i = 0;
+            int row = 0;
+            LogAll("\n=============================================== NEW SESSION =========\n\n");
             do
             {
-                lastOut = ic.reg;
-                ic.reg = s[Math.Min(i, s.Length - 1)];
+                if (i < input.Length)
+                    ic.reg = input[i];
                 ret = ic.Execute();
                 if (ret == 2)
                 {
@@ -156,44 +168,100 @@ namespace day21
                 }
                 else if (ret == 3)
                 {
-                    if (ic.reg < 255)
-                        Console.Write((char)ic.reg);
+                    char c = (char)ic.reg;
+                    if (c == '\n')
+                    {
+                        Console.WriteLine(output);
+                        LogAll(output + '\n');
+                        if (output == cmd)
+                        {
+                            if (row < directions.Count)
+                            {
+                                input = directions[row] + '\n';
+                                Console.Write(input);
+                                row++;
+                            }
+                            else
+                                input = Console.ReadLine() + '\n';
+                            LogInput(input);
+                            LogAll(input);
+                            i = 0;
+                        }
+                        if (output.Length > 0)
+                            lastOutput = output;
+                        output = "";
+                    }
+                    else
+                    {
+                        output += c;
+                    }
                 }
             }
             while (ret > 0);
-            return lastOut;
+            int res = -1;
+            foreach (string s in lastOutput.Split(' '))
+                if (int.TryParse(s, out res))
+                    break;
+            return res;
+        }
+
+        static readonly List<string> inventories = new List<string>() {
+            "weather machine",
+            "bowl of rice",
+            "polygon",
+            "hypercube",
+            "dark matter",
+            "candy cane",
+            "manifold",
+            "dehydrated water"
+        };
+
+        static readonly List<string> apparentlyCorrectInventories = new List<string>() {
+            "bowl of rice",
+            "dark matter",
+            "candy cane",
+            "dehydrated water"
+        };
+
+        static List<string> TryInventories(List<List<string>> takeCmdsList)
+        {
+            List<string> list = new List<string>();
+            List<string> dropCmds = inventories.Select(w => "drop " + w).ToList();
+            foreach (List<string> takeCmds in takeCmdsList)
+            {
+                list.AddRange(dropCmds);
+                list.AddRange(takeCmds);
+                list.Add("inv");
+                list.Add("south");
+            }
+            return list;
         }
 
         static Object PartA()
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
-            long a = RunDroid(c0, springScriptA);
-            Console.WriteLine("Part A: Result is {0}", a);
-            return a;
-        }
-
-        static Object PartB()
-        {
-            List<long> input = ReadInput();
-            IntComputer c0 = new IntComputer(input, 0);
-            long b = RunDroid(c0, springScriptB);
-            Console.WriteLine("Part B: Result is {0}", b);
-            return b;
+            List<string> directions = ReadInitialDirections();
+            //List<string> takeCmds = inventories.Select(w => "take " + w).ToList();
+            //var combos = AdventOfCode.Algorithms.GetCombinations(takeCmds);
+            List<string> takeCmds = apparentlyCorrectInventories.Select(w => "take " + w).ToList();
+            List<List<string>> combos = new List<List<string>>() { takeCmds };
+            directions.AddRange(TryInventories(combos));
+            int ans = SolveTextAdventure(c0, directions);
+            Console.WriteLine("Part A: Result is {0}", ans);
+            return ans;
         }
 
         static void Main(string[] args)
         {
             Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
-            PartB();
         }
 
         public static bool MainTest()
         {
-            long a = 19358870;
-            long b = 1143356492;
-            return (PartA().Equals(a)) && (PartB().Equals(b));
+            int a = 10504192;
+            return PartA().Equals(a);
         }
     }
 }

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace day21
+namespace day23
 {
-    public class Day21
+    public class Day23
     {
-        readonly static string nsname = typeof(Day21).Namespace;
+        readonly static string nsname = typeof(Day23).Namespace;
 
         public class IntComputer
         {
@@ -23,6 +23,8 @@ namespace day21
             public long pc;
             private Dictionary<int, OpCode> instructionSet;
             public int instructionsExecuted;
+            public List<long> input;
+            public List<long> output;
             public IntComputer(IntComputer c)
             {
                 mem = new Dictionary<long, long>(c.mem);
@@ -31,6 +33,8 @@ namespace day21
                 pc = c.pc;
                 InitInstructionSet();
                 instructionsExecuted = c.instructionsExecuted;
+                input = new List<long>(c.input);
+                output = new List<long>(c.output);
             }
             public IntComputer(List<long> mem0, long reg0)
             {
@@ -40,6 +44,8 @@ namespace day21
                 pc = 0;
                 InitInstructionSet();
                 instructionsExecuted = 0;
+                input = new List<long>();
+                output = new List<long>();
             }
             private void InitInstructionSet()
             {
@@ -47,8 +53,23 @@ namespace day21
                 {
                     { 1, new OpCode(4, /* add */ delegate() { Write(Addr(3), Read(Addr(1)) + Read(Addr(2))); return 1; }) },
                     { 2, new OpCode(4, /* mul */ delegate() { Write(Addr(3), Read(Addr(1)) * Read(Addr(2))); return 1; }) },
-                    { 3, new OpCode(2, /* inp */ delegate() { Write(Addr(1), reg); return 2; }) },
-                    { 4, new OpCode(2, /* out */ delegate() { reg = Read(Addr(1)); return 3; }) },
+                    { 3, new OpCode(2, /* inp */ delegate() {
+                        if (input.Count > 0)
+                        {
+                            reg = input.First();
+                            input.RemoveAt(0);
+                        }
+                        else
+                            reg = -1;
+                        Write(Addr(1), reg);
+                        return 2;
+                    }) },
+                    { 4, new OpCode(2, /* out */ delegate()
+                    {
+                        reg = Read(Addr(1));
+                        output.Add(reg);
+                        return 3;
+                    }) },
                     { 5, new OpCode(3, /* jit */ delegate() { bool j = Read(Addr(1)) != 0; if (j) pc = Read(Addr(2)); return j ? 0 : 1; }) },
                     { 6, new OpCode(3, /* jif */ delegate() { bool j = Read(Addr(1)) == 0; if (j) pc = Read(Addr(2)); return j ? 0 : 1; }) },
                     { 7, new OpCode(4, /* lth */ delegate() { Write(Addr(3), Read(Addr(1)) < Read(Addr(2)) ? 1 : 0); return 1; }) },
@@ -92,7 +113,7 @@ namespace day21
                     if (ret >= 2)
                         return ret;
                 }
-                return 0;
+                return -1;
             }
         }
 
@@ -109,66 +130,114 @@ namespace day21
             return list;
         }
 
-        // (!A + !B + !C) * D
-        static readonly string springScriptA =
-            "NOT A T\n" +
-            "OR T J\n" +
-            "NOT B T\n" +
-            "OR T J\n" +
-            "NOT C T\n" +
-            "OR T J\n" +
-            "AND D J\n" +
-            "WALK\n";
-
-        // (!A + !B + !C) * D * (H + (E * I) + (E * F))
-        // ...rewritten as...
-        // !(A * B * C) * D * (E + H) * (F + H + I)
-        static readonly string springScriptB =
-            "NOT A J\n" +
-            "NOT J J\n" +
-            "AND B J\n" +
-            "AND C J\n" +
-            "NOT J J\n" +
-            "AND D J\n" +
-            "OR E T\n" +
-            "OR H T\n" +
-            "AND T J\n" +
-            "NOT F T\n" +
-            "NOT T T\n" +
-            "OR H T\n" +
-            "OR I T\n" +
-            "AND T J\n" +
-            "RUN\n";
-
-        static long RunDroid(IntComputer ic, string s)
+        static int RunNetworkA(IntComputer computer)
         {
-            int i = 0;
-            int ret = 0;
-            long lastOut = 0;
-            do
+            List<IntComputer> compus = new List<IntComputer>();
+            int ans = 0;
+            for (int i = 0; i < 50; i++)
             {
-                lastOut = ic.reg;
-                ic.reg = s[Math.Min(i, s.Length - 1)];
-                ret = ic.Execute();
-                if (ret == 2)
+                compus.Add(new IntComputer(computer));
+                compus.Last().input.Add(i);
+            }
+            bool done = false;
+            while (!done)
+            {
+                for (int i = 0; i < 50 && !done; i++)
                 {
-                    i++;
-                }
-                else if (ret == 3)
-                {
-                    if (ic.reg < 255)
-                        Console.Write((char)ic.reg);
+                    IntComputer c = compus[i];
+                    if (c.Execute() == 3 && c.output.Count == 3)
+                    {
+                        int addr = (int)c.output[0];
+                        if (addr == 255)
+                        {
+                            ans = (int)c.output[2];
+                            done = true;
+                        }
+                        else
+                        {
+                            compus[addr].input.Add(c.output[1]);
+                            compus[addr].input.Add(c.output[2]);
+                            c.output.Clear();
+                        }
+                    }
                 }
             }
-            while (ret > 0);
-            return lastOut;
+            return ans;
+        }
+
+        static int RunNetworkB(IntComputer computer)
+        {
+            List<IntComputer> compus = new List<IntComputer>();
+            List<long> nat = new List<long>();
+            int ans = 0;
+            for (int i = 0; i < 50; i++)
+            {
+                compus.Add(new IntComputer(computer));
+                compus.Last().input.Add(i);
+            }
+            bool done = false;
+            long lastNatY = 0;
+            bool lastNatYSet = false;
+            while (!done)
+            {
+                int sent = 0;
+                for (int i = 0; i < 50 && !done; i++)
+                {
+                    IntComputer c = compus[i];
+                    int a = c.Execute();
+                    if (a == 3)
+                    {
+                        sent++;
+                        if (c.output.Count == 3)
+                        {
+                            int addr = (int)c.output[0];
+                            if (addr == 255)
+                            {
+                                nat.Clear();
+                                nat.Add(c.output[1]);
+                                nat.Add(c.output[2]);
+                                c.output.Clear();
+                                //Console.WriteLine("NAT received {0}, {1}", nat[0], nat[1]);
+                            }
+                            else
+                            {
+                                //Console.WriteLine("C{0} --> C{1}: sent {2}, {3}", i, addr, c.output[1], c.output[2]);
+                                compus[addr].input.Add(c.output[1]);
+                                compus[addr].input.Add(c.output[2]);
+                                c.output.Clear();
+                            }
+                        }
+                    }
+                }
+                if (nat.Count > 0 && sent == 0)
+                {
+                    //Console.WriteLine("Nothing sent...");
+                    if (compus.Select(w => w.input.Count).Sum() == 0)
+                    {
+                        if (lastNatYSet && lastNatY == nat[1])
+                        {
+                            ans = (int)lastNatY;
+                            done = true;
+                        }
+                        compus[0].input.Add(nat[0]);
+                        compus[0].input.Add(nat[1]);
+                        lastNatY = nat[1];
+                        //Console.WriteLine("NAT sent y = {0}", lastNatY);
+                        if (!lastNatYSet)
+                            lastNatYSet = true;
+                        nat.Clear();
+                    }
+                }
+                sent = 0;
+            }
+            return ans;
         }
 
         static Object PartA()
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
-            long a = RunDroid(c0, springScriptA);
+            int a = RunNetworkA(c0);
             Console.WriteLine("Part A: Result is {0}", a);
             return a;
         }
@@ -177,7 +246,7 @@ namespace day21
         {
             List<long> input = ReadInput();
             IntComputer c0 = new IntComputer(input, 0);
-            long b = RunDroid(c0, springScriptB);
+            int b = RunNetworkB(c0);
             Console.WriteLine("Part B: Result is {0}", b);
             return b;
         }
@@ -191,8 +260,8 @@ namespace day21
 
         public static bool MainTest()
         {
-            long a = 19358870;
-            long b = 1143356492;
+            int a = 19937;
+            int b = 13758;
             return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }

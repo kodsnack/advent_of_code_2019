@@ -28,19 +28,19 @@ namespace dayXX
             return list;
         }
 
-        static bool PartA(Object correctAnswer = null)
+        static Object PartA()
         {
             List<int> input = ReadInput();
             int ans = 0;
             Console.WriteLine("Part A: Result is {0}", ans);
-            return correctAnswer == null || ans == (int)correctAnswer;
+            return ans;
         }
 
-        static bool PartB(Object correctAnswer = null)
+        static Object PartB()
         {
             int ans = 0;
             Console.WriteLine("Part B: Result is {0}", ans);
-            return correctAnswer == null || ans == (int)correctAnswer;
+            return ans;
         }
 
         static void Main(string[] args)
@@ -54,7 +54,7 @@ namespace dayXX
         {
             int a = 42;
             int b = 4711;
-            return PartA(a) && PartB(b);
+            return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
 }
