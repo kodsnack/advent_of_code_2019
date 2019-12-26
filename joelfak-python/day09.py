@@ -65,6 +65,19 @@ class IncodeComputer:
         self.printIfVerbose("Position mode")
         return self.readMemory(self.readMemory(self.p+pointerOffset))
 
+    def putParameter(self, pointerOffset, parameterModes, value):
+        if len(parameterModes) > 0:
+            paramMode = parameterModes.popleft()
+            self.printIfVerbose("paramMode: {}".format(paramMode))
+            if paramMode == 1: # Immediate mode
+                raise Exception('Immediate mode is no allowed for writing')
+            if paramMode == 2: # Relative mode
+                self.printIfVerbose("Relative mode")
+                self.writeMemory(self.relativeBase + self.readMemory(self.p+pointerOffset), value)
+        # Position mode
+        self.printIfVerbose("Position mode")
+        self.writeMemory(self.readMemory(self.p+pointerOffset), value)
+
     def increaseProgramPointer(self, steps):
         self.p += steps
 
@@ -87,13 +100,16 @@ class IncodeComputer:
                 self.printInstruction("Addition, parameters: {}, {}, {}", 3)
                 param1 = self.getParameter(1, oc.parameterModes)
                 param2 = self.getParameter(2, oc.parameterModes)
-                self.writeMemory(self.readMemory(self.p+3), param1 + param2)
-                self.printIfVerbose("Add: {} + {} = {}".format(param1, param2, param1+param2))
+                self.printIfVerbose("Add: {} + {} = {}".format(param1, param2, param1 + param2))
+                self.putParameter(3, oc.parameterModes, param1 + param2)
                 self.increaseProgramPointer(4)
 
             elif oc.opcode == 2: # Multiplication
                 self.printInstruction("Multiplication, parameters: {}, {}, {}", 3)
-                self.writeMemory(self.readMemory(self.p+3), self.getParameter(1, oc.parameterModes) * self.getParameter(2, oc.parameterModes))
+                param1 = self.getParameter(1, oc.parameterModes)
+                param2 = self.getParameter(2, oc.parameterModes)
+                self.printIfVerbose("Multiply: {} + {} = {}".format(param1, param2, param1 * param2))
+                self.putParameter(3, oc.parameterModes, param1 * param2)
                 self.increaseProgramPointer(4)
 
             elif oc.opcode == 3: # Read input
@@ -103,7 +119,7 @@ class IncodeComputer:
                     self.printIfVerbose("{} waiting for input".format(self.name))
                     break
                 self.printIfVerbose("{} reading input {}".format(self.name, input[0]))
-                self.writeMemory(self.readMemory(self.p+1), input.pop(0))
+                self.putParameter(1, oc.parameterModes, input.pop(0))
                 self.increaseProgramPointer(2)
 
             elif oc.opcode == 4: # Write output
@@ -129,17 +145,17 @@ class IncodeComputer:
             elif oc.opcode == 7: # Less than
                 self.printInstruction("Less than, parameters: {}, {}, {}", 3)
                 if self.getParameter(1, oc.parameterModes) < self.getParameter(2, oc.parameterModes):
-                    self.writeMemory(self.readMemory(self.p+3), 1)
+                    self.putParameter(3, oc.parameterModes, 1)
                 else:
-                    self.writeMemory(self.readMemory(self.p+3), 0)
+                    self.putParameter(3, oc.parameterModes, 0)
                 self.increaseProgramPointer(4)
 
             elif oc.opcode == 8: # Equals
                 self.printInstruction("Equals, parameters: {}, {}, {}", 3)
                 if self.getParameter(1, oc.parameterModes) == self.getParameter(2, oc.parameterModes):
-                    self.writeMemory(self.readMemory(self.p+3), 1)
+                    self.putParameter(3, oc.parameterModes, 1)
                 else:
-                    self.writeMemory(self.readMemory(self.p+3), 0)
+                    self.putParameter(3, oc.parameterModes, 0)
                 self.increaseProgramPointer(4)
 
             elif oc.opcode == 9: # Move relative base
@@ -163,7 +179,7 @@ def part1(program):
     return IncodeComputer(program).runUntilHalt([1]).output
 
 def part2(program):
-    return findBestAmplifierPhaseSettings(program, range(5,10))[1]
+    return IncodeComputer(program).runUntilHalt([2]).output
 
 ## Unit tests ########################################################
 
@@ -279,4 +295,4 @@ if __name__ == '__main__':
 
     print("Advent of code day 9")
     print("Part1 result: {}".format(part1(getCommaSeparatedIntsFromFile(sys.argv[1]))))
-    # print("Part2 result: {}".format(part2(getCommaSeparatedIntsFromFile(sys.argv[1]))))
+    print("Part2 result: {}".format(part2(getCommaSeparatedIntsFromFile(sys.argv[1]))))
