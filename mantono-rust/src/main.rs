@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+#[macro_use] extern crate maplit;
 
 mod lib;
 
@@ -8,6 +9,7 @@ const HEIGHT: u8 = 6;
 fn main() {
     let result: u32 = lib::spif::parse_pixels(vector(8), WIDTH, HEIGHT);
     println!("{}", result);
+    lib::spif::render_image(vector(8), WIDTH, HEIGHT);
 }
 
 fn vector<'a>(day: u8) -> Vec<u32> {

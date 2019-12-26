@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 itertools = "0.8"
+maplit = "1.0.2"
