@@ -128,8 +128,10 @@ namespace day25
             return list;
         }
 
-        static void LogInput(string s)
+        static void LogInput(string s, bool log)
         {
+            if (!log)
+                return;
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\directions.txt");
             using (StreamWriter writer = new StreamWriter(new FileStream(path, FileMode.Append)))
             {
@@ -138,8 +140,10 @@ namespace day25
             }
         }
 
-        static void LogAll(string s)
+        static void LogAll(string s, bool log)
         {
+            if (!log)
+                return;
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\" + nsname + "\\full_log.txt");
             using (StreamWriter writer = new StreamWriter(new FileStream(path, FileMode.Append)))
             {
@@ -147,7 +151,7 @@ namespace day25
             }
         }
 
-        static int SolveTextAdventure(IntComputer ic, List<string> directions)
+        static int SolveTextAdventure(IntComputer ic, List<string> directions, bool log)
         {
             string cmd = "Command?";
             string input = "";
@@ -156,7 +160,7 @@ namespace day25
             int ret = 0;
             int i = 0;
             int row = 0;
-            LogAll("\n=============================================== NEW SESSION =========\n\n");
+            LogAll("\n============================= NEW SESSION =============================\n\n", log);
             do
             {
                 if (i < input.Length)
@@ -172,7 +176,7 @@ namespace day25
                     if (c == '\n')
                     {
                         Console.WriteLine(output);
-                        LogAll(output + '\n');
+                        LogAll(output + '\n', log);
                         if (output == cmd)
                         {
                             if (row < directions.Count)
@@ -183,8 +187,8 @@ namespace day25
                             }
                             else
                                 input = Console.ReadLine() + '\n';
-                            LogInput(input);
-                            LogAll(input);
+                            LogInput(input, log);
+                            LogAll(input, log);
                             i = 0;
                         }
                         if (output.Length > 0)
@@ -247,7 +251,7 @@ namespace day25
             List<string> takeCmds = apparentlyCorrectInventories.Select(w => "take " + w).ToList();
             List<List<string>> combos = new List<List<string>>() { takeCmds };
             directions.AddRange(TryInventories(combos));
-            int ans = SolveTextAdventure(c0, directions);
+            int ans = SolveTextAdventure(c0, directions, false);
             Console.WriteLine("Part A: Result is {0}", ans);
             return ans;
         }
