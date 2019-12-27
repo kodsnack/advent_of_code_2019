@@ -111,44 +111,35 @@ namespace day22
             return ans;
         }
 
-        static long DeshuffleLargeDeck(List<string> techniques, long deckPosition)
+        // f(x) = (ax + b) mod m
+        static void DeshuffleLargeDeck(List<string> techniques, long m, ref long a, ref long b)
         {
-            long pos = deckPosition;
             foreach (string s in techniques)
             {
                 string[] v = s.Split(' ').ToArray();
                 if (v[1] == "into")
                 {
-                    pos = cardsB - 1 - pos;
+                    a = -a;
+                    b = m - b - 1;
                 }
                 else if (v[1] == "with")
                 {
                     int n = int.Parse(v[3]);
                     checked
                     {
-                        BigInteger bip = new BigInteger(pos);
-                        BigInteger bim = new BigInteger(ModInverse(n, cardsB));
-                        pos = (long) ((bip * bim) % new BigInteger(cardsB));
+                        BigInteger mw = new BigInteger(m);
+                        BigInteger mwi = new BigInteger(ModInverse(n, m));
+                        a = (long)((a * mwi) % mw);
+                        b = (long)((b * mwi) % mw);
                     }
                 }
                 else if (v[0] == "cut")
                 {
                     int n = int.Parse(v[1]);
-                    if (n > 0)
-                    {
-                        long k = cardsB - n;
-                        pos = (pos >= k) ? pos - k : pos + n;
-                    }
-                    else if (n < 0)
-                    {
-                        long ni = -n;
-                        long k = cardsB - ni;
-                        pos = (pos < ni) ? pos + k : pos - ni;
-                    }
+                    b = (b + n) % m;
                 }
                 else throw new ArgumentOutOfRangeException();
             }
-            return pos;
         }
 
         static long ModInverse(long a, long m)
@@ -156,7 +147,6 @@ namespace day22
             if (m == 1) return 0;
             long m0 = m;
             (long x, long y) = (1, 0);
-
             while (a > 1)
             {
                 long q = a / m;
@@ -166,39 +156,89 @@ namespace day22
             return x < 0 ? x + m0 : x;
         }
 
-        const long cardsB = 119315717514047;
+        // Createst Common Factor i.e. Createst Common Divisor (GCD)
+        public static long GCF(long a, long b)
+        {
+            while (b != 0)
+            {
+                long temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        static bool TestModRoundtrip(int a, int b, int m, bool print = false)
+        {
+            // f(x) = (ax + b) % m
+            // f'(y) = ((y + m - b) * ModInverse(a, m)) % m
+            // f'(f(x)) = x
+            bool ok = true;
+            for (int x = 0; x < m; x++)
+            {
+                int fx = ((a * x) + b) % m;
+                int fy = ((fx + m - b) * (int)ModInverse(a, m)) % m;
+                ok &= x == fy;
+                if (print)
+                {
+                    Console.WriteLine(
+                        "f(x) = (({0} * {1,2}) + {2}) % {3} = {4,2}. " +
+                        "f'(y) = (({4,2} + {3} - {2}) * ModInv({0}, {3}) % {3} = {5,2}. " +
+                        "[{1,2} == {5,2} ? {6}]",
+                        a, x, b, m, fx, fy, (fy == x ? "ok" : "FAIL"));
+                }
+            }
+            return ok;
+        }
+
+        static void TestModInverse(int mMax, bool print)
+        {
+            //TestModRoundtrip(13, 7, 23, print);
+            bool ok = true;
+            for (int m = 2; m < mMax; m++)
+            {
+                for (int a = 1; a < m; a++)
+                {
+                    if (GCF(a, m) == 1)
+                        for (int b = 0; b < m; b++)
+                            ok &= TestModRoundtrip(a, b, m);
+                }
+            }
+            if (print)
+                Console.WriteLine("TestModInverse: {0}", ok ? "Passed" : "FAILED");
+        }
+
+        static long Normalize(long a, long m)
+        {
+            return (a + m) % m;
+        }
+
+        static (long, long) CalculateModularExponentiation(long a, long b, long e, long m)
+        {
+            long an = (long)BigInteger.ModPow(a, e, m);
+            BigInteger bw = new BigInteger(b);
+            long bn = (long)((bw * (1 - an) * ModInverse(Normalize(1 - a, m), m)) % m);
+            return (Normalize(an, m), Normalize(bn, m));
+        }
 
         static Object PartB()
         {
-            //int c = 19;
-            //int b = 3;
-            //for (int a = 0; a < c; a++)
-            //{
-            //    int x = (a * b) % c;
-            //    int y = ((int)ModInverse(b, c) * x) % c;
-            //    Console.WriteLine(
-            //        "{0,3} * {1} % {2} == {3,3}. {4,3} {5}",
-            //        a, b, c, x, y, (y == a ? "ok" : "FAIL"));
-            //}
+            // f(x) = (ax + b) % m
+            // f'(y) = (y * ModInverse(b, m)) % m
+            //TestModInverse(50, true);
+            const long cardsB = 119315717514047;
             const long iter = 101741582076661;
             List<string> input = ReadInput();
             List<string> flipped = new List<string>(input);
             flipped.Reverse();
             const long deckPosition = 2020;
-            HashSet<long> visited = new HashSet<long>();
-            long pos = deckPosition;
-            long i = 0;
-            while (!visited.Contains(pos))
-            {
-                visited.Add(pos);
-                //Console.WriteLine("{0}", pos);
-                pos = DeshuffleLargeDeck(flipped, pos);
-                i++;
-                if (i % 100000 == 0)
-                    Console.Write(".");
-            }
-            Console.WriteLine();
-            long ans = i;
+            long a = 1;
+            long b = 0;
+            DeshuffleLargeDeck(flipped, cardsB, ref a, ref b);
+            //DeshuffleLargeDeck(flipped, cardsA, ref a, ref b);
+            //long test = (a * 8502 + b) % cardsA + cardsA;
+            (long an, long bn) = CalculateModularExponentiation(a, b, iter, cardsB);
+            long ans = Normalize(((an * deckPosition) + bn), cardsB);
             Console.WriteLine("Part B: Result is {0}", ans);
             return ans;
         }
@@ -212,8 +252,8 @@ namespace day22
 
         public static bool MainTest()
         {
-            int a = 42;
-            long b = 4711;
+            int a = 8502;
+            long b = 41685581334351;
             return (PartA().Equals(a)) && (PartB().Equals(b));
         }
     }
