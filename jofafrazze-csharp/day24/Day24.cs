@@ -75,6 +75,75 @@ namespace day24
             return list;
         }
 
+        // --- Part A, Bits version
+        static OurMap BuildMap(int rating)
+        {
+            OurMap m = new OurMap();
+            for (int y = 0; y < 5; y++)
+            {
+                for (int x = 0; x < 5; x++)
+                {
+                    char c = RatingHasBug(rating, x, y) ? '#' : '.';
+                    m.mapPos[new Position(x, y, 0)] = c;
+                }
+            }
+            return m;
+        }
+
+        static int BuildRating(List<string> list)
+        {
+            int w = list[0].Length;
+            int h = list.Count;
+            int i = 0;
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    i <<= 1;
+                    if (list[h - 1 - y][w - 1 - x] == '#')
+                        i |= 1;
+                }
+            }
+            return i;
+        }
+
+        static bool RatingHasBug(int r, int x, int y)
+        {
+            return (r & (1 << (x + y * 5))) > 0;
+        }
+
+        static int CalculateRatingNeighbours(int r, int x, int y)
+        {
+            int n = 0;
+            if (y > 0 && RatingHasBug(r, x, y - 1))
+                n++;
+            if (x > 0 && RatingHasBug(r, x - 1, y))
+                n++;
+            if (x < 4 && RatingHasBug(r, x + 1, y))
+                n++;
+            if (y < 4 && RatingHasBug(r, x, y + 1))
+                n++;
+            return n;
+        }
+
+        static int IterateRating(int rating)
+        {
+            int newRating = rating;
+            for (int y = 0; y < 5; y++)
+            {
+                for (int x = 0; x < 5; x++)
+                {
+                    int n = CalculateRatingNeighbours(rating, x, y);
+                    if (n != 1 && RatingHasBug(rating, x, y))
+                        newRating &= ~(1 << (x + 5 * y));
+                    if ((n == 1 || n == 2) && !RatingHasBug(rating, x, y))
+                        newRating |= (1 << (x + 5 * y));
+                }
+            }
+            return newRating;
+        }
+
+        // --- Part A
         static OurMap BuildMap(List<string> list)
         {
             int w = list[0].Length;
@@ -217,6 +286,23 @@ namespace day24
             return rating;
         }
 
+        static Object PartABits()
+        {
+            List<string> input = ReadInput();
+            HashSet<int> visited = new HashSet<int>();
+            int rating = BuildRating(input);
+            while (!visited.Contains(rating))
+            {
+                visited.Add(rating);
+                //OurMap m = BuildMap(rating);
+                //m.PrintMap();
+                //Console.WriteLine();
+                rating = IterateRating(rating);
+            }
+            Console.WriteLine("Part A': Result is {0}", rating);
+            return rating;
+        }
+
         static Object PartB()
         {
             List<string> input = ReadInput();
@@ -241,6 +327,7 @@ namespace day24
         {
             Console.WriteLine("AoC 2019 - " + nsname + ":");
             PartA();
+            PartABits();
             PartB();
         }
 
@@ -248,7 +335,7 @@ namespace day24
         {
             int a = 17863741;
             int b = 2029;
-            return (PartA().Equals(a)) && (PartB().Equals(b));
+            return PartA().Equals(a) && PartABits().Equals(a) && PartB().Equals(b);
         }
     }
 }
