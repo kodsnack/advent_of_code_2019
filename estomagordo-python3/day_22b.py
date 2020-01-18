@@ -26,7 +26,7 @@ def run(instructions, size, position):
             position = size - position - 1
         elif instruction[0] == 'deal':
             increment = int(instruction[-1])
-            position = increment * orig#deal_with_increment(position, size, increment)
+            deal_with_increment(position, size, increment)#position = increment * orig
         else:
             amount = int(instruction[-1])
             position = (position + amount) % size
@@ -41,6 +41,7 @@ def solve(instructions, size, times, position):
 def read_and_solve():
     with open('input_22.txt') as f:
         data = [line.split() for line in f]
+        print(solve(data, 10007, 1, 2019))
         return solve(data, 119315717514047 , 101741582076661, 2020)
 
 if __name__ == '__main__':
