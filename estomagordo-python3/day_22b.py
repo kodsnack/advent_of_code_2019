@@ -20,12 +20,13 @@ def deal_with_increment(num, size, increment):
 
 
 def run(instructions, size, position):
+    orig = position
     for instruction in instructions[::-1]:
         if instruction[-1] == 'stack':
             position = size - position - 1
         elif instruction[0] == 'deal':
             increment = int(instruction[-1])
-            position = deal_with_increment(position, size, increment)
+            position = increment * orig#deal_with_increment(position, size, increment)
         else:
             amount = int(instruction[-1])
             position = (position + amount) % size

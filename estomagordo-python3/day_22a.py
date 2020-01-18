@@ -33,12 +33,11 @@ def solve(instructions, size):
     for i, card in enumerate(deck):
         if card == 2019:
             return i
-    
-
+    return deck
 def read_and_solve():
     with open('input_22.txt') as f:
         data = [line.split() for line in f]
-        return solve(data, 10007)
+        return solve(data, 10)
 
 if __name__ == '__main__':
     print(read_and_solve())
