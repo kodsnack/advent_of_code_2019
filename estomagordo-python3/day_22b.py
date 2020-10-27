@@ -62,27 +62,88 @@ def run(instructions, size, position):
 
 
 def solve(instructions, size, times, position):
-    from collections import Counter
-    c = Counter()
-    for _ in range(times):
-        position = run(instructions, size, position)
-        c[position] += 1
-    return [val for val in c if c[val] > 1]
+    return run(instructions, size, position)
+
+
+def reduce_instructions(instructions, size):
+    from heapq import heappop, heappush
+
+    t = tuple([tuple(line) for line in instructions])
+    seen = {t}
+    frontier = [(len(instructions), t)]
+    smallest = len(instructions)
+    count = 0
+
+    while frontier:
+        n, state = heappop(frontier)
+        count += 1
+
+        if count % 100000 == 0:
+            print(count, len(frontier))
+
+        if n < smallest:
+            smallest = n
+            print(n, len(frontier), count)
+            if n == 1:
+                return state
+
+        if n < 3:
+            print(state)
+
+        for x in range(1, n):
+            if state[x][0] == 'cut':
+                if state[x-1][0] == 'cut':
+                    l = [list(line) for line in state]
+                    l[x][-1] = str((int(l[x-1][-1]) + int(l[x][-1])) % size)
+                    newstate = tuple([tuple(line) for line in l[:x-1] + l[x:]])
+                    if newstate not in seen:
+                        heappush(frontier, (len(newstate), newstate))
+                elif state[x-1][1] == 'into':
+                    l = [list(line) for line in state]
+                    l[x-1], l[x] = l[x], l[x-1]
+                    l[x-1][-1] = str((size - int(l[x-1][-1])) % size)
+                    newstate = tuple([tuple(line) for line in l])
+                    if newstate not in seen:
+                        heappush(frontier, (len(newstate), newstate))
+            elif state[x][1] == 'into':
+                if state[x-1][1] == 'into':
+                    newstate = tuple([tuple(line) for line in l[:x-1] + l[x+1:]])
+                    if newstate not in seen:
+                        heappush(frontier, (len(newstate), newstate))
+                # elif state[x-1][0] == 'cut':
+                #     l = [list(line) for line in state]
+                #     l[x-1], l[x] = l[x], l[x-1]
+                #     l[x][-1] = str((size - int(l[x][-1])))
+                #     newstate = tuple([tuple(line) for line in l[:x-1] + l[x:]])
+                #     if newstate not in seen:
+                #         heappush(frontier, (len(newstate), newstate))
+            elif state[x][1] == 'with':
+                if state[x-1][1] == 'with':
+                    l = [list(line) for line in state]
+                    l[x][-1] = str((int(l[x][-1]) * int(l[x-1][-1])) % size)
+                    newstate = tuple([tuple(line) for line in l[:x-1] + l[x:]])
+                    if newstate not in seen:
+                        heappush(frontier, (len(newstate), newstate))
+                elif state[x-1][0] == 'cut':
+                    l = [list(line) for line in state]
+                    l[x-1], l[x] = l[x], l[x-1]
+                    l[x][-1] = str((int(l[x][-1]) * int(l[x-1][-1])) % size)
+                    newstate = tuple([tuple(line) for line in l])
+                    if newstate not in seen:
+                        heappush(frontier, (len(newstate), newstate))
+
+    return len(min(seen))
     
 
 def read_and_solve():
     with open('input_22.txt') as f:
         data = [line.split() for line in f]
-        # print(solve(data, 10, 1, 3))
-        # print(solve(data, 10007, 1, 2019))
-        # print(solve(data, 10007, 1, 6326))
-        # from random import shuffle
-        # l = list(data)
-        # shuffle(l)
-        # print(solve(l, 119315717514047, 1, 2020))
-        # print(119315717514047)
-        return solve(data, 119315717514047, 30000, 2020)
-        # return solve(data, 119315717514047, 101741582076661, 2020)
+
+        # return reduce_instructions(data, 119315717514047)
+        # return reduce_instructions(data, 10007)
+
+        # print(solve(data, 119315717514047, 1, 2020))
+        print(solve(data, 10007, 1, 6326))
 
 if __name__ == '__main__':
     print(read_and_solve())
