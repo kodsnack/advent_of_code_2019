@@ -52,11 +52,13 @@ def run(instructions, size, position):
         elif instruction[0] == 'deal':
             increment = int(instruction[-1])
             # position = modsolver(increment, position, size)
-            position = shuffler(increment, position, size)
-            # deal_with_increment(position, size, increment)#position = increment * orig
+            # position = shuffler(increment, position, size)
+            # deal_with_increment(position, size, increment)
+            position = (position * increment) % size
         else:
             amount = int(instruction[-1])
-            position = (position + amount) % size
+            # position = (position + amount) % size
+            position = (position - amount) % size
 
     return position
 
@@ -67,6 +69,21 @@ def solve(instructions, size, times, position):
 
 def reduce_instructions(instructions, size):
     from heapq import heappop, heappush
+
+    while True:
+        into_index = -1
+
+        for x, instruction in enumerate(instructions):
+            if instruction[1] == 'into':
+                into_index = x
+                break
+
+        if into_index == -1:
+            break
+
+        insert = [['deal', 'with', 'increment', str(size - 1)], ['cut', '1']]
+
+        instructions = instructions[:x] + insert + instructions[x+1:]       
 
     t = tuple([tuple(line) for line in instructions])
     seen = {t}
@@ -79,7 +96,7 @@ def reduce_instructions(instructions, size):
         count += 1
 
         if count % 100000 == 0:
-            print(count, len(frontier))
+            print(count, n, smallest, len(frontier), len(seen))
 
         if n < smallest:
             smallest = n
@@ -97,32 +114,15 @@ def reduce_instructions(instructions, size):
                     l[x][-1] = str((int(l[x-1][-1]) + int(l[x][-1])) % size)
                     newstate = tuple([tuple(line) for line in l[:x-1] + l[x:]])
                     if newstate not in seen:
+                        seen.add(newstate)
                         heappush(frontier, (len(newstate), newstate))
-                elif state[x-1][1] == 'into':
-                    l = [list(line) for line in state]
-                    l[x-1], l[x] = l[x], l[x-1]
-                    l[x-1][-1] = str((size - int(l[x-1][-1])) % size)
-                    newstate = tuple([tuple(line) for line in l])
-                    if newstate not in seen:
-                        heappush(frontier, (len(newstate), newstate))
-            elif state[x][1] == 'into':
-                if state[x-1][1] == 'into':
-                    newstate = tuple([tuple(line) for line in l[:x-1] + l[x+1:]])
-                    if newstate not in seen:
-                        heappush(frontier, (len(newstate), newstate))
-                # elif state[x-1][0] == 'cut':
-                #     l = [list(line) for line in state]
-                #     l[x-1], l[x] = l[x], l[x-1]
-                #     l[x][-1] = str((size - int(l[x][-1])))
-                #     newstate = tuple([tuple(line) for line in l[:x-1] + l[x:]])
-                #     if newstate not in seen:
-                #         heappush(frontier, (len(newstate), newstate))
             elif state[x][1] == 'with':
                 if state[x-1][1] == 'with':
                     l = [list(line) for line in state]
                     l[x][-1] = str((int(l[x][-1]) * int(l[x-1][-1])) % size)
                     newstate = tuple([tuple(line) for line in l[:x-1] + l[x:]])
                     if newstate not in seen:
+                        seen.add(newstate)
                         heappush(frontier, (len(newstate), newstate))
                 elif state[x-1][0] == 'cut':
                     l = [list(line) for line in state]
@@ -130,6 +130,7 @@ def reduce_instructions(instructions, size):
                     l[x][-1] = str((int(l[x][-1]) * int(l[x-1][-1])) % size)
                     newstate = tuple([tuple(line) for line in l])
                     if newstate not in seen:
+                        seen.add(newstate)
                         heappush(frontier, (len(newstate), newstate))
 
     return len(min(seen))
@@ -138,12 +139,16 @@ def reduce_instructions(instructions, size):
 def read_and_solve():
     with open('input_22.txt') as f:
         data = [line.split() for line in f]
-
+        # data = (('deal', 'with', 'increment', '1552'), ('cut', '9871'))
+        # (('deal', 'with', 'increment', '8455'), ('cut', '2384'))
         # return reduce_instructions(data, 119315717514047)
-        # return reduce_instructions(data, 10007)
+        return reduce_instructions(data, 10007)
 
         # print(solve(data, 119315717514047, 1, 2020))
-        print(solve(data, 10007, 1, 6326))
+        # print(solve(data, 10007, 1, 2019))
+
+        # for x in range(10):
+        #     print(solve(data, 10, 1, x), end=' ')
 
 if __name__ == '__main__':
     print(read_and_solve())
