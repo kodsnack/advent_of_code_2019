@@ -1,64 +1,18 @@
 import re
 
 from heapq import heappop, heappush
-from collections import Counter, defaultdict
 from functools import reduce
 
 
-def extended_euclid(a, b):
-    if a == 0 :   
-        return b, 0, 1
-             
-    gcd, x1, y1 = extended_euclid(b % a, a) 
-    
-    x = y1 - (b // a) * x1  
-    y = x1  
-     
-    return gcd, x, y
-
-
-def modsolver(a, b, n):
-    _, xp, _ = extended_euclid(a, b)
-    return (xp * b) % n
-
-
-def deal_with_increment(num, size, increment):
-    used = 0
-    pos = 0
-
-    while True:
-        fits = (size - pos - 1) // increment
-        diff = num - pos
-        
-        if diff >= 0 and diff % increment == 0:
-            return used + diff // increment
-
-        pos = (pos + (fits + 1) * increment) % size
-        used += fits + 1
-
-
-def shuffler(increment, position, size):
-    overshoot = 0
-
-    while (size * overshoot + position) % increment:
-        overshoot += 1
-
-    return (size * overshoot + position) // increment
-
-
 def run(instructions, size, position):
-    for instruction in instructions[::-1]:
+    for instruction in instructions:
         if instruction[-1] == 'stack':
             position = size - position - 1
         elif instruction[0] == 'deal':
             increment = int(instruction[-1])
-            # position = modsolver(increment, position, size)
-            # position = shuffler(increment, position, size)
-            # deal_with_increment(position, size, increment)
             position = (position * increment) % size
         else:
             amount = int(instruction[-1])
-            # position = (position + amount) % size
             position = (position - amount) % size
 
     return position
@@ -122,7 +76,7 @@ def reduce_instructions(instructions, size):
 
 
 def solve(instructions, size, times, position):
-    times = size - times
+    times = size - times - 1
     timesbin = str(bin(times))[2:]
     instructions = reduce_instructions(instructions, size)
     powers = [instructions]
@@ -138,25 +92,11 @@ def solve(instructions, size, times, position):
     
     return run(master_instructions, size, position)
     
-    return timesbin
-    return run(instructions, size, position)
-    
 
 def read_and_solve():
     with open('input_22.txt') as f:
         data = [line.split() for line in f]
-        # return reduce_instructions(data, 10007)
-        # print(solve(data, 10007, 7, 1000))
-        # print(solve(data, 10007, 8, 1000))
-        # print(solve(data, 10007, 9, 1000))
         return solve(data, 119315717514047, 101741582076661, 2020)
 
 if __name__ == '__main__':
     print(read_and_solve())
-
-# print(modsolver(3, 6, 10))
-
-# 102627315445902
-# 107988972293017
-# 78009577690975
-# 73832061268481

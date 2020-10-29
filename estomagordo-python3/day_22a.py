@@ -1,7 +1,6 @@
 import re
 
 from heapq import heappop, heappush
-from collections import Counter, defaultdict
 
 
 def apply(deck, instruction, size):
@@ -33,7 +32,6 @@ def solve(instructions, size):
     for i, card in enumerate(deck):
         if card == 2019:
             return i
-    return deck
 
 
 def read_and_solve():
