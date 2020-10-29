@@ -2,6 +2,7 @@ import re
 
 from heapq import heappop, heappush
 from collections import Counter, defaultdict
+from functools import reduce
 
 
 def extended_euclid(a, b):
@@ -63,10 +64,6 @@ def run(instructions, size, position):
     return position
 
 
-def solve(instructions, size, times, position):
-    return run(instructions, size, position)
-
-
 def reduce_instructions(instructions, size):
     from heapq import heappop, heappush
 
@@ -88,24 +85,12 @@ def reduce_instructions(instructions, size):
     t = tuple([tuple(line) for line in instructions])
     seen = {t}
     frontier = [(len(instructions), t)]
-    smallest = len(instructions)
-    count = 0
 
     while frontier:
         n, state = heappop(frontier)
-        count += 1
-
-        if count % 100000 == 0:
-            print(count, n, smallest, len(frontier), len(seen))
-
-        if n < smallest:
-            smallest = n
-            print(n, len(frontier), count)
-            if n == 1:
-                return state
 
         if n < 3:
-            print(state)
+            return state
 
         for x in range(1, n):
             if state[x][0] == 'cut':
@@ -134,23 +119,44 @@ def reduce_instructions(instructions, size):
                         heappush(frontier, (len(newstate), newstate))
 
     return len(min(seen))
+
+
+def solve(instructions, size, times, position):
+    times = size - times
+    timesbin = str(bin(times))[2:]
+    instructions = reduce_instructions(instructions, size)
+    powers = [instructions]
+    inscount = len(timesbin)
+
+    for _ in range(inscount-1):
+        instructions = reduce_instructions(instructions + instructions, size)
+        powers.append(instructions)
+
+    all_instructions = reduce(lambda a,b: a+b, [powers[x] for x in range(len(powers)) if timesbin[inscount-x-1] == '1'])
+
+    master_instructions = reduce_instructions(all_instructions, size)
+    
+    return run(master_instructions, size, position)
+    
+    return timesbin
+    return run(instructions, size, position)
     
 
 def read_and_solve():
     with open('input_22.txt') as f:
         data = [line.split() for line in f]
-        # data = (('deal', 'with', 'increment', '1552'), ('cut', '9871'))
-        # (('deal', 'with', 'increment', '8455'), ('cut', '2384'))
-        # return reduce_instructions(data, 119315717514047)
-        return reduce_instructions(data, 10007)
-
-        # print(solve(data, 119315717514047, 1, 2020))
-        # print(solve(data, 10007, 1, 2019))
-
-        # for x in range(10):
-        #     print(solve(data, 10, 1, x), end=' ')
+        # return reduce_instructions(data, 10007)
+        # print(solve(data, 10007, 7, 1000))
+        # print(solve(data, 10007, 8, 1000))
+        # print(solve(data, 10007, 9, 1000))
+        return solve(data, 119315717514047, 101741582076661, 2020)
 
 if __name__ == '__main__':
     print(read_and_solve())
 
 # print(modsolver(3, 6, 10))
+
+# 102627315445902
+# 107988972293017
+# 78009577690975
+# 73832061268481

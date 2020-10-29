@@ -29,7 +29,7 @@ def solve(instructions, size):
 
     for instruction in instructions:
         deck = apply(deck, instruction, size)
-        
+    
     for i, card in enumerate(deck):
         if card == 2019:
             return i
