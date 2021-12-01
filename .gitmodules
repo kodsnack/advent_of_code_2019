@@ -35,3 +35,6 @@
 [submodule "hillerstorm-v"]
 	path = hillerstorm-v
 	url = https://github.com/hillerstorm/advent-of-code-2019
+[submodule "LinAGKar-rust"]
+	path = LinAGKar-rust
+	url = https://github.com/LinAGKar/advent-of-code-2019-rust.git
