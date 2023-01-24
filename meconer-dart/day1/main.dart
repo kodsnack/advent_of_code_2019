@@ -17,10 +17,6 @@ Future<void> main(List<String> args) async {
 
 int calcResultP1(List<String> inputLines) {
   int sum = 0;
-  print(calc(12));
-  print(calc(14));
-  print(calc(1969));
-  print(calc(100756));
   for (final line in inputLines) {
     sum += calc(int.parse(line));
   }
@@ -29,10 +25,7 @@ int calcResultP1(List<String> inputLines) {
 
 int calcResultP2(List<String> inputLines) {
   int sum = 0;
-  print(calcP2(14));
-  print(calcP2(12));
-  print(calcP2(1969));
-  print(calcP2(100756));
+
   for (final line in inputLines) {
     sum += calcP2(int.parse(line));
   }
