@@ -190,19 +190,3 @@ class Ray {
     return 0;
   }
 }
-
-int findGcd(int n1, int n2) {
-  if (n1 == n2) return n1;
-  int larger = n1.abs();
-  int smaller = n2.abs();
-  if (larger < smaller) {
-    larger = n2.abs();
-    smaller = n1.abs();
-  }
-  while (smaller != 0) {
-    int temp = smaller;
-    smaller = larger % smaller;
-    larger = temp;
-  }
-  return larger;
-}
