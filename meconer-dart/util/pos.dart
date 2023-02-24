@@ -55,4 +55,8 @@ class Pos {
     int yDist = (pos.y - y).abs();
     return xDist + yDist;
   }
+
+  List<Pos> getNeighbours() {
+    return [moveUp(), moveDown(), moveLeft(), moveRight()];
+  }
 }

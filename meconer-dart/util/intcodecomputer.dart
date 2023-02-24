@@ -235,17 +235,29 @@ class IntCodeComputer {
   List<int> inputQueue = [];
   List<int> outputQueue = [];
   bool halted = false;
-  int inputValue = 0;
   int executionPtr = 0;
   int relativeBase = 0;
 
   IntCodeComputer(String init) {
-    List<int> memoryInitList =
-        init.split(',').map((e) => int.parse(e)).toList();
-    for (int i = 0; i < memoryInitList.length; i++) {
-      memory[i] = memoryInitList[i];
+    if (init.isNotEmpty) {
+      List<int> memoryInitList =
+          init.split(',').map((e) => int.parse(e)).toList();
+      for (int i = 0; i < memoryInitList.length; i++) {
+        memory[i] = memoryInitList[i];
+      }
     }
     executionPtr = 0;
+  }
+
+  factory IntCodeComputer.from(IntCodeComputer computer) {
+    IntCodeComputer newComputer = IntCodeComputer('');
+    newComputer.memory = Map<int, int>.from(computer.memory);
+    newComputer.inputQueue = List<int>.from(computer.inputQueue);
+    newComputer.outputQueue = List<int>.from(computer.outputQueue);
+    newComputer.halted = computer.halted;
+    newComputer.executionPtr = computer.executionPtr;
+    newComputer.relativeBase = computer.relativeBase;
+    return newComputer;
   }
 
   OpCode selectOp(int instruction) {
