@@ -311,4 +311,11 @@ class IntCodeComputer {
     }
     return halted;
   }
+
+  void addTextInput(String s) {
+    s.codeUnits.forEach((element) {
+      inputQueue.add(element);
+    });
+    inputQueue.add(10);
+  }
 }
