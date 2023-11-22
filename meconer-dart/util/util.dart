@@ -14,6 +14,12 @@ const int veryLargeNumber = 99999999999999;
 
 bool isDigit(String s, int idx) => (s.codeUnitAt(idx) ^ 0x30) <= 9;
 
+bool isAlpha(String? s) {
+  if (s == null) return false;
+  RegExp _alpha = new RegExp(r'^[a-zA-Z]+$');
+  return _alpha.hasMatch(s);
+}
+
 // From Wikipedia, Heaps algorithm
 List<List<int>> getPermutations(List<int> startList) {
   List<List<int>> perms = [];

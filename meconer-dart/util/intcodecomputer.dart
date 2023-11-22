@@ -318,4 +318,8 @@ class IntCodeComputer {
     });
     inputQueue.add(10);
   }
+
+  void addInput(int n) {
+    inputQueue.add(n);
+  }
 }
